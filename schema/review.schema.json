@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tandem.dev/schema/review.schema.json",
+  "title": "Tandem review.json",
+  "type": "object",
+  "required": ["meta", "overview", "glossary", "files", "chapters", "units", "filesrc", "newfiles"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["repo", "pr", "title", "mode", "root", "base", "head"],
+      "additionalProperties": false,
+      "properties": {
+        "repo": {"type": "string"},
+        "pr": {"type": "integer"},
+        "title": {"$ref": "#/$defs/T"},
+        "mode": {"enum": ["self", "pr"]},
+        "root": {"type": "string"},
+        "base": {"type": "string"},
+        "head": {"type": "string"}
+      }
+    },
+    "overview": {
+      "type": "object",
+      "required": ["verdict", "bg", "bgLong", "depthWhy", "design", "cover", "decide"],
+      "additionalProperties": false,
+      "properties": {
+        "verdict": {"$ref": "#/$defs/T"},
+        "bg": {"$ref": "#/$defs/T"},
+        "bgLong": {"$ref": "#/$defs/T"},
+        "depthWhy": {"$ref": "#/$defs/T"},
+        "design": {"type": "array", "items": {"$ref": "#/$defs/T"}},
+        "cover": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "prefixItems": [
+              {"enum": ["✓", "✗", "!"]},
+              {"$ref": "#/$defs/T"}
+            ]
+          }
+        },
+        "decide": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "prefixItems": [
+              {"$ref": "#/$defs/T"},
+              {"$ref": "#/$defs/T"},
+              {"$ref": "#/$defs/T"},
+              {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "prefixItems": [
+                  {"type": "string"},
+                  {"type": "integer"}
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "glossary": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "prefixItems": [
+          {"type": "string"},
+          {"$ref": "#/$defs/T"}
+        ]
+      }
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "a", "d", "st", "tier", "what"],
+        "additionalProperties": false,
+        "properties": {
+          "path": {"type": "string"},
+          "a": {"type": "integer"},
+          "d": {"type": "integer"},
+          "st": {"enum": ["new", "mod"]},
+          "tier": {"enum": [1, 2, 3, 4, 5]},
+          "what": {"$ref": "#/$defs/T"}
+        }
+      }
+    },
+    "chapters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["n", "sub", "items"],
+        "additionalProperties": false,
+        "properties": {
+          "n": {"$ref": "#/$defs/T"},
+          "sub": {"$ref": "#/$defs/T"},
+          "items": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "units": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "tier", "name", "file", "sig", "hunk", "lines", "why", "gist", "notes", "callers", "callees", "chains"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string"},
+          "tier": {"type": "integer"},
+          "name": {"type": "string"},
+          "file": {"type": "string"},
+          "sig": {"type": "integer"},
+          "hunk": {
+            "type": "object",
+            "required": ["oldStart", "newStart"],
+            "additionalProperties": false,
+            "properties": {
+              "oldStart": {"type": "integer"},
+              "newStart": {"type": "integer"}
+            }
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "prefixItems": [
+                {"enum": ["+", "-", " "]},
+                {"type": "string"}
+              ]
+            }
+          },
+          "why": {"$ref": "#/$defs/T"},
+          "gist": {"$ref": "#/$defs/T"},
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "prefixItems": [
+                {"type": "integer"},
+                {"type": "integer"},
+                {"type": "string"},
+                {"type": "string"}
+              ]
+            }
+          },
+          "callers": {"type": "array", "items": {"$ref": "#/$defs/node"}},
+          "callees": {"type": "array", "items": {"$ref": "#/$defs/node"}},
+          "chains": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {"$ref": "#/$defs/chainItem"}
+            }
+          }
+        }
+      }
+    },
+    "filesrc": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {"type": "string"}
+      }
+    },
+    "newfiles": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  },
+  "$defs": {
+    "T": {
+      "type": "object",
+      "required": ["en", "zh"],
+      "additionalProperties": false,
+      "properties": {
+        "en": {"type": "string"},
+        "zh": {"type": "string"}
+      }
+    },
+    "node": {
+      "type": "object",
+      "required": ["name", "file", "line"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string"},
+        "file": {"type": "string"},
+        "line": {"type": "integer"},
+        "key": {"type": "boolean"},
+        "pr": {"type": "string"}
+      }
+    },
+    "chainItem": {
+      "type": ["object", "string"],
+      "required": ["name", "file", "line"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string"},
+        "file": {"type": "string"},
+        "line": {"type": "integer"},
+        "key": {"type": "boolean"},
+        "pr": {"type": "string"}
+      }
+    }
+  }
+}

@@ -32,21 +32,51 @@ DeepSeek and others.
 
 The interface is in English or Chinese; switch in the top right corner.
 
-## Status
+## Install
 
-Design stage. The clickable prototypes in [`prototypes/`](prototypes/) use a real TiDB pull
-request as sample data. Open `prototypes/app.html` from a local static server.
+Requirements: Python 3.9 or newer. `gh` (GitHub CLI, logged in) only for posting to pull requests.
 
-Planned for v1:
+```bash
+git clone https://github.com/hhwyt/tandem-review.git
+export PATH="$PWD/tandem-review/bin:$PATH"
+```
 
-- `review.json`: the schema the agent writes (overview, chapters, functions, notes, call
-  hierarchy, both languages).
-- A local server using only the Python standard library, bound to 127.0.0.1 with a per-session
-  token, that serves the page and saves comments as they are written.
-- `tandem wait`: blocks until the reviewer sends comments, prints them as Markdown for the agent,
-  and also writes `comments-round-N.md`.
-- An agent skill that describes how to prepare a review, start the page, apply comments and begin
-  the next round.
+Give your agent the skill:
+
+- **Claude Code**: `ln -s "$PWD/tandem-review/skill" ~/.claude/skills/tandem-review`
+- **Codex and others**: point the agent at `skill/SKILL.md`, or paste it into its instructions.
+
+## Use
+
+Ask your agent: *"Review my change in Tandem"* or *"Review pingcap/tidb#123 in Tandem"*. The agent
+then:
+
+1. runs `tandem preflight`, writes `review.json` (see [docs/review-json.md](docs/review-json.md)),
+2. starts the page with `tandem serve --review <dir> --open`,
+3. waits with `tandem wait --review <dir>` while you read and comment,
+4. applies your comments and runs `tandem publish` (your own change), or posts them to the pull
+   request with `tandem post-github ... --yes` after you confirm (someone else's).
+
+The page keeps your settings (language, theme, editor, notes) in `~/.config/tandem/prefs.json` and
+your progress in the review directory. It binds to 127.0.0.1 only and every request carries a
+per-session token.
+
+Try it without an agent:
+
+```bash
+mkdir -p /tmp/tandem-demo && cp examples/pr-73235/review.json /tmp/tandem-demo/
+tandem serve --review /tmp/tandem-demo --open
+```
+
+## Development
+
+```bash
+python3 -m unittest discover -s tests
+node scripts/build_example.js   # rebuild the example from prototypes/
+```
+
+Design decisions: [DESIGN.md](DESIGN.md). Interfaces: [docs/v1-contract.md](docs/v1-contract.md).
+Early clickable prototypes: [`prototypes/`](prototypes/).
 
 ## License
 

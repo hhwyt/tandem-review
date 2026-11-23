@@ -26,18 +26,49 @@ Tandem Review 是一个浏览器页面，让人和编程 agent 一起 review 一
 
 界面支持英文和中文，在右上角切换。
 
-## 进度
+## 安装
 
-设计阶段。[`prototypes/`](prototypes/) 里是可点击的原型，用一个真实的 TiDB PR 做示例数据。
-用本地静态服务打开 `prototypes/app.html` 即可。
+需要 Python 3.9 或更新版本。只有要把评论发到 PR 上时才需要 `gh`（GitHub CLI，已登录）。
 
-v1 计划：
+```bash
+git clone https://github.com/hhwyt/tandem-review.git
+export PATH="$PWD/tandem-review/bin:$PATH"
+```
 
-- `review.json`：agent 写出的数据格式（总览、章节、函数、说明、调用关系，中英两版）。
-- 只用 Python 标准库的本地服务：只监听 127.0.0.1，每次会话一个 token；提供页面，评论边写边存。
-- `tandem wait`：等 review 的人发送评论，把评论以 Markdown 打给 agent，同时写一份
-  `comments-round-N.md`。
-- 一个 agent skill：说明怎么准备 review、打开页面、按评论修改、进入下一轮。
+把 skill 交给你的 agent：
+
+- **Claude Code**：`ln -s "$PWD/tandem-review/skill" ~/.claude/skills/tandem-review`
+- **Codex 等其他 agent**：让 agent 读 `skill/SKILL.md`，或者把它贴进 agent 的指令里。
+
+## 使用
+
+对 agent 说：*「用 Tandem review 我的改动」* 或 *「用 Tandem review pingcap/tidb#123」*。agent 会：
+
+1. 跑 `tandem preflight`，写出 `review.json`（格式见 [docs/review-json.md](docs/review-json.md)）；
+2. 用 `tandem serve --review <目录> --open` 打开页面；
+3. 用 `tandem wait --review <目录>` 等你看完、写评论、点发送；
+4. 自己的改动：按评论修改，再 `tandem publish` 让页面自动刷新；别人的 PR：你确认后用
+   `tandem post-github ... --yes` 把评论发成 GitHub 行内评论。
+
+页面把你的设置（语言、主题、编辑器、说明开关）存在 `~/.config/tandem/prefs.json`，把 review 进度存在
+review 目录里。服务只监听 127.0.0.1，每个请求都要带本次会话的 token。
+
+不接 agent 先试一下：
+
+```bash
+mkdir -p /tmp/tandem-demo && cp examples/pr-73235/review.json /tmp/tandem-demo/
+tandem serve --review /tmp/tandem-demo --open
+```
+
+## 开发
+
+```bash
+python3 -m unittest discover -s tests
+node scripts/build_example.js   # 从 prototypes/ 重新生成示例
+```
+
+设计决定见 [DESIGN.md](DESIGN.md)，接口约定见 [docs/v1-contract.md](docs/v1-contract.md)，早期可点击原型在
+[`prototypes/`](prototypes/)。
 
 ## 协议
 

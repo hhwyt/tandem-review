@@ -179,16 +179,16 @@ details.files[open] summary:before{transform:rotate(90deg)}
 .ctx{width:316px;border-left:1px solid var(--line);overflow:auto;flex:none;background:var(--bg)}
 .ctx .seg{margin:12px 14px}
 .ctx .pad{padding:0 16px 20px}
-.ctree{list-style:none;margin:0;padding:0 0 0 14px;position:relative}
+.ctree{list-style:none;margin:0;padding:0 0 0 6px;position:relative}
 .ctree.root{padding-left:0}
-.ctree li{position:relative;padding-left:16px}
+.ctree li{position:relative;padding-left:12px}
 .ctree.root>li{padding-left:0}
 .ctree li:before{content:"";position:absolute;left:0;top:0;bottom:0;border-left:1px solid var(--line)}
 .ctree li:last-child:before{bottom:auto;height:13px}
 .ctree li:after{content:"";position:absolute;left:0;top:13px;width:11px;border-top:1px solid var(--line)}
 .ctree.root>li:before,.ctree.root>li:after{display:none}
 .tn{padding:2px 0;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:22px}
-.ctree-wrap>.ctree{padding-left:0}.ctree-wrap>.ctree>li{padding-left:0}.ctree-wrap>.ctree>li:before,.ctree-wrap>.ctree>li:after{display:none}
+.ctree-wrap{overflow-x:auto}.ctree-wrap .ctree{width:max-content;min-width:100%}.ctree-wrap .tn{overflow:visible;text-overflow:clip}.ctree-wrap>.ctree{padding-left:0}.ctree-wrap>.ctree>li{padding-left:0}.ctree-wrap>.ctree>li:before,.ctree-wrap>.ctree>li:after{display:none}
 .tfold{font-size:11.5px;color:var(--dim);border:1px dashed var(--line);border-radius:5px;padding:0 7px;cursor:pointer;background:var(--surface)}
 .tfold:hover{color:var(--text);border-color:var(--dim)}
 .cn.key{color:var(--text);font-weight:600}
@@ -376,19 +376,13 @@ function unitHTML(u,solo){const q=queue(),idx=q.findIndex(x=>x.id===u.id);
  return `<section id="u-${u.id}" style="${solo?'':'margin-bottom:34px'}"><div class="eyebrow" style="margin-bottom:4px">${L(T('Chapter','第'))} ${chapOf(u.id)+1}${S.lang==='zh'?' 章':''} · ${esc(L(CHAPTERS[chapOf(u.id)].n))} · §${secNo(u.id)}</div><div class="uhead">${flag(u)}<span class="uname">${esc(u.name)}</span><span class="sp"></span><span class="upos">${idx+1} ${L(UI.of)} ${q.length} · ${L(UI.estimate)} ${estMin(u)} ${L(UI.min)}</span></div>
  <div class="intro"><b>${L(T('Called from','谁调用它'))}</b><span>${u.callers.map(n=>({...n,pr:n.pr||(UNITS.find(x=>x.name===n.name)||{}).id})).map(n=>n.pr?`<a class="cn pr" data-goto="${n.pr}">§${secNo(n.pr)} ${esc(n.name)}</a>`:`<span class="mono">${esc(n.name)}</span>`).join(', ')||'—'}</span><b>${L(UI.what)}</b><span>${esc(L(u.gist))}</span>${crit(u)?`<b>⚑ ${L(T('Why critical','为什么关键'))}</b><span>${esc(L(u.why))}</span>`:''}${M.decide.filter(d=>d[3][0]===u.id).map(d=>`<b>● ${L(T('Your call','待你拍板'))}</b><span>${esc(L(d[1]))} <a class="cn pr" data-golinein="${d[3][1]}">${L(T('line','第'))} ${d[3][1]}${S.lang==='zh'?' 行':''}</a> · <a class="cn" data-todec="1">${L(T('see overview','看总览'))}</a></span>`).join('')}</div>${codeHTML(u)}</section>`}
 function cn(n){if(typeof n==='string')return `<span class="gap">⋯ ${esc(n)} ⋯</span>`;if(n.pr)return `<a class="cn pr" data-goto="${n.pr}">✦ ${esc(n.name)}</a>`;return `<a class="cn" ${openAttrs(n.file,n.line)} title="${n.file}:${n.line}">${esc(n.name)}</a>`}
-function buildTrie(chains,me){const root={kids:[]};chains.forEach(ch=>{let n=root;[...ch,me].forEach(x=>{const k=x.name+'@'+x.file;let c=n.kids.find(y=>y.k===k);if(!c){c={k,node:x,kids:[]};n.kids.push(c)}n=c})});return root}
-function cnT(n,isMe){if(isMe)return `<span class="me-node">● ${esc(n.name)}</span>`;const pr=n.pr||(UNITS.find(x=>x.name===n.name)||{}).id;return (pr?`<a class="cn pr" data-goto="${pr}">✦ ${esc(n.name)}</a>`:`<a class="cn ${n.key?'key':''}" ${openAttrs(n.file,n.line)} title="${n.file}:${n.line}">${esc(n.name)}</a>`)+`<span class="loc">${n.file.split('/').pop()}:${n.line}</span>`}
+function buildTrie(chains,me){const root={kids:[]};chains.forEach(ch=>{let n=root;[...ch,me].forEach(x=>{const k=typeof x==='string'?x:x.name+'@'+x.file;let c=n.kids.find(y=>y.k===k);if(!c){c={k,node:x,kids:[]};n.kids.push(c)}n=c})});return root}
+function cnT(n,isMe){if(typeof n==='string')return `<span class="loc">${esc(n)}</span>`;if(isMe)return `<span class="me-node">● ${esc(n.name)}</span>`;const pr=n.pr||(UNITS.find(x=>x.name===n.name)||{}).id;return (pr?`<a class="cn pr" data-goto="${pr}">✦ ${esc(n.name)}</a>`:`<a class="cn ${n.key?'key':''}" ${openAttrs(n.file,n.line)} title="${n.file}:${n.line}">${esc(n.name)}</a>`)+`<span class="loc">${n.file.split('/').pop()}:${n.line}</span>`}
 // a node is folded away when it is not key, not in the PR, has one child and is not the current function
 function foldable(c,me){return !c.node.key&&!c.node.pr&&c.kids.length===1&&c.node.name!==me.name}
-// Indent only where the stack branches; a single-child run stays in one column.
-function treeHTML(kids,me,path){if(!kids.length)return '';return '<ul class="ctree">'+kids.map((c,i)=>'<li>'+runHTML(c,me,path+'/'+i)+'</li>').join('')+'</ul>'}
-function runHTML(c,me,p){let h='';let n=c,step=0;
- while(n){const q=p+'.'+step;
-  if(foldable(n,me)&&!S.open['t'+q]){const hid=[];let m=n;while(foldable(m,me)){hid.push(m.node.name);m=m.kids[0]}h+=`<div class="tn seq"><span class="tfold" data-tfold="t${q}" title="${esc(hid.join(' → '))}">⋯ ${hid.length} ${L(T('frames','层'))}</span></div>`;n=m;step++;continue}
-  h+=`<div class="tn seq">${cnT(n.node,n.node.name===me.name&&!n.kids.length)}</div>`;
-  if(n.kids.length===1){n=n.kids[0];step++;continue}
-  if(n.kids.length>1)h+=treeHTML(n.kids,me,q);break}
- return h}
+// Every frame is indented under its caller. A fold hides a run of plain frames; one click opens the whole run.
+function treeHTML(kids,me,path){if(!kids.length)return '';return '<ul class="ctree">'+kids.map(c=>'<li>'+nodeHTML(c,me,path)+'</li>').join('')+'</ul>'}
+function nodeHTML(n,me,p){if(foldable(n,me)&&!S.open['t'+p+'/'+n.k]){const hid=[],keys=[];let m=n,pp=p;while(foldable(m,me)){hid.push(m.node.name);keys.push('t'+pp+'/'+m.k);pp=pp+'/'+m.k;m=m.kids[0]}return `<div class="tn seq"><span class="tfold" data-tfold="${esc(keys.join('|'))}" title="${esc(hid.join(' → '))}">⋯ ${hid.length} ${L(T('frames','层'))}</span></div>`+treeHTML([m],me,pp)}return `<div class="tn seq">${cnT(n.node,n.node.name===me.name&&!n.kids.length)}</div>`+treeHTML(n.kids,me,p+'/'+n.k)}
 function callsHTML(u){const me={name:u.name,file:u.file,line:u.sig};const root=buildTrie(u.chains,me);
  return `<div class="lab">↓ ${L(T('Call stack, from the entry point','调用栈（从入口往下）'))}</div><div class="ctree-wrap">${treeHTML(root.kids,me,'')}</div>
  <div class="lab">→ ${L(UI.callees)}</div><ul class="ctree root"><li><div class="tn"><span class="me-node">● ${esc(u.name)}</span></div>${treeHTML(u.callees.map(n=>({node:n,kids:[]})),{name:'\u0000'},'c')}</li></ul>`}
@@ -469,7 +463,7 @@ document.addEventListener('click',e=>{const c=x=>e.target.closest(x);
  if(c('[data-jump]')){document.getElementById('u-'+c('[data-jump]').dataset.jump)?.scrollIntoView({block:'start',behavior:'smooth'});return}
  if(c('[data-goto]')){e.preventDefault();goUnit(c('[data-goto]').dataset.goto);return}
  if(c('[data-gocm]')){const k=c('[data-gocm]').dataset.gocm;const [id,n]=k.split(':');goUnit(id,+n);return}
- if(c('[data-tfold]')){S.open[c('[data-tfold]').dataset.tfold]=1;keepScroll(render);return}
+ if(c('[data-tfold]')){c('[data-tfold]').dataset.tfold.split('|').forEach(k=>S.open[k]=1);keepScroll(render);return}
  if(c('#glossBtn')){const old=document.querySelector('.glosspop');if(old){old.remove();return}const p=document.createElement('div');p.className='glosspop';p.innerHTML=`<dl class="glossin" style="margin:0;border:0;padding:0">${GLOSS.map(([k,d])=>`<dt class="mono">${esc(k)}</dt><dd>${esc(L(d))}</dd>`).join('')}</dl>`;document.body.appendChild(p);const r=c('#glossBtn').getBoundingClientRect();p.style.top=(r.bottom+8)+'px';p.style.right=Math.max(8,innerWidth-r.right)+'px';return}
  if(!c('.glosspop'))document.querySelector('.glosspop')?.remove();
  if(c('[data-depth]')){const dv=c('[data-depth]').dataset.depth;savePref({depth:{[REPO]:dv}});keepScroll(()=>{const sc=document.querySelector('.ov')?.scrollTop;render();const o=document.querySelector('.ov');if(o)o.scrollTop=sc});return}

@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HTML Review 原型</title>
+<style>
+:root{
+  --bg:#ffffff;--bg2:#f6f8fa;--line:#d0d7de;--line2:#eaeef2;--text:#1f2328;--dim:#656d76;
+  --blue:#0969da;--green:#1a7f37;--red:#cf222e;--add:#e6ffec;--addg:#ccffd8;--del:#ffebe9;--delg:#ffd7d5;
+  --hunk:#ddf4ff;--sel:#fff8c5;--btn:#f6f8fa;
+  --ai:#8250df;--ai-soft:#fbefff;--ai-line:#d8b9ff;--ai-text:#6e40c9;
+  --kw:#cf222e;--str:#0a3069;--fn:#8250df;--com:#6e7781;
+  --b1:#c4b5fd;--b2:#93c5fd;--b3:#86efac;--b4:#fcd34d;--b5:#f9a8d4;--b6:#a5b4fc;--b7:#5eead4;
+}
+:root[data-theme="dark"]{
+  --bg:#0d1117;--bg2:#161b22;--line:#30363d;--line2:#21262d;--text:#e6edf3;--dim:#8d96a0;
+  --blue:#4493f8;--green:#3fb950;--red:#f85149;--add:#12261e;--addg:#1b4721;--del:#25171c;--delg:#542426;
+  --hunk:#121d2f;--sel:#3a3416;--btn:#21262d;
+  --ai:#a371f7;--ai-soft:#1d1530;--ai-line:#5a3e8f;--ai-text:#c9a7ff;
+  --kw:#ff7b72;--str:#a5d6ff;--fn:#d2a8ff;--com:#8b949e;
+  --b1:#6d28d9;--b2:#1d4ed8;--b3:#15803d;--b4:#b45309;--b5:#be185d;--b6:#4338ca;--b7:#0f766e;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1117;--bg2:#161b22;--line:#30363d;--line2:#21262d;--text:#e6edf3;--dim:#8d96a0;
+  --blue:#4493f8;--green:#3fb950;--red:#f85149;--add:#12261e;--addg:#1b4721;--del:#25171c;--delg:#542426;
+  --hunk:#121d2f;--sel:#3a3416;--btn:#21262d;
+  --ai:#a371f7;--ai-soft:#1d1530;--ai-line:#5a3e8f;--ai-text:#c9a7ff;
+  --kw:#ff7b72;--str:#a5d6ff;--fn:#d2a8ff;--com:#8b949e;
+  --b1:#6d28d9;--b2:#1d4ed8;--b3:#15803d;--b4:#b45309;--b5:#be185d;--b6:#4338ca;--b7:#0f766e;
+}}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--text);font:14px/1.5 -apple-system,"PingFang SC",system-ui,sans-serif;display:flex;flex-direction:column}
+button{font:inherit;color:inherit}
+.bar{display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.bar .logo{font-weight:700}
+.pill{border:1px solid var(--line);border-radius:999px;padding:1px 10px;font-size:12.5px;color:var(--blue)}
+.stat{font-size:13px;color:var(--dim)} .stat b.a{color:var(--green)} .stat b.d{color:var(--red)}
+.sp{flex:1}
+.btn{border:1px solid var(--line);background:var(--btn);border-radius:6px;padding:4px 12px;cursor:pointer;font-size:13px}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.go{background:var(--green);border-color:var(--green);color:#fff}
+.btn.ai{border-color:var(--ai-line);color:var(--ai-text)}
+.btn.on{background:var(--ai-soft);border-color:var(--ai);color:var(--ai-text)}
+.seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:var(--btn);padding:4px 12px;cursor:pointer;font-size:13px;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--blue);color:#fff}
+.prog{width:80px;height:6px;border-radius:3px;background:var(--line2);overflow:hidden}.prog i{display:block;height:100%;background:var(--green)}
+.main{flex:1;display:flex;min-height:0}
+.tree{width:260px;border-right:1px solid var(--line);overflow:auto;padding:8px 0;flex:none;font-size:13.5px}
+.tree .d{padding:3px 14px;font-weight:600;color:var(--dim)}
+.tree .f{padding:3px 14px 3px 28px;display:flex;gap:6px;align-items:center;cursor:pointer}
+.tree .f:hover{background:var(--bg2)}
+.tree .f.on{background:var(--hunk);box-shadow:inset 3px 0 var(--blue)}
+.tree .f .n{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tree .f .s{font-size:12px;color:var(--green)}
+.tree .fn{padding:2px 14px 2px 44px;font-size:12.5px;color:var(--dim);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree .fn:hover{color:var(--text)}
+.content{flex:1;overflow:auto;padding:16px;min-width:0;position:relative}
+.card{border:1px solid var(--line);border-radius:8px;margin-bottom:18px;background:var(--bg)}
+.card>.h{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg2);border-bottom:1px solid var(--line);border-radius:8px 8px 0 0;position:sticky;top:-16px;z-index:3}
+.card>.h .path{font-family:ui-monospace,Menlo,monospace;font-size:13px}
+.card>.h .path b{font-weight:600}
+.tag{border:1px solid var(--line);border-radius:999px;font-size:12px;padding:0 8px;color:var(--dim)}
+.viewed{display:flex;gap:6px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer;background:var(--bg)}
+.hunk{font:12.5px/20px ui-monospace,Menlo,monospace;background:var(--hunk);color:var(--dim);padding:2px 12px 2px 110px}
+.hunk .fnl{color:var(--text)}
+.dl{display:flex;font:12.5px/20px ui-monospace,Menlo,monospace;position:relative}
+.dl .o,.dl .nn{width:48px;text-align:right;padding-right:8px;color:var(--dim);flex:none;user-select:none;cursor:pointer;position:relative}
+.dl .mk{width:18px;flex:none;text-align:center;user-select:none;color:var(--dim)}
+.dl .c{white-space:pre;flex:1;padding-right:16px;min-width:0;overflow:hidden}
+.dl.add{background:var(--add)} .dl.add .o,.dl.add .nn{background:var(--addg)}
+.dl.del{background:var(--del)} .dl.del .o,.dl.del .nn{background:var(--delg)}
+.dl.sel{background:var(--sel)!important}
+.dl .plus{position:absolute;left:96px;top:1px;width:20px;height:18px;border-radius:5px;background:var(--blue);color:#fff;font:600 14px/18px system-ui;text-align:center;display:none;z-index:2;cursor:pointer}
+.dl:hover .plus{display:block}
+.kw{color:var(--kw)}.str{color:var(--str)}.fnc{color:var(--fn)}.com{color:var(--com)}
+.flash{animation:fl 1.6s ease}@keyframes fl{0%{background:var(--addg)}100%{}}
+/* comments */
+.thread{margin:8px 16px 10px 110px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:14px}
+.thread .th{display:flex;align-items:center;gap:8px;padding:6px 12px;border-bottom:1px solid var(--line2)}
+.thread .tb{padding:8px 12px}
+.kind{border-radius:999px;font-size:12px;padding:0 8px;color:#fff;background:var(--red)}
+.kind.k2{background:#9a6700}.kind.k3{background:var(--blue)}
+.verdict{margin:0 12px 10px;border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:13px}
+.verdict b{color:var(--green)}
+.form{margin:8px 16px 10px 110px;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--bg)}
+.form .kinds{display:flex;gap:6px;margin-bottom:8px}
+.form .kinds button{border:1px solid var(--line);border-radius:999px;background:var(--bg);font-size:12px;padding:1px 10px;cursor:pointer}
+.form .kinds button.on{background:var(--text);color:var(--bg)}
+.form textarea{width:100%;min-height:64px;border:1px solid var(--line);border-radius:6px;padding:6px 8px;background:var(--bg);color:var(--text);font:14px/1.5 inherit;resize:vertical}
+.form .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+/* AI common */
+.ai-mark{color:var(--ai)}
+.ov{margin:10px 12px;border:1px dashed var(--ai-line);border-radius:8px;background:var(--ai-soft);padding:8px 12px;font-size:13.5px;color:var(--text)}
+.ov .t{font-size:12px;color:var(--ai-text);font-weight:600;display:flex;gap:6px;align-items:center;cursor:pointer;user-select:none}
+.ov .body{margin-top:6px}
+.ov svg{display:block;margin-top:8px;max-width:100%}
+.ov.fold .body{display:none}
+.noselect{user-select:none;-webkit-user-select:none}
+/* V1 ghost lines */
+.ghost{display:flex;font:italic 13px/20px -apple-system,"PingFang SC",sans-serif;color:var(--ai-text);opacity:.82;background:repeating-linear-gradient(90deg,transparent 0 6px,color-mix(in srgb,var(--ai-soft) 70%,transparent) 6px 12px);border-top:1px dashed var(--ai-line);border-bottom:1px dashed var(--ai-line);animation:gin .35s ease}
+.ghost .gg{width:114px;flex:none;text-align:right;padding-right:10px;font-style:normal}
+.ghost .gt{flex:1;padding:2px 16px 2px 0;white-space:normal}
+@keyframes gin{from{opacity:0;transform:translateY(-2px)}to{opacity:.82}}
+.hideAI .ghost,.hideAI .inlay,.hideAI .band,.hideAI .ov{display:none!important}
+.hideAI .notes{visibility:hidden}
+/* V2 margin notes */
+.wrap2{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px}
+.notes{position:relative}
+.note{position:absolute;left:0;right:0;border-left:2px solid var(--ai-line);padding:4px 10px;font-size:13px;line-height:1.45;color:var(--dim);border-radius:0 6px 6px 0;transition:.15s;cursor:default}
+.note .r{font:11px ui-monospace,Menlo,monospace;color:var(--ai-text)}
+.note.hot{background:var(--ai-soft);border-left-color:var(--ai);color:var(--text)}
+.dl.hot{box-shadow:inset 3px 0 var(--ai)}
+.brk{position:absolute;left:0;width:4px;border-radius:2px;background:var(--ai-line);opacity:.0;transition:.15s}
+/* V3 inlay */
+.inlay{display:inline-block;margin-left:18px;font:12px/18px -apple-system,"PingFang SC",sans-serif;color:var(--ai-text);background:var(--ai-soft);border:1px solid var(--ai-line);border-radius:999px;padding:0 9px;max-width:340px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;cursor:pointer;opacity:.75;white-space:nowrap}
+.inlay:hover{opacity:1}
+.pop{position:fixed;z-index:20;width:360px;border:1px solid var(--ai-line);background:var(--bg);border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.18);padding:10px 12px;font-size:13.5px}
+.pop .r{font:11px ui-monospace,Menlo,monospace;color:var(--ai-text);margin-bottom:4px}
+/* V4 bands + drawer */
+.band{position:absolute;left:0;top:0;bottom:0;width:6px;cursor:pointer;opacity:.75}
+.band:hover{opacity:1;width:9px}
+.drawer{width:0;overflow:hidden;border-left:1px solid var(--line);transition:width .25s ease;flex:none;background:var(--bg2)}
+.drawer.open{width:380px}
+.drawer .in{width:380px;padding:14px;height:100%;overflow:auto}
+.drawer .x{float:right;cursor:pointer;color:var(--dim)}
+.drawer .r{font:12px ui-monospace,Menlo,monospace;color:var(--ai-text)}
+.drawer pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px;font:12px/18px ui-monospace,Menlo,monospace;overflow:auto;white-space:pre}
+/* V5 spotlight */
+.spot .dl,.spot .hunk,.spot .thread{transition:opacity .25s,filter .25s}
+.spot .dl.dim,.spot .hunk.dim{opacity:.22;filter:grayscale(.6)}
+.spotcard{position:absolute;z-index:6;width:340px;border:1px solid var(--ai);background:var(--bg);border-radius:10px;box-shadow:0 10px 30px rgba(130,80,223,.25);padding:10px 12px;font-size:13.5px;transition:top .3s ease}
+.spotcard .r{font:11px ui-monospace,Menlo,monospace;color:var(--ai-text)}
+.spotcard .nav{display:flex;gap:6px;margin-top:8px;align-items:center;font-size:12px;color:var(--dim)}
+.kbd{font:11px ui-monospace,Menlo,monospace;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 4px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:30}
+.modal .box{background:var(--bg);border-radius:10px;border:1px solid var(--line);width:min(560px,92vw);padding:16px;max-height:80vh;overflow:auto}
+.modal pre{white-space:pre-wrap;font:12.5px/1.5 ui-monospace,Menlo,monospace;background:var(--bg2);padding:10px;border-radius:6px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:8px 16px;border-radius:8px;font-size:13px;z-index:40}
+.vtabs{display:flex;gap:4px;padding:6px 16px;border-bottom:1px solid var(--line);background:var(--bg2);flex-wrap:wrap}
+.vtabs button{border:1px solid transparent;background:none;border-radius:6px;padding:3px 12px;cursor:pointer;font-size:13px;color:var(--dim)}
+.vtabs button.on{border-color:var(--ai-line);background:var(--ai-soft);color:var(--ai-text);font-weight:600}
+@media (max-width:900px){.tree{display:none}.wrap2{grid-template-columns:1fr}.notes{display:none}.drawer.open{width:100%}.thread,.form{margin-left:16px}}
+</style>
+</head>
+<body>
+<div class="vtabs" id="vtabs"></div>
+<div class="bar" id="bar"></div>
+<div class="main">
+  <div class="tree" id="tree"></div>
+  <div class="content" id="content"></div>
+  <div class="drawer" id="drawer"><div class="in" id="drawerIn"></div></div>
+</div>
+<script>
+const FILES0=[
+{path:'pkg/ddl/storage_class_interval_recalc.go',status:'added',hunks:[{oldStart:0,newStart:106,fn:'func shouldApplyStorageClassIntervalRecalculation',lines:[
+['+','// shouldApplyStorageClassIntervalRecalculation reports whether an interval'],
+['+','// recalculation job should apply, and logs why not: at least one partition'],
+['+','// changes, and every change is from STANDARD to IA. Anything else means the'],
+['+','// rule changed or the clock moved backwards, and the job does nothing.'],
+['+','func shouldApplyStorageClassIntervalRecalculation(tblInfo *model.TableInfo, old, current map[int64]physicalStorageClass) bool {'],
+['+','\tlogger := logutil.DDLLogger().With(zap.Int64("tableID", tblInfo.ID), zap.String("table", tblInfo.Name.O))'],
+['+','\tchanged := changedStorageClassPhysicalIDs(old, current)'],
+['+','\tif len(changed) == 0 {'],
+['+','\t\tlogger.Info("storage class interval recalculation skipped, no partition changes")'],
+['+','\t\treturn false'],
+['+','\t}'],
+['+','\tfor physicalID := range changed {'],
+['+','\t\tif normalizedStorageClassTransitionTarget(old[physicalID].tier) != model.StorageClassTierStandard ||'],
+['+','\t\t\tnormalizedStorageClassTransitionTarget(current[physicalID].tier) != model.StorageClassTierIA {'],
+['+','\t\t\tlogger.Warn("storage class interval recalculation skipped, partitions would leave IA",'],
+['+','\t\t\t\tzap.Int64("physicalID", physicalID))'],
+['+','\t\t\treturn false'],
+['+','\t\t}'],
+['+','\t}'],
+['+','\treturn true'],
+['+','}']]}],
+ fns:[{name:'shouldApplyStorageClassIntervalRecalculation',line:110,
+   gist:'重算 job 的最后一道闸：至少一个分区变了，且全部是 STANDARD→IA，才放行。',
+   flow:[['changed 为空？','跳过'],['有非 STANDARD→IA 的变化？','跳过 + Warn'],['放行',null]],
+   notes:[[106,109,'函数注释：放行条件 + 其他情况视为规则被改或时钟回拨。'],
+     [110,111,'old 是改元数据前的快照，current 是重算后的新快照，按物理分区 ID 索引；logger 带上表 ID 和表名。'],
+     [112,116,'没有任何分区变化 → 这次重算无事可做，不写元数据、不升 schema 版本。'],
+     [117,124,'逐个检查：旧必须是 STANDARD、新必须是 IA。出现别的方向就整张表跳过，不做部分应用。'],
+     [125,126,'全部是 STANDARD→IA，放行。']]}]},
+{path:'pkg/ddl/engine_attribute.go',status:'modified',hunks:[{oldStart:136,newStart:136,fn:'func (w *worker) onModifyTableEngineAttribute(jobCtx *jobContext, job *model.Job) (ver int64, _ error) {',lines:[
+[' ','\t\treturn ver, errors.Trace(err)'],[' ','\t}'],[' ',''],
+['+','\tif args.IntervalRecalculation && tblInfo.EngineAttribute != args.EngineAttribute {'],
+['+','\t\tlogutil.BgLogger().Info("storage class interval recalculation skipped, engine attribute changed",'],
+['+','\t\t\tzap.Int64("tableID", tblInfo.ID), zap.String("table", tblInfo.Name.O))'],
+['+','\t\tjob.FinishTableJob(model.JobStateDone, model.StatePublic, ver, tblInfo)'],
+['+','\t\treturn ver, nil'],['+','\t}'],['+',''],
+[' ','\tif job.MultiSchemaInfo != nil && job.MultiSchemaInfo.Revertible {'],[' ','\t\tjob.MarkNonRevertible()'],[' ','\t\treturn ver, nil'],[' ','\t}'],
+[' ','\toldState := snapshotPhysicalStorageClasses(tblInfo)'],[' ',''],
+['+','\tnewTblInfo := tblInfo'],['+','\tif args.IntervalRecalculation {'],
+['+','\t\t// Evaluate on a copy so the checked result is exactly what is applied.'],
+['+','\t\tnewTblInfo = tblInfo.Clone()'],['+','\t}'],
+[' ','\t// Keep the original string for SHOW CREATE TABLE.'],
+['-','\ttblInfo.EngineAttribute = args.EngineAttribute'],
+['+','\tnewTblInfo.EngineAttribute = args.EngineAttribute'],[' ',''],
+['-','\tif err := onAlterTableStorageClassSettings(attr.StorageClass, tblInfo); err != nil {'],
+['+','\tif err := onAlterTableStorageClassSettings(attr.StorageClass, newTblInfo); err != nil {'],
+[' ','\t\tjob.State = model.JobStateCancelled'],[' ','\t\treturn ver, errors.Trace(err)'],[' ','\t}'],
+['+','\tif args.IntervalRecalculation && !shouldApplyStorageClassIntervalRecalculation(newTblInfo, oldState, snapshotPhysicalStorageClasses(newTblInfo)) {'],
+['+','\t\tjob.FinishTableJob(model.JobStateDone, model.StatePublic, ver, tblInfo)'],
+['+','\t\treturn ver, nil'],['+','\t}'],
+['+','\ttblInfo = newTblInfo'],
+[' ','\tver, err = updateVersionAndTableInfo(jobCtx, job, tblInfo, true)']]}],
+ fns:[{name:'onModifyTableEngineAttribute',line:136,
+   gist:'用户 ALTER 和后台重算共用的执行函数；本 PR 给重算加了两道闸。',
+   flow:[['规则被改过？','结束 job，不改'],['拍快照，在副本上重算',null],['只有 STANDARD→IA？','结束 job，不改'],['写元数据 → 排 TiKV 迁移',null]],
+   notes:[[136,138,'未改动的上下文：前面是取参数、解析规则、读表元数据。'],
+     [139,145,'第一道闸：重算 job 带着它读到的规则字符串；执行时表上规则已经变了（用户中间 ALTER 过）就什么都不做。'],
+     [146,151,'原有逻辑：多 schema 变更先标不可回滚；拍一张改动前的分区档位快照。'],
+     [152,156,'重算在副本上算，原表对象不动：第二道闸检查的就是最终写进去的那份。'],
+     [157,163,'原有逻辑，对象换成 newTblInfo：按规则重新定档位。'],
+     [164,167,'第二道闸：前后快照不合规，用原表对象结束 job，元数据不变。'],
+     [168,169,'通过检查才换成副本，然后照常升 schema 版本、排 TiKV 迁移。']]}]}
+];
+const V=[['ghost','① 幽灵行'],['margin','② 边注'],['inlay','③ 行尾提示'],['band','④ 色带 + 抽屉'],['spot','⑤ 聚光讲解']];
+const KINDS=[['必须改',''],['后续','k2'],['提问','k3']];
+let FILES=JSON.parse(JSON.stringify(FILES0));
+const S={v:'ghost',ai:true,sel:null,form:null,kind:0,cm:[],round:1,viewed:{},open:null,spot:{f:0,n:0},folds:{}};
+try{const s=localStorage.getItem('hr-proto-v');if(s)S.v=s}catch(e){}
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function hl(s){if(/^\s*\/\//.test(s))return '<span class="com">'+esc(s)+'</span>';
+ let o='',re=/("(?:[^"\\]|\\.)*")|(\/\/.*$)|\b(func|if|for|range|return|map|bool|nil|true|false|int64|err)\b|\b([A-Za-z_]\w*)(?=\()/g,i=0,m;
+ while((m=re.exec(s))){o+=esc(s.slice(i,m.index));o+=m[1]?'<span class="str">'+esc(m[1])+'</span>':m[2]?'<span class="com">'+esc(m[2])+'</span>':m[3]?'<span class="kw">'+m[3]+'</span>':'<span class="fnc">'+m[4]+'</span>';i=re.lastIndex}
+ return o+esc(s.slice(i))}
+function rows(f){const out=[];f.hunks.forEach((h,hi)=>{let o=h.oldStart,n=h.newStart;h.lines.forEach((l,li)=>{const r={k:l[0],t:l[1],hi,li,o:null,n:null};if(l[0]===' '){r.o=o++;r.n=n++}else if(l[0]==='-'){r.o=o++}else{r.n=n++}out.push(r)})});return out}
+function noteFor(fi,n){if(n==null)return null;for(const fn of FILES[fi].fns)for(const [a,b,t] of fn.notes)if(n>=a&&n<=b)return {a,b,t,fn};return null}
+function allNotes(fi){const r=[];FILES[fi].fns.forEach(fn=>fn.notes.forEach(x=>r.push({a:x[0],b:x[1],t:x[2],fn})));return r}
+function key(fi,r){return fi+':'+(r.n!=null?'n'+r.n:'o'+r.o)}
+const bandColor=i=>`var(--b${(i%7)+1})`;
+function flowSVG(flow){const W=520,bh=30,gap=14;let y=6,s='';flow.forEach(([a,b],i)=>{
+ s+=`<rect x="6" y="${y}" rx="6" width="250" height="${bh}" fill="var(--bg)" stroke="var(--ai-line)"/><text x="16" y="${y+19}" font-size="12.5" fill="var(--text)">${esc(a)}</text>`;
+ if(b){s+=`<line x1="256" y1="${y+bh/2}" x2="300" y2="${y+bh/2}" stroke="var(--dim)" marker-end="url(#ar)"/><text x="262" y="${y+bh/2-4}" font-size="10" fill="var(--dim)">是</text><rect x="302" y="${y}" rx="6" width="200" height="${bh}" fill="var(--del)" stroke="var(--line)"/><text x="312" y="${y+19}" font-size="12.5" fill="var(--text)">${esc(b)}</text>`}
+ if(i<flow.length-1){s+=`<line x1="40" y1="${y+bh}" x2="40" y2="${y+bh+gap}" stroke="var(--dim)" marker-end="url(#ar)"/>${b?`<text x="46" y="${y+bh+11}" font-size="10" fill="var(--dim)">否</text>`:''}`}
+ y+=bh+gap});
+ return `<svg width="${W}" height="${y}" viewBox="0 0 ${W} ${y}"><defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--dim)"/></marker></defs>${s}</svg>`}
+function overview(fi,fn){const k=fi+fn.name,fold=S.folds[k];
+ return `<div class="ov noselect ${fold?'fold':''}"><div class="t" data-fold="${k}"><span>✦</span>${esc(fn.name)}<span style="font-weight:400;color:var(--dim)">${fold?'展开':'收起'}</span></div><div class="body">${esc(fn.gist)}${flowSVG(fn.flow)}</div></div>`}
+function commentHTML(K){let h='';S.cm.filter(c=>c.k===K).forEach(c=>{
+ h+=`<div class="thread"><div class="th"><b>你</b><span class="kind ${KINDS[c.kind][1]}">${KINDS[c.kind][0]}</span><span class="tag">${c.sent?'已发送':'草稿'}</span><span class="sp"></span>${c.sent?'':`<span style="cursor:pointer;color:var(--dim)" data-del="${c.id}">删除</span>`}</div><div class="tb">${esc(c.text)}</div>${c.verdict?`<div class="verdict"><b>已修改</b> — ${esc(c.verdict)}</div>`:''}</div>`});
+ if(S.form===K)h+=`<div class="form"><div class="kinds">${KINDS.map((k,i)=>`<button data-kind="${i}" class="${S.kind===i?'on':''}">${k[0]}</button>`).join('')}</div><textarea id="ta" placeholder="写评论，⌘↩ 保存"></textarea><div class="acts"><button class="btn" data-cancel="1">取消</button><button class="btn go" data-add="1">添加评论</button></div></div>`;
+ return h}
+function lineHTML(fi,r,extra=''){const K=key(fi,r),cls=r.k==='+'?'add':r.k==='-'?'del':'';
+ return `<div class="dl ${cls} ${S.sel===K?'sel':''}" data-k="${K}" data-n="${r.n??''}" data-fi="${fi}">${extra}<span class="o">${r.o??''}</span><span class="nn">${r.n??''}</span><span class="plus" data-c="${K}">+</span><span class="mk">${r.k===' '?'':r.k}</span><span class="c">${hl(r.t)||' '}</span></div>`}
+function fileCard(fi,inner){const f=FILES[fi],add=f.hunks.reduce((a,h)=>a+h.lines.filter(l=>l[0]==='+').length,0),del=f.hunks.reduce((a,h)=>a+h.lines.filter(l=>l[0]==='-').length,0);const dir=f.path.slice(0,f.path.lastIndexOf('/')+1),base=f.path.slice(dir.length);
+ return `<div class="card" id="file${fi}"><div class="h"><span class="path">${esc(dir)}<b>${esc(base)}</b></span><span class="tag">${f.status==='added'?'新增':'修改'}</span><span class="stat"><b class="a">+${add}</b> <b class="d">−${del}</b></span><span class="sp"></span><label class="viewed"><input type="checkbox" data-view="${fi}" ${S.viewed[fi]?'checked':''}> 已看</label></div>${S.viewed[fi]?'':inner}</div>`}
+const VIEWS={
+ghost(){let h='';FILES.forEach((f,fi)=>{let inner='';f.fns.forEach(fn=>inner+=overview(fi,fn));
+  f.hunks.forEach(hk=>inner+=`<div class="hunk">@@ <span class="fnl">${esc(hk.fn)}</span></div>`);
+  rows(f).forEach(r=>{const nt=noteFor(fi,r.n);if(nt&&r.n===nt.a)inner+=`<div class="ghost noselect"><span class="gg">✦</span><span class="gt">${esc(nt.t)}</span></div>`;inner+=lineHTML(fi,r)+commentHTML(key(fi,r))});
+  h+=fileCard(fi,inner)});return h},
+margin(){let h='';FILES.forEach((f,fi)=>{let code='';f.hunks.forEach(hk=>code+=`<div class="hunk">@@ <span class="fnl">${esc(hk.fn)}</span></div>`);
+  rows(f).forEach(r=>{code+=lineHTML(fi,r)+commentHTML(key(fi,r))});
+  let inner='';f.fns.forEach(fn=>inner+=overview(fi,fn));
+  inner+=`<div class="wrap2"><div class="code" id="code${fi}">${code}</div><div class="notes noselect" id="notes${fi}"></div></div>`;h+=fileCard(fi,inner)});return h},
+inlay(){let h='';FILES.forEach((f,fi)=>{let inner='';f.fns.forEach(fn=>inner+=overview(fi,fn));f.hunks.forEach(hk=>inner+=`<div class="hunk">@@ <span class="fnl">${esc(hk.fn)}</span></div>`);
+  rows(f).forEach(r=>{const nt=noteFor(fi,r.n);let line=lineHTML(fi,r);if(nt&&r.n===nt.a){const short=nt.t.split(/[：；，。]/)[0];line=line.replace(/<\/span><\/div>$/,`</span><span class="inlay noselect" data-pop="${fi}:${nt.a}">✦ ${esc(short)}</span></div>`)}inner+=line+commentHTML(key(fi,r))});
+  h+=fileCard(fi,inner)});return h},
+band(){let h='';FILES.forEach((f,fi)=>{let inner='';f.hunks.forEach(hk=>inner+=`<div class="hunk">@@ <span class="fnl">${esc(hk.fn)}</span> <span class="ai-mark noselect" style="cursor:pointer" data-fnov="${fi}">✦ 概览</span></div>`);
+  const ns=allNotes(fi);rows(f).forEach(r=>{const nt=noteFor(fi,r.n);let band='';if(nt){const i=ns.findIndex(x=>x.a===nt.a);band=`<span class="band noselect" data-band="${fi}:${nt.a}" style="background:${bandColor(i)}"></span>`}inner+=lineHTML(fi,r,band)+commentHTML(key(fi,r))});
+  h+=fileCard(fi,inner)});return h},
+spot(){let h='';FILES.forEach((f,fi)=>{let inner='';f.fns.forEach(fn=>inner+=overview(fi,fn));f.hunks.forEach(hk=>inner+=`<div class="hunk">@@ <span class="fnl">${esc(hk.fn)}</span></div>`);
+  rows(f).forEach(r=>{inner+=lineHTML(fi,r)+commentHTML(key(fi,r))});h+=fileCard(fi,inner)});return h}
+};
+function pending(){return S.cm.filter(c=>!c.sent).length}
+function render(){
+ document.getElementById('vtabs').innerHTML=V.map(([k,n])=>`<button data-v="${k}" class="${S.v===k?'on':''}">${n}</button>`).join('');
+ const nv=Object.values(S.viewed).filter(Boolean).length;
+ document.getElementById('bar').innerHTML=`<span class="logo">review</span><span class="pill">pr-73235-review · 第 ${S.round} 轮</span><span class="stat">2 个文件 <b class="a">+40</b> <b class="d">−2</b></span><span class="sp"></span><span class="stat">${nv}/2 已看</span><span class="prog"><i style="width:${nv*50}%"></i></span><div class="seg"><button class="on">统一</button><button>并排</button></div>${S.v==='spot'?`<button class="btn ${S.spotOn?'on':''}" id="spotBtn">✦ 讲解 <span class="kbd">L</span></button>`:`<button class="btn ${S.ai?'on':'ai'}" id="aiBtn">✦ 说明 <span class="kbd">E</span></button>`}<button class="btn" id="themeBtn">◐</button><button class="btn" id="sendBtn" ${pending()?'':'disabled'}>发送 ${pending()} 条</button><button class="btn go" id="finishBtn">完成 review</button>`;
+ let t='<div class="d">pkg/ddl</div>';FILES.forEach((f,fi)=>{t+=`<div class="f" data-jump="${fi}"><span>${S.viewed[fi]?'✓':'📄'}</span><span class="n">${esc(f.path.split('/').pop())}</span>${S.cm.filter(c=>c.k.startsWith(fi+':')).length?`<span class="tag">💬${S.cm.filter(c=>c.k.startsWith(fi+':')).length}</span>`:''}<span class="s">+${f.hunks[0].lines.filter(l=>l[0]==='+').length}</span></div>`;f.fns.forEach(fn=>t+=`<div class="fn noselect" data-jumpfn="${fi}:${fn.line}">ƒ ${esc(fn.name)}</div>`)});
+ document.getElementById('tree').innerHTML=t;
+ const c=document.getElementById('content');c.className='content'+(S.ai?'':' hideAI')+(S.v==='spot'&&S.spotOn?' spot':'');
+ c.innerHTML=VIEWS[S.v]();
+ if(S.v==='margin')FILES.forEach((f,fi)=>placeNotes(fi));
+ if(S.v==='spot'&&S.spotOn)placeSpot();
+ const ta=document.getElementById('ta');if(ta)ta.focus();
+ if(S.v!=='band')closeDrawer(true);
+}
+function placeNotes(fi){const code=document.getElementById('code'+fi),box=document.getElementById('notes'+fi);if(!code||!box)return;let h='';let last=0;
+ allNotes(fi).forEach(nt=>{const el=code.querySelector(`.dl[data-n="${nt.a}"]`);if(!el)return;h+=`<div class="note" data-note="${fi}:${nt.a}" style="top:${el.offsetTop}px"><div class="r">${nt.a}${nt.b!==nt.a?'–'+nt.b:''}</div>${esc(nt.t)}</div>`});
+ box.innerHTML=h;box.querySelectorAll('.note').forEach(d=>{if(d.offsetTop<last)d.style.top=last+'px';last=d.offsetTop+d.offsetHeight+6});box.style.minHeight=last+'px'}
+function hot(fi,a,on){const nt=allNotes(fi).find(x=>x.a===a);if(!nt)return;document.querySelectorAll(`.dl[data-fi="${fi}"]`).forEach(el=>{const n=+el.dataset.n;if(el.dataset.n&&n>=nt.a&&n<=nt.b)el.classList.toggle('hot',on)});document.querySelector(`.note[data-note="${fi}:${a}"]`)?.classList.toggle('hot',on)}
+function openDrawer(html){const d=document.getElementById('drawer');document.getElementById('drawerIn').innerHTML=`<span class="x" id="dx">✕</span>`+html;d.classList.add('open')}
+function closeDrawer(silent){document.getElementById('drawer').classList.remove('open')}
+function drawerNote(fi,a){const nt=allNotes(fi).find(x=>x.a===a);const code=rows(FILES[fi]).filter(r=>r.n!=null&&r.n>=nt.a&&r.n<=nt.b).map(r=>r.t).join('\n');
+ openDrawer(`<div class="r">${FILES[fi].path.split('/').pop()}:${nt.a}${nt.b!==nt.a?'–'+nt.b:''}</div><h3 style="margin:4px 0 8px;font-size:15px">${esc(nt.fn.name)}</h3><p>${esc(nt.t)}</p><pre>${esc(code)}</pre><div class="ov" style="margin:10px 0"><div class="t">✦ 整个函数</div><div class="body">${esc(nt.fn.gist)}${flowSVG(nt.fn.flow)}</div></div>`)}
+// spotlight
+function spotList(){const L=[];FILES.forEach((f,fi)=>allNotes(fi).forEach(n=>L.push({fi,...n})));return L}
+function placeSpot(){const L=spotList();const i=Math.max(0,Math.min(S.spotI||0,L.length-1));S.spotI=i;const cur=L[i];const c=document.getElementById('content');
+ c.querySelectorAll('.dl,.hunk').forEach(el=>{const fi=+el.dataset.fi,n=+el.dataset.n;const inR=el.classList.contains('dl')&&fi===cur.fi&&el.dataset.n&&n>=cur.a&&n<=cur.b;el.classList.toggle('dim',!inR)});
+ const first=c.querySelector(`.dl[data-fi="${cur.fi}"][data-n="${cur.a}"]`);if(!first)return;
+ const card=document.createElement('div');card.className='spotcard noselect';const cr=c.getBoundingClientRect(),fr=first.getBoundingClientRect();
+ card.style.top=(fr.top-cr.top+c.scrollTop)+'px';card.style.right='28px';
+ card.innerHTML=`<div class="r">${i+1} / ${L.length} · ${FILES[cur.fi].path.split('/').pop()}:${cur.a}${cur.b!==cur.a?'–'+cur.b:''}</div><div style="margin-top:4px">${esc(cur.t)}</div><div class="nav"><button class="btn" id="spPrev" ${i?'':'disabled'}>上一段</button><button class="btn" id="spNext" ${i<L.length-1?'':'disabled'}>下一段</button><span class="sp"></span><span class="kbd">←</span><span class="kbd">→</span><span class="kbd">Esc</span></div>`;
+ c.appendChild(card);first.scrollIntoView({block:'center',behavior:'smooth'})}
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1800)}
+function addComment(){const ta=document.getElementById('ta');const v=ta&&ta.value.trim();if(!v)return;S.cm.push({id:Date.now(),k:S.form,kind:S.kind,text:v,sent:false});S.form=null;render()}
+function exportText(list){return list.map(c=>{const [fi,ln]=c.k.split(':');return `- [${KINDS[c.kind][0]}] ${FILES[fi].path}:${ln.slice(1)}${ln[0]==='o'?'（删除行）':''}\n  ${c.text}`}).join('\n')}
+function send(final){const list=S.cm.filter(c=>!c.sent);if(!list.length&&!final)return;
+ const m=document.createElement('div');m.className='modal';m.innerHTML=`<div class="box"><h3 style="margin:0 0 8px">${final?'完成 review':'发送评论'}（${list.length} 条）</h3><pre>${esc(exportText(list)||'（没有新评论）')}</pre><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn" id="mCopy">复制</button><button class="btn" id="mCancel">取消</button><button class="btn go" id="mOk">发给 agent</button></div></div>`;document.body.appendChild(m);
+ m.querySelector('#mCancel').onclick=()=>m.remove();
+ m.querySelector('#mCopy').onclick=()=>{navigator.clipboard?.writeText(exportText(list));toast('已复制')};
+ m.querySelector('#mOk').onclick=()=>{m.remove();list.forEach(c=>c.sent=true);render();toast('已写入 comments-round-'+S.round+'.md，等待 agent 修改…');
+  setTimeout(()=>{FILES.forEach(f=>f.hunks.forEach(h=>h.lines.forEach(l=>{l[1]=l[1].replace(/\bchanged\b/g,'changedPhysicalIDs')})));
+   list.forEach(c=>c.verdict='按评论修改，见 review 分支新 commit');S.round++;render();toast('agent 已改完，进入第 '+S.round+' 轮');
+   document.querySelectorAll('.dl').forEach(el=>{if(el.textContent.includes('changedPhysicalIDs'))el.classList.add('flash')})},1800)}}
+document.addEventListener('click',e=>{const t=e.target,cl=x=>t.closest(x);
+ const pop=document.querySelector('.pop');if(pop&&!cl('.pop')&&!cl('.inlay'))pop.remove();
+ if(cl('[data-v]')){S.v=cl('[data-v]').dataset.v;S.sel=null;S.form=null;S.spotOn=false;try{localStorage.setItem('hr-proto-v',S.v)}catch(_){}render();return}
+ if(t.id==='aiBtn'){S.ai=!S.ai;render();return}
+ if(t.id==='themeBtn'){const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;r.dataset.theme=dark?'light':'dark';render();return}
+ if(cl('#spotBtn')){S.spotOn=!S.spotOn;S.spotI=0;render();return}
+ if(t.id==='spPrev'){S.spotI--;render();return} if(t.id==='spNext'){S.spotI++;render();return}
+ if(t.id==='sendBtn'){send(false);return} if(t.id==='finishBtn'){send(true);return}
+ if(t.dataset.fold){S.folds[t.dataset.fold]=!S.folds[t.dataset.fold];render();return}
+ if(cl('[data-fold]')){const k=cl('[data-fold]').dataset.fold;S.folds[k]=!S.folds[k];render();return}
+ if(t.dataset.c){S.form=t.dataset.c;S.sel=t.dataset.c;S.kind=0;render();return}
+ if(t.dataset.kind){S.kind=+t.dataset.kind;document.querySelectorAll('[data-kind]').forEach(b=>b.classList.toggle('on',+b.dataset.kind===S.kind));return}
+ if(t.dataset.cancel){S.form=null;render();return}
+ if(t.dataset.add){addComment();return}
+ if(t.dataset.del){S.cm=S.cm.filter(c=>c.id!=t.dataset.del);render();return}
+ if(t.dataset.view!=null){S.viewed[t.dataset.view]=t.checked;render();return}
+ if(cl('[data-jump]')){document.getElementById('file'+cl('[data-jump]').dataset.jump)?.scrollIntoView({behavior:'smooth'});return}
+ if(cl('[data-jumpfn]')){const [fi,ln]=cl('[data-jumpfn]').dataset.jumpfn.split(':');document.querySelector(`.dl[data-fi="${fi}"][data-n="${ln}"]`)?.scrollIntoView({block:'center',behavior:'smooth'});return}
+ if(cl('[data-pop]')){const [fi,a]=cl('[data-pop]').dataset.pop.split(':').map(Number);document.querySelector('.pop')?.remove();const nt=allNotes(fi).find(x=>x.a===a);const p=document.createElement('div');p.className='pop noselect';p.innerHTML=`<div class="r">${nt.a}${nt.b!==nt.a?'–'+nt.b:''} · ${esc(nt.fn.name)}</div>${esc(nt.t)}`;const r=cl('[data-pop]').getBoundingClientRect();p.style.left=Math.min(innerWidth-380,r.left)+'px';p.style.top=(r.bottom+6)+'px';document.body.appendChild(p);hot(fi,a,true);return}
+ if(cl('[data-band]')){const [fi,a]=cl('[data-band]').dataset.band.split(':').map(Number);drawerNote(fi,a);return}
+ if(cl('[data-fnov]')){const fi=+cl('[data-fnov]').dataset.fnov;const fn=FILES[fi].fns[0];openDrawer(`<div class="r">${FILES[fi].path}</div><h3 style="margin:4px 0 8px;font-size:15px">${esc(fn.name)}</h3><p>${esc(fn.gist)}</p>${flowSVG(fn.flow)}<h4 style="margin:14px 0 6px;font-size:13px">逐段</h4>${fn.notes.map(n=>`<p style="margin:6px 0"><span class="r">${n[0]}${n[1]!==n[0]?'–'+n[1]:''}</span> ${esc(n[2])}</p>`).join('')}`);return}
+ if(t.id==='dx'){closeDrawer();return}
+ const dl=cl('.dl');if(dl&&!cl('.plus')){S.sel=dl.dataset.k;document.querySelectorAll('.dl.sel').forEach(x=>x.classList.remove('sel'));dl.classList.add('sel');
+   if(S.v==='band'&&S.ai&&dl.dataset.n){const nt=noteFor(+dl.dataset.fi,+dl.dataset.n);if(nt)drawerNote(+dl.dataset.fi,nt.a)}
+   if(S.v==='spot'&&S.spotOn&&dl.dataset.n){const L=spotList();const j=L.findIndex(x=>x.fi===+dl.dataset.fi&&+dl.dataset.n>=x.a&&+dl.dataset.n<=x.b);if(j>=0){S.spotI=j;render()}}}
+});
+document.addEventListener('mouseover',e=>{if(S.v!=='margin')return;const n=e.target.closest('.note'),d=e.target.closest('.dl');document.querySelectorAll('.hot').forEach(x=>x.classList.remove('hot'));
+ if(n){const [fi,a]=n.dataset.note.split(':').map(Number);hot(fi,a,true)}else if(d&&d.dataset.n){const nt=noteFor(+d.dataset.fi,+d.dataset.n);if(nt)hot(+d.dataset.fi,nt.a,true)}});
+document.addEventListener('keydown',e=>{if(e.target.tagName==='TEXTAREA'){if(e.key==='Enter'&&(e.metaKey||e.ctrlKey))addComment();if(e.key==='Escape'){S.form=null;render()}return}
+ if(e.key==='e'||e.key==='E'){if(S.v!=='spot'){S.ai=!S.ai;render()}}
+ if(S.v==='spot'){if(e.key==='l'||e.key==='L'){S.spotOn=!S.spotOn;S.spotI=0;render()}
+  if(S.spotOn&&(e.key==='ArrowRight'||e.key==='n')){S.spotI++;render()}if(S.spotOn&&(e.key==='ArrowLeft'||e.key==='p')){S.spotI=Math.max(0,S.spotI-1);render()}if(e.key==='Escape'&&S.spotOn){S.spotOn=false;render()}}
+ if(e.key==='c'&&S.sel){S.form=S.sel;S.kind=0;render();e.preventDefault()}
+ if(e.key==='Escape')closeDrawer()});
+window.addEventListener('resize',()=>{if(S.v==='margin')FILES.forEach((f,fi)=>placeNotes(fi))});
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PR Overview</title>
+<style>
+:root{
+  --bg:#ffffff;--bg2:#f6f8fa;--line:#d0d7de;--line2:#eaeef2;--text:#1f2328;--dim:#656d76;
+  --blue:#0969da;--green:#1a7f37;--red:#cf222e;--amber:#9a6700;--btn:#f6f8fa;
+  --new:#dafbe1;--newb:#1a7f37;--mod:#fff8c5;--modb:#9a6700;--same:#f6f8fa;--sameb:#d0d7de;
+  --ai:#8250df;--ai-soft:#fbefff;--ai-line:#d8b9ff;--ai-text:#6e40c9;
+  --t1:#cf222e;--t2:#bc4c00;--t3:#9a6700;--t4:#1a7f37;--t5:#656d76;
+}
+:root[data-theme="dark"]{
+  --bg:#0d1117;--bg2:#161b22;--line:#30363d;--line2:#21262d;--text:#e6edf3;--dim:#8d96a0;
+  --blue:#4493f8;--green:#3fb950;--red:#f85149;--amber:#d29922;--btn:#21262d;
+  --new:#12261e;--newb:#3fb950;--mod:#2e2a17;--modb:#d29922;--same:#161b22;--sameb:#30363d;
+  --ai:#a371f7;--ai-soft:#1d1530;--ai-line:#5a3e8f;--ai-text:#c9a7ff;
+  --t1:#f85149;--t2:#f0883e;--t3:#d29922;--t4:#3fb950;--t5:#8d96a0;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1117;--bg2:#161b22;--line:#30363d;--line2:#21262d;--text:#e6edf3;--dim:#8d96a0;
+  --blue:#4493f8;--green:#3fb950;--red:#f85149;--amber:#d29922;--btn:#21262d;
+  --new:#12261e;--newb:#3fb950;--mod:#2e2a17;--modb:#d29922;--same:#161b22;--sameb:#30363d;
+  --ai:#a371f7;--ai-soft:#1d1530;--ai-line:#5a3e8f;--ai-text:#c9a7ff;
+  --t1:#f85149;--t2:#f0883e;--t3:#d29922;--t4:#3fb950;--t5:#8d96a0;
+}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:14px/1.55 -apple-system,"PingFang SC",system-ui,sans-serif}
+button{font:inherit;color:inherit}
+.vtabs{display:flex;gap:4px;padding:6px 16px;border-bottom:1px solid var(--line);background:var(--bg2);flex-wrap:wrap;position:sticky;top:0;z-index:10}
+.vtabs button{border:1px solid transparent;background:none;border-radius:6px;padding:3px 12px;cursor:pointer;font-size:13px;color:var(--dim)}
+.vtabs button.on{border-color:var(--ai-line);background:var(--ai-soft);color:var(--ai-text);font-weight:600}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.bar .logo{font-weight:700}
+.pill{border:1px solid var(--line);border-radius:999px;padding:1px 10px;font-size:12.5px;color:var(--blue)}
+.dim{color:var(--dim)} .a{color:var(--green);font-weight:600} .d{color:var(--red);font-weight:600}
+.sp{flex:1}
+.btn{border:1px solid var(--line);background:var(--btn);border-radius:6px;padding:4px 12px;cursor:pointer;font-size:13px}
+.btn.go{background:var(--green);border-color:var(--green);color:#fff}
+.seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:var(--btn);padding:3px 10px;cursor:pointer;font-size:12.5px;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}.seg button.on{background:var(--blue);color:#fff}
+.wrap{max-width:1180px;margin:0 auto;padding:20px}
+h1{font-size:20px;margin:0 0 6px} h2{font-size:15px;margin:22px 0 8px} h3{font-size:14px;margin:0 0 6px}
+.verdict{border:1px solid var(--ai-line);background:var(--ai-soft);border-radius:10px;padding:12px 14px}
+.verdict .k{font-size:11.5px;color:var(--ai-text);font-weight:700;letter-spacing:.04em}
+.box{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--bg)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tag{display:inline-block;border-radius:999px;font-size:11.5px;padding:0 8px;border:1px solid var(--line);color:var(--dim)}
+.tag.new{background:var(--new);border-color:var(--newb);color:var(--newb)}
+.tag.mod{background:var(--mod);border-color:var(--modb);color:var(--modb)}
+.tl{display:inline-block;font-size:11.5px;font-weight:700;padding:0 7px;border-radius:4px;color:#fff}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+td,th{border-bottom:1px solid var(--line2);padding:7px 8px;text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--dim);font-weight:600}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12.5px}
+.file{cursor:pointer}.file:hover .mono{color:var(--blue);text-decoration:underline}
+.risk{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line2)}
+.risk .rt{flex:none;width:88px}
+.risk .q{font-weight:600}
+.cov td:first-child{width:28px;text-align:center}
+svg text{font-family:-apple-system,"PingFang SC",system-ui,sans-serif}
+/* board */
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.col{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px}
+.col .ch{display:flex;align-items:center;gap:6px;margin-bottom:8px;font-weight:600;font-size:13px}
+.card{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px;margin-bottom:8px;cursor:pointer;font-size:12.5px}
+.card:hover{border-color:var(--blue)}
+.card .n{font:600 12.5px ui-monospace,Menlo,monospace;word-break:break-all}
+/* route */
+.route{display:grid;grid-template-columns:380px minmax(0,1fr);gap:24px}
+.route .left{position:sticky;top:60px;align-self:start}
+.stop{display:flex;gap:12px;position:relative;padding-bottom:14px;cursor:pointer}
+.stop:before{content:"";position:absolute;left:13px;top:28px;bottom:0;width:2px;background:var(--line)}
+.stop:last-child:before{display:none}
+.stop .dot{width:28px;height:28px;border-radius:50%;flex:none;color:#fff;font:700 12px/28px system-ui;text-align:center}
+.stop .body{flex:1;border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.stop:hover .body{border-color:var(--blue)}
+.tierHead{font-size:12px;font-weight:700;margin:6px 0 8px 40px}
+/* qa */
+.qa{max-width:900px;margin:0 auto}
+.steps{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.steps button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:3px 12px;cursor:pointer;font-size:12.5px}
+.steps button.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.steps button.done{border-color:var(--green);color:var(--green)}
+.qcard{border:1px solid var(--line);border-radius:12px;padding:18px 20px;min-height:360px;animation:in .25s ease}
+@keyframes in{from{opacity:0;transform:translateX(8px)}to{opacity:1}}
+.qcard .qq{font-size:18px;font-weight:700;margin-bottom:10px}
+/* map */
+.map{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px}
+.mapsvg g.m{cursor:pointer}
+.mapsvg g.m:hover rect{stroke-width:2.5}
+.mapsvg g.m.on rect{stroke:var(--blue);stroke-width:3}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:8px 16px;border-radius:8px;font-size:13px;z-index:40}
+@media (max-width:900px){.grid2,.map,.route{grid-template-columns:1fr}.board{grid-template-columns:1fr 1fr}.route .left{position:static}}
+</style>
+</head>
+<body>
+<div class="vtabs" id="vtabs"></div>
+<div class="bar" id="bar"></div>
+<div id="main"></div>
+<script>
+const S={v:'report',lang:'en',sort:'tier',mod:null,qi:0,seen:{}};
+try{const s=JSON.parse(localStorage.getItem('hr-ov')||'{}');Object.assign(S,s)}catch(e){}
+const save=()=>{try{localStorage.setItem('hr-ov',JSON.stringify({v:S.v,lang:S.lang}))}catch(e){}};
+const L=o=>typeof o==='string'?o:(o[S.lang]??o.en);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const UI={
+ tabs:[['report',{en:'1 Report',zh:'① 一页报告'}],['map',{en:'2 Module map',zh:'② 模块地图'}],['board',{en:'3 Tier board',zh:'③ 分档看板'}],['route',{en:'4 Route',zh:'④ 审阅路线'}],['qa',{en:'5 Five questions',zh:'⑤ 五个问题'}]],
+ start:{en:'Start review',zh:'开始 review'},files:{en:'files',zh:'个文件'},
+ verdict:{en:'VERDICT',zh:'结论'},problem:{en:'Problem',zh:'问题'},design:{en:'Design',zh:'设计'},path:{en:'Where it attaches',zh:'改动挂在哪'},
+ boundary:{en:'Boundary',zh:'改动边界'},decide:{en:'Needs your call',zh:'需要你拍板'},order:{en:'Review order',zh:'审阅顺序'},
+ byTier:{en:'By importance',zh:'按重要性'},byPath:{en:'By path',zh:'按路径'},why:{en:'Why here',zh:'为什么排这里'},min:{en:'min',zh:'分钟'},
+ legendNew:{en:'new',zh:'新增'},legendMod:{en:'modified',zh:'修改'},legendSame:{en:'unchanged',zh:'未改'},
+ prev:{en:'Back',zh:'上一个'},next:{en:'Next',zh:'下一个'},total:{en:'Est. review time',zh:'预计用时'},
+ demo:{en:'This prototype only opens the two demo files.',zh:'原型里只能打开两个示例文件。'}
+};
+const TIERS=[
+ {id:1,c:'var(--t1)',n:{en:'Core logic',zh:'核心逻辑'}},
+ {id:2,c:'var(--t2)',n:{en:'Wiring',zh:'接线'}},
+ {id:3,c:'var(--t3)',n:{en:'Config & compat',zh:'配置与兼容'}},
+ {id:4,c:'var(--t4)',n:{en:'Tests',zh:'测试'}},
+ {id:5,c:'var(--t5)',n:{en:'Docs & build',zh:'文档与构建'}}];
+const F=(path,a,d,st,tier,min,mod,why,demo)=>({path,a,d,st,tier,min,mod,why,demo});
+const FILES=[
+ F('pkg/ddl/storage_class_interval.go',243,0,'new',1,15,'rules',{en:'Leaf: parses INTERVAL, computes the cutoff and maps it onto the partition key. Everything else calls it.',zh:'叶子：解析 INTERVAL、算截止时间、映射到分区键。其余代码都调用它。'}),
+ F('pkg/ddl/storage_class.go',83,38,'mod',1,12,'rules',{en:'Statement-time path: the evaluator applies interval rules exactly like literal rules.',zh:'语句执行时的路径：evaluator 让 interval 规则和固定值规则走同一套匹配。'}),
+ F('pkg/ddl/storage_class_interval_recalc.go',313,0,'new',1,20,'recalc',{en:'The background loop and the "only STANDARD→IA" gate. Highest risk.',zh:'后台循环和「只允许 STANDARD→IA」的闸。风险最高。'},1),
+ F('pkg/ddl/engine_attribute.go',22,2,'mod',1,8,'job',{en:'Two gates inside the shared ALTER executor; also the admission check.',zh:'共用的 ALTER 执行函数里加了两道闸，还有准入检查。'},1),
+ F('pkg/ddl/job_scheduler.go',19,0,'mod',2,4,'owner',{en:'Starts the loop when this node becomes DDL owner.',zh:'节点成为 DDL owner 时启动循环。'}),
+ F('pkg/ddl/executor.go',6,0,'mod',2,2,'entry',{en:'CREATE TABLE rejects an unsupported partition key.',zh:'CREATE TABLE 拒绝不支持的分区键。'}),
+ F('pkg/meta/model/job_args.go',7,2,'mod',3,4,'job',{en:'New job argument; check rolling-upgrade decoding.',zh:'新增 job 参数；要看滚动升级时的解码。'}),
+ F('pkg/sessionctx/variable/sysvar.go',17,0,'mod',3,3,'sysvar',{en:'Period variable: 0 disables, <10m is raised to 10m.',zh:'周期变量：0 关闭，小于 10m 提到 10m。'}),
+ F('pkg/sessionctx/vardef/tidb_vars.go',5,0,'mod',3,1,'sysvar',{en:'Name and default (24h).',zh:'变量名和默认值（24h）。'}),
+ F('pkg/ddl/storage_class_interval_recalc_test.go',358,0,'new',4,12,'recalc',{en:'Loop, gates, clock skew, owner change.',zh:'循环、两道闸、时钟回拨、owner 切换。'}),
+ F('pkg/ddl/storage_class_interval_test.go',335,0,'new',4,10,'rules',{en:'Parsing, cutoff math, key kinds, fuzz.',zh:'解析、截止时间计算、分区键类型、fuzz。'}),
+ F('tests/integrationtest/t/ddl/storage_class.test',28,0,'mod',4,3,'entry',{en:'User-visible SQL behavior.',zh:'用户可见的 SQL 行为。'}),
+ F('tests/integrationtest/r/ddl/storage_class.result',44,0,'mod',4,2,'entry',{en:'Recorded output of the above.',zh:'上面用例的录制结果。'}),
+ F('pkg/meta/model/job_args_test.go',21,0,'mod',4,2,'job',{en:'Argument round trip.',zh:'参数编解码往返。'}),
+ F('pkg/ddl/storage_class_partition_test.go',1,1,'mod',4,1,'rules',{en:'One assertion updated.',zh:'改了一处断言。'}),
+ F('pkg/ddl/BUILD.bazel',4,0,'mod',5,1,'build',{en:'New files and test.',zh:'登记新文件和测试。'}),
+ F('docs/agents/ddl/01-execution-flow.md',1,0,'mod',5,1,'build',{en:'Mentions owner-submitted jobs.',zh:'提到 owner 自己提交的 job。'}),
+ F('docs/agents/ddl/05-file-map.md',1,0,'mod',5,1,'build',{en:'File map entry.',zh:'文件地图条目。'})];
+const M={
+ verdict:{en:'Lets an IA rule say "older than 3 years" instead of a fixed date, and keeps it moving with a daily DDL-owner job. The direction is sound; one rolling-upgrade question and three behavior choices need your call.',
+          zh:'让 IA 规则可以写「早于 3 年前」而不是固定日期，并由 DDL owner 每天重算一次，让这条线随时间往前走。方向没问题；有一个滚动升级问题和三个行为取舍要你拍板。'},
+ problem:{en:'A less_than selector is a fixed boundary. Tiers are computed once, when a DDL touches the table, and never again — so "3 years ago" written as a date stops moving the moment it is written.',
+          zh:'less_than 选择器是一个固定边界。档位只在 DDL 碰到表的那一刻算一次，之后不再算——所以把「三年前」写成日期，写下那一刻它就不动了。'},
+ design:[{en:'Statement time: INTERVAL n UNIT is converted to the literal it stands for at now (UTC), then matched exactly like a literal.',zh:'语句执行时：把 INTERVAL n UNIT 换算成「现在（UTC）」对应的固定值，再按固定值规则匹配。'},
+         {en:'Background: the DDL owner re-evaluates every partitioned table each period and submits an ALTER job for tables whose partitions newly cross the cutoff.',zh:'后台：DDL owner 每个周期把所有分区表重算一遍，有分区新越线的就提交一个 ALTER job。'},
+         {en:'Safety: the job re-checks at execution — skip if the rule changed meanwhile, and apply only STANDARD→IA moves.',zh:'安全：job 执行时再检查一遍——规则中途被改过就跳过，且只允许 STANDARD→IA。'}],
+ cover:[['✓',{en:'RANGE COLUMNS(DATE / DATETIME), RANGE(TO_DAYS(col)), RANGE(UNIX_TIMESTAMP(col))',zh:'RANGE COLUMNS(DATE / DATETIME)、RANGE(TO_DAYS(col))、RANGE(UNIX_TIMESTAMP(col))'}],
+        ['✓',{en:'CREATE TABLE, ALTER ENGINE_ATTRIBUTE, ADD / REORGANIZE PARTITION',zh:'CREATE TABLE、ALTER ENGINE_ATTRIBUTE、ADD / REORGANIZE PARTITION'}],
+        ['✗',{en:'Tiers other than IA; combining with transitions',zh:'IA 以外的档位；和 transitions 一起用'}],
+        ['✗',{en:'Moving partitions back from IA to STANDARD (never done by recalculation)',zh:'把分区从 IA 挪回 STANDARD（重算从不这么做）'}],
+        ['!',{en:'CREATE TABLE … LIKE copies the rule without the partition-key check',zh:'CREATE TABLE … LIKE 复制规则时不做分区键检查'}],
+        ['!',{en:'Classic kernel: the loop runs and jobs change metadata, but no TiKV transition is staged',zh:'经典内核：循环照跑、元数据会改，但不会排 TiKV 迁移'}]],
+ decide:[[{en:'Compat',zh:'兼容'},{en:'During a rolling upgrade, what does an older DDL owner do with a recalculation job?',zh:'滚动升级期间，老版本的 DDL owner 拿到重算 job 会怎么处理？'},{en:'Unverified. Old decoders read only the first argument and would run it as a plain ALTER.',zh:'未验证。老版本只解第一个参数，可能当成普通 ALTER 执行。'}],
+         [{en:'Behavior',zh:'行为'},{en:'Clock moves backwards: the whole table is skipped with a Warn and a metric. OK?',zh:'时钟回拨：整张表跳过，打 Warn 和指标。可以吗？'},{en:'Alternative: apply the STANDARD→IA part only.',zh:'另一种做法：只应用 STANDARD→IA 的那部分。'}],
+         [{en:'Design',zh:'设计'},{en:'Default period 24h, floor 10m, cutoff in UTC.',zh:'默认周期 24h，下限 10m，截止时间按 UTC。'},{en:'A partition can lag up to one period after it crosses.',zh:'分区越线后最多晚一个周期才转 IA。'}],
+         [{en:'Scope',zh:'范围'},{en:'IA only, no transitions.',zh:'只支持 IA，不支持 transitions。'},{en:'Keeps the gate simple: any non-STANDARD→IA move is a bug signal.',zh:'这样闸很简单：任何非 STANDARD→IA 的变化都是异常信号。'}]]
+};
+// attach-path diagram
+function pathSVG(){const W=1100,H=250;
+ const box=(x,y,w,t,kind,sub)=>{const fill=kind==='new'?'var(--new)':kind==='mod'?'var(--mod)':'var(--same)',st=kind==='new'?'var(--newb)':kind==='mod'?'var(--modb)':'var(--sameb)';
+  return `<rect x="${x}" y="${y}" width="${w}" height="52" rx="8" fill="${fill}" stroke="${st}" stroke-width="1.5"/><text x="${x+10}" y="${y+21}" font-size="13" font-weight="600" fill="var(--text)">${esc(L(t))}</text><text x="${x+10}" y="${y+40}" font-size="11.5" fill="var(--dim)">${esc(L(sub))}</text>`};
+ const ar=(x1,y1,x2,y2)=>`<path d="M${x1},${y1} C${(x1+x2)/2},${y1} ${(x1+x2)/2},${y2} ${x2},${y2}" fill="none" stroke="var(--dim)" stroke-width="1.4" marker-end="url(#a)"/>`;
+ let s=`<defs><marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="var(--dim)"/></marker></defs>`;
+ s+=`<text x="0" y="14" font-size="11.5" font-weight="700" fill="var(--dim)">${esc(L({en:'STATEMENT TIME',zh:'语句执行时'}))}</text>`;
+ s+=box(0,24,200,{en:'CREATE / ALTER / ADD PARTITION',zh:'CREATE / ALTER / 加分区'},'same',{en:'user DDL',zh:'用户 DDL'});
+ s+=box(240,24,210,{en:'Admission check',zh:'准入检查'},'mod',{en:'reject unsupported partition key',zh:'拒绝不支持的分区键'});
+ s+=box(490,24,250,{en:'BuildStorageClassForPartitions',zh:'BuildStorageClassForPartitions'},'mod',{en:'INTERVAL → literal at now',zh:'INTERVAL → 此刻的固定值'});
+ s+=box(780,24,150,{en:'Partition tier',zh:'分区档位'},'same',{en:'in table metadata',zh:'写进表元数据'});
+ s+=ar(200,50,240,50)+ar(450,50,490,50)+ar(740,50,780,50);
+ s+=`<text x="0" y="122" font-size="11.5" font-weight="700" fill="var(--dim)">${esc(L({en:'EVERY PERIOD (NEW)',zh:'每个周期（新增）'}))}</text>`;
+ s+=box(0,132,200,{en:'DDL owner loop',zh:'DDL owner 循环'},'new',{en:'default 24h',zh:'默认 24h'});
+ s+=box(240,132,210,{en:'Re-evaluate tables',zh:'重算每张分区表'},'new',{en:'without touching metadata',zh:'只算不改'});
+ s+=box(490,132,250,{en:'Submit ALTER job',zh:'提交 ALTER job'},'new',{en:'flag: interval recalculation',zh:'带重算标记'});
+ s+=box(780,132,150,{en:'onModify…Attribute',zh:'onModify…Attribute'},'mod',{en:'two gates',zh:'两道闸'});
+ s+=box(960,132,140,{en:'TiKV transition',zh:'TiKV 迁移'},'same',{en:'next-gen only',zh:'仅 next-gen'});
+ s+=ar(200,158,240,158)+ar(450,158,490,158)+ar(740,158,780,158)+ar(930,158,960,158);
+ s+=`<path d="M855,132 C855,100 855,100 855,76" fill="none" stroke="var(--dim)" stroke-dasharray="4 3" marker-end="url(#a)"/><text x="862" y="108" font-size="11" fill="var(--dim)">${esc(L({en:'same tier rules',zh:'同一套定档逻辑'}))}</text>`;
+ s+=`<g transform="translate(0,215)"><rect width="14" height="14" rx="3" fill="var(--new)" stroke="var(--newb)"/><text x="20" y="11" font-size="12" fill="var(--dim)">${L(UI.legendNew)}</text><rect x="80" width="14" height="14" rx="3" fill="var(--mod)" stroke="var(--modb)"/><text x="100" y="11" font-size="12" fill="var(--dim)">${L(UI.legendMod)}</text><rect x="180" width="14" height="14" rx="3" fill="var(--same)" stroke="var(--sameb)"/><text x="200" y="11" font-size="12" fill="var(--dim)">${L(UI.legendSame)}</text></g>`;
+ return `<svg viewBox="0 0 ${W} ${H}" width="100%">${s}</svg>`}
+const MODS=[
+ {id:'entry',x:20,y:20,w:230,kind:'mod',n:{en:'SQL entry',zh:'SQL 入口'},sub:'executor.go'},
+ {id:'rules',x:300,y:20,w:260,kind:'mod',n:{en:'Storage class rules',zh:'存储档位规则'},sub:'storage_class*.go'},
+ {id:'sysvar',x:610,y:20,w:220,kind:'mod',n:{en:'System variable',zh:'系统变量'},sub:'sysvar.go'},
+ {id:'owner',x:20,y:150,w:230,kind:'mod',n:{en:'DDL owner scheduler',zh:'DDL owner 调度'},sub:'job_scheduler.go'},
+ {id:'recalc',x:300,y:150,w:260,kind:'new',n:{en:'Interval recalculator',zh:'Interval 重算器'},sub:'…_recalc.go'},
+ {id:'job',x:610,y:150,w:220,kind:'mod',n:{en:'DDL job execution',zh:'DDL job 执行'},sub:'engine_attribute.go, job_args.go'},
+ {id:'tikv',x:880,y:150,w:180,kind:'same',n:{en:'TiKV transition',zh:'TiKV 迁移'},sub:{en:'unchanged',zh:'未改'}},
+ {id:'build',x:880,y:20,w:180,kind:'mod',n:{en:'Docs & build',zh:'文档与构建'},sub:'BUILD, docs'}];
+function mapSVG(){let s=`<defs><marker id="b" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="var(--dim)"/></marker></defs>`;
+ const c=id=>MODS.find(m=>m.id===id);const ar=(a,b,lab)=>{const A=c(a),B=c(b);let x1,y1,x2,y2;if(A.y===B.y){x1=A.x+A.w;y1=A.y+35;x2=B.x;y2=B.y+35}else{x1=A.x+A.w/2;y1=A.y+70;x2=B.x+B.w/2;y2=B.y}return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--dim)" stroke-width="1.4" marker-end="url(#b)"/>${lab?`<text x="${(x1+x2)/2+4}" y="${(y1+y2)/2-5}" font-size="11" fill="var(--dim)">${esc(L(lab))}</text>`:''}`};
+ s+=ar('entry','rules',{en:'compute tiers',zh:'定档'})+ar('owner','recalc',{en:'starts',zh:'启动'})+ar('recalc','job',{en:'submits job',zh:'提交 job'})+ar('job','tikv',{en:'stages',zh:'排迁移'})+ar('sysvar','job',null)+`<line x1="430" y1="150" x2="430" y2="90" stroke="var(--dim)" stroke-dasharray="4 3" marker-end="url(#b)"/><text x="436" y="125" font-size="11" fill="var(--dim)">${esc(L({en:'evaluates with',zh:'用同一套规则'}))}</text>`;
+ MODS.forEach(m=>{const fill=m.kind==='new'?'var(--new)':m.kind==='mod'?'var(--mod)':'var(--same)',st=m.kind==='new'?'var(--newb)':m.kind==='mod'?'var(--modb)':'var(--sameb)';const n=FILES.filter(f=>f.mod===m.id);const add=n.reduce((a,f)=>a+f.a,0);
+  s+=`<g class="m ${S.mod===m.id?'on':''}" data-mod="${m.id}"><rect x="${m.x}" y="${m.y}" width="${m.w}" height="70" rx="10" fill="${fill}" stroke="${st}" stroke-width="1.5"/><text x="${m.x+12}" y="${m.y+24}" font-size="14" font-weight="600" fill="var(--text)">${esc(L(m.n))}</text><text x="${m.x+12}" y="${m.y+43}" font-size="11.5" fill="var(--dim)" font-family="ui-monospace,Menlo">${esc(L(m.sub))}</text>${n.length?`<text x="${m.x+12}" y="${m.y+60}" font-size="11.5" fill="var(--dim)">${n.length} ${L(UI.files)} · +${add}</text>`:''}</g>`});
+ return `<svg class="mapsvg" viewBox="0 0 1080 240" width="100%">${s}</svg>`}
+const tier=id=>TIERS.find(t=>t.id===id);
+const tl=id=>`<span class="tl" style="background:${tier(id).c}">${L(tier(id).n)}</span>`;
+const st=f=>`<span class="tag ${f.st}">${L(f.st==='new'?UI.legendNew:UI.legendMod)}</span>`;
+const totalMin=()=>FILES.reduce((a,f)=>a+f.min,0);
+function ordered(){const fs=[...FILES];if(S.sort==='path')fs.sort((a,b)=>a.path.localeCompare(b.path));return fs}
+function orderTable(){let h=`<div style="display:flex;align-items:center;gap:10px;margin:22px 0 8px"><h2 style="margin:0">${L(UI.order)}</h2><span class="dim">${L(UI.total)} ≈ ${totalMin()} ${L(UI.min)}</span><span class="sp"></span><div class="seg"><button data-sort="tier" class="${S.sort==='tier'?'on':''}">${L(UI.byTier)}</button><button data-sort="path" class="${S.sort==='path'?'on':''}">${L(UI.byPath)}</button></div></div><table><tr><th>#</th><th></th><th>${L({en:'File',zh:'文件'})}</th><th></th><th>${L(UI.why)}</th><th>${L(UI.min)}</th></tr>`;
+ let last=null;ordered().forEach((f,i)=>{if(S.sort==='tier'&&f.tier!==last){last=f.tier;h+=`<tr><td colspan="6" style="padding-top:12px">${tl(f.tier)}</td></tr>`}
+  h+=`<tr class="file" data-open="${f.path}"><td class="dim">${i+1}</td><td>${st(f)}</td><td><span class="mono">${esc(f.path)}</span></td><td class="mono"><span class="a">+${f.a}</span> <span class="d">−${f.d}</span></td><td>${esc(L(f.why))}</td><td class="dim">${f.min}</td></tr>`});
+ return h+'</table>'}
+function riskList(){return M.decide.map(([t,q,n])=>`<div class="risk"><div class="rt"><span class="tag">${esc(L(t))}</span></div><div><div class="q">${esc(L(q))}</div><div class="dim">${esc(L(n))}</div></div></div>`).join('')}
+function coverTable(){return `<table class="cov">${M.cover.map(([m,t])=>`<tr><td style="color:${m==='✓'?'var(--green)':m==='✗'?'var(--red)':'var(--amber)'};font-weight:700">${m}</td><td>${esc(L(t))}</td></tr>`).join('')}</table>`}
+const VIEWS={
+report(){return `<div class="wrap"><div class="verdict"><div class="k">${L(UI.verdict)}</div>${esc(L(M.verdict))}</div>
+ <div class="grid2"><div><h2>${L(UI.problem)}</h2><div class="box">${esc(L(M.problem))}</div></div><div><h2>${L(UI.design)}</h2><div class="box"><ol style="margin:0;padding-left:18px">${M.design.map(d=>`<li>${esc(L(d))}</li>`).join('')}</ol></div></div></div>
+ <h2>${L(UI.path)}</h2><div class="box">${pathSVG()}</div>
+ <div class="grid2"><div><h2>${L(UI.boundary)}</h2><div class="box">${coverTable()}</div></div><div><h2>${L(UI.decide)}</h2><div class="box">${riskList()}</div></div></div>
+ ${orderTable()}</div>`},
+map(){const m=S.mod&&MODS.find(x=>x.id===S.mod);const fs=m?FILES.filter(f=>f.mod===m.id):[];
+ return `<div class="wrap"><div class="verdict"><div class="k">${L(UI.verdict)}</div>${esc(L(M.verdict))}</div><div class="map" style="margin-top:16px"><div><div class="box">${mapSVG()}</div><h2>${L(UI.path)}</h2><div class="box">${pathSVG()}</div></div>
+ <div>${m?`<div class="box"><h3>${esc(L(m.n))}</h3>${fs.map(f=>`<div class="file" data-open="${f.path}" style="padding:6px 0;border-bottom:1px solid var(--line2)">${tl(f.tier)} ${st(f)} <span class="mono">${esc(f.path.split('/').pop())}</span> <span class="mono"><span class="a">+${f.a}</span> <span class="d">−${f.d}</span></span><div class="dim" style="font-size:12.5px">${esc(L(f.why))}</div></div>`).join('')}</div>`:`<div class="box dim">${L({en:'Click a module to see its files.',zh:'点模块看它包含的文件。'})}</div>`}
+ <h2>${L(UI.decide)}</h2><div class="box">${riskList()}</div><h2>${L(UI.boundary)}</h2><div class="box">${coverTable()}</div></div></div></div>`},
+board(){return `<div class="wrap"><div class="verdict"><div class="k">${L(UI.verdict)}</div>${esc(L(M.verdict))}</div><h2>${L(UI.path)}</h2><div class="box">${pathSVG()}</div>
+ <div style="display:flex;align-items:center;gap:10px;margin:22px 0 8px"><h2 style="margin:0">${L(UI.order)}</h2><span class="dim">${L(UI.total)} ≈ ${totalMin()} ${L(UI.min)}</span></div>
+ <div class="board">${TIERS.map(t=>{const fs=FILES.filter(f=>f.tier===t.id);return `<div class="col"><div class="ch"><span class="tl" style="background:${t.c}">${t.id}</span>${esc(L(t.n))}<span class="sp"></span><span class="dim" style="font-weight:400">${fs.reduce((a,f)=>a+f.min,0)}′</span></div>${fs.map(f=>`<div class="card" data-open="${f.path}"><div class="n">${esc(f.path.split('/').pop())}</div><div style="margin:3px 0">${st(f)} <span class="mono"><span class="a">+${f.a}</span> <span class="d">−${f.d}</span></span></div><div class="dim">${esc(L(f.why))}</div></div>`).join('')}</div>`}).join('')}</div>
+ <div class="grid2"><div><h2>${L(UI.boundary)}</h2><div class="box">${coverTable()}</div></div><div><h2>${L(UI.decide)}</h2><div class="box">${riskList()}</div></div></div></div>`},
+route(){let h='',last=null,i=0;FILES.forEach(f=>{if(f.tier!==last){last=f.tier;h+=`<div class="tierHead" style="color:${tier(f.tier).c}">${esc(L(tier(f.tier).n))}</div>`}i++;
+  h+=`<div class="stop" data-open="${f.path}"><div class="dot" style="background:${S.seen[f.path]?'var(--green)':tier(f.tier).c}">${S.seen[f.path]?'✓':i}</div><div class="body"><div>${st(f)} <span class="mono" style="font-weight:600">${esc(f.path)}</span> <span class="mono"><span class="a">+${f.a}</span> <span class="d">−${f.d}</span></span> <span class="dim">· ${f.min} ${L(UI.min)}</span></div><div class="dim" style="font-size:13px">${esc(L(f.why))}</div></div></div>`});
+ return `<div class="wrap"><div class="route"><div class="left"><div class="verdict"><div class="k">${L(UI.verdict)}</div>${esc(L(M.verdict))}</div><h2>${L(UI.design)}</h2><div class="box"><ol style="margin:0;padding-left:18px">${M.design.map(d=>`<li>${esc(L(d))}</li>`).join('')}</ol></div><h2>${L(UI.decide)}</h2><div class="box">${riskList()}</div></div>
+ <div><h2 style="margin-top:0">${L(UI.path)}</h2><div class="box" style="margin-bottom:18px">${pathSVG()}</div><h2>${L(UI.order)} <span class="dim" style="font-weight:400;font-size:13px">≈ ${totalMin()} ${L(UI.min)}</span></h2>${h}</div></div></div>`},
+qa(){const Q=[
+  [{en:'What is wrong today?',zh:'现在哪里有问题？'},`<p>${esc(L(M.problem))}</p>`],
+  [{en:'How does the PR fix it?',zh:'PR 怎么解决？'},`<ol>${M.design.map(d=>`<li style="margin-bottom:6px">${esc(L(d))}</li>`).join('')}</ol>`],
+  [{en:'Where does it attach?',zh:'改动挂在哪？'},pathSVG()+mapSVG()],
+  [{en:'What is covered, what is not?',zh:'覆盖了什么，没覆盖什么？'},coverTable()],
+  [{en:'What needs your call?',zh:'要你拍板什么？'},riskList()],
+  [{en:'In what order to review?',zh:'按什么顺序看？'},orderTable()]];
+ const q=Q[S.qi];return `<div class="wrap"><div class="qa"><div class="verdict" style="margin-bottom:14px"><div class="k">${L(UI.verdict)}</div>${esc(L(M.verdict))}</div><div class="steps">${Q.map((x,i)=>`<button data-qi="${i}" class="${i===S.qi?'on':i<S.qi?'done':''}">${i+1}. ${esc(L(x[0]))}</button>`).join('')}</div>
+ <div class="qcard" key="${S.qi}"><div class="qq">${esc(L(q[0]))}</div>${q[1]}</div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn" data-qstep="-1" ${S.qi?'':'disabled'}>${L(UI.prev)}</button><span class="sp"></span>${S.qi<Q.length-1?`<button class="btn" data-qstep="1">${L(UI.next)} →</button>`:`<button class="btn go" data-start="1">${L(UI.start)}</button>`}</div></div></div>`}
+};
+function render(){document.documentElement.lang=S.lang==='zh'?'zh-CN':'en';
+ document.getElementById('vtabs').innerHTML=UI.tabs.map(([k,n])=>`<button data-v="${k}" class="${S.v===k?'on':''}">${esc(L(n))}</button>`).join('');
+ document.getElementById('bar').innerHTML=`<span class="logo">review</span><span class="pill">pingcap/tidb#73235</span><span class="mono">ddl: storage class interval selector</span><span class="dim">${FILES.length} ${L(UI.files)} <span class="a">+${FILES.reduce((a,f)=>a+f.a,0)}</span> <span class="d">−${FILES.reduce((a,f)=>a+f.d,0)}</span></span><span class="sp"></span><div class="seg"><button data-lang="en" class="${S.lang==='en'?'on':''}">EN</button><button data-lang="zh" class="${S.lang==='zh'?'on':''}">中文</button></div><button class="btn" id="theme">◐</button><button class="btn go" data-start="1">${L(UI.start)} →</button>`;
+ document.getElementById('main').innerHTML=VIEWS[S.v]()}
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1800)}
+document.addEventListener('click',e=>{const c=x=>e.target.closest(x);
+ if(c('[data-v]')){S.v=c('[data-v]').dataset.v;save();render();scrollTo(0,0);return}
+ if(c('[data-lang]')){S.lang=c('[data-lang]').dataset.lang;save();render();return}
+ if(c('#theme')){const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;r.dataset.theme=dark?'light':'dark';return}
+ if(c('[data-sort]')){S.sort=c('[data-sort]').dataset.sort;render();return}
+ if(c('[data-mod]')){S.mod=c('[data-mod]').dataset.mod;render();return}
+ if(c('[data-qi]')){S.qi=+c('[data-qi]').dataset.qi;render();return}
+ if(c('[data-qstep]')){S.qi+=+c('[data-qstep]').dataset.qstep;render();return}
+ if(c('[data-start]')){try{localStorage.setItem('hr-cs-v','side')}catch(_){}location.href='callstack.html';return}
+ if(c('[data-open]')){const p=c('[data-open]').dataset.open;const f=FILES.find(x=>x.path===p);S.seen[p]=1;if(f.demo){try{localStorage.setItem('hr-cs-v','side')}catch(_){}location.href='callstack.html#'+encodeURIComponent(p)}else{toast(L(UI.demo));if(S.v==='route')render()}return}
+});
+render();
+</script>
+</body>
+</html>

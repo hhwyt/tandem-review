@@ -1,0 +1,6 @@
+.ai/
+.DS_Store
+__pycache__/
+*.pyc
+comments-round-*.md
+.tandem/

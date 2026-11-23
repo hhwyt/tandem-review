@@ -229,6 +229,9 @@ details.files[open] summary:before{transform:rotate(90deg)}
 .todec{color:var(--accent-ink);cursor:pointer;border-bottom:1px dashed var(--accent-line);font-family:var(--sans);font-size:14px;white-space:nowrap}.todec:hover{border-bottom-style:solid;text-decoration:none}
 .decdot{cursor:pointer}
 .flashsec{animation:fsec 1.6s ease}@keyframes fsec{0%{background:var(--accent-soft)}100%{background:transparent}}
+.expand{display:flex;align-items:center;gap:10px;padding:4px 14px 4px 116px;background:var(--hunk);border-top:1px solid var(--line2);border-bottom:1px solid var(--line2);font-size:12px}
+.expand button{border:1px solid var(--line);background:var(--surface);border-radius:6px;height:24px;padding:0 9px;cursor:pointer;font-size:12px;color:var(--text2)}.expand button:hover{border-color:var(--accent);color:var(--accent-ink)}
+.dl.ctxl{opacity:.78}
 .helpfab{position:fixed;right:18px;bottom:18px;z-index:25;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--dim);font:600 15px var(--sans);cursor:pointer;box-shadow:var(--shadow);transition:transform .15s,color .15s}
 .helpfab:hover{color:var(--accent);transform:translateY(-2px)}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:9px 16px;border-radius:10px;font-size:13px;z-index:40;box-shadow:var(--shadow)}
@@ -280,15 +283,19 @@ const SKINS={
  midnight:{n:'Midnight',dark:1,bg:'#0f1420',surface:'#151c2b',surface2:'#1b2335',line:'#28324a',text:'#e6ebf5',dim:'#8b96ad',accent:'#5eb3ff',adds:'#58c48a',dels:'#ff6b81',kw:'#c792ea',str:'#58c48a',fn:'#82aaff',com:'#5f6b85',hl:'#5eb3ff'},
  violet:{n:'Violet Night',dark:1,bg:'#1d1a26',surface:'#24202f',surface2:'#2b2638',line:'#3b3450',text:'#f2eefc',dim:'#a49bbd',accent:'#b392f0',adds:'#7ee0a1',dels:'#ff7aa2',kw:'#ff79c6',str:'#f1fa8c',fn:'#8be9fd',com:'#6e6488',hl:'#b392f0'}};
 function applySkin(k){const s=SKINS[k]||SKINS.claude;const r=document.documentElement.style;['bg','surface','surface2','line','text','dim','accent','adds','dels','kw','str','fn','com'].forEach(x=>r.setProperty('--'+x,s[x]));r.setProperty('--hl',s.hl||'#f5c400');r.setProperty('--shadow',s.dark?'0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.35)':'0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.06)');document.documentElement.style.colorScheme=s.dark?'dark':'light';S.skin=k;const bf=document.getElementById('bgframe');if(bf)bf.src='../brand/hero.html?embed=ink&c='+encodeURIComponent(s.text);try{localStorage.setItem('hr-skin',k)}catch(_){}}
+const EDITORS={rustrover:'RustRover',vscode:'VS Code',cursor:'Cursor'};
+// Prototype uses URL schemes; v1 asks the local server to run the editor's launcher (rustrover / code / cursor).
+function edLink(abs,line){const e=S.editor||'rustrover';if(e==='vscode')return `vscode://file${abs.startsWith('/')?'':'/'}${abs}:${line}`;if(e==='cursor')return `cursor://file${abs.startsWith('/')?'':'/'}${abs}:${line}`;return `rr://open?file=${abs}&line=${line}`}
 function setPop(btn){document.querySelector('.setpop')?.remove();const p=document.createElement('div');p.className='setpop';
  p.innerHTML=`<div class="srow"><span>${L(T('Language','语言'))}</span><div class="seg"><button data-lang="en" class="${S.lang==='en'?'on':''}">EN</button><button data-lang="zh" class="${S.lang==='zh'?'on':''}">中文</button></div></div>
  <div class="srow"><span>${L(T('Notes between lines','行间说明'))} <span class="kbd">E</span></span><div class="seg"><button data-ai="1" class="${S.ai?'on':''}">${L(T('Show','显示'))}</button><button data-ai="0" class="${S.ai?'':'on'}">${L(T('Hide','隐藏'))}</button></div></div>
+ <div class="srow"><span>${L(T('Open in','编辑器'))}</span><div class="seg">${Object.entries(EDITORS).map(([k,n])=>`<button data-editor="${k}" class="${(S.editor||'rustrover')===k?'on':''}">${n}</button>`).join('')}</div></div>
  <div class="slab">${L(T('Theme','主题'))}</div><div class="sgrid">${Object.entries(SKINS).map(([k,s])=>`<div class="skin ${S.skin===k?'on':''}" data-skin="${k}" style="background:${s.bg};color:${s.text};border-color:${s.line}"><span class="pal"><i style="background:${s.surface}"></i><i style="background:${s.accent}"></i><i style="background:${s.adds}"></i><i style="background:${s.dels}"></i></span>${s.n}</div>`).join('')}</div>`;
  document.body.appendChild(p);const r=btn.getBoundingClientRect();p.style.top=(r.bottom+8)+'px';p.style.right=(innerWidth-r.right)+'px'}
 function skinPop(btn){document.querySelector('.skinpop')?.remove();const p=document.createElement('div');p.className='skinpop';p.innerHTML=Object.entries(SKINS).map(([k,s])=>`<div class="skin ${S.skin===k?'on':''}" data-skin="${k}" style="background:${s.bg};color:${s.text};border-color:${s.line}"><span class="pal"><i style="background:${s.surface}"></i><i style="background:${s.accent}"></i><i style="background:${s.adds}"></i><i style="background:${s.dels}"></i></span>${s.n}</div>`).join('');document.body.appendChild(p);const r=btn.getBoundingClientRect();p.style.top=(r.bottom+8)+'px';p.style.left=Math.max(8,r.right-300)+'px'}
 
-const S={page:'overview',mode:'reading',cur:'check',file:null,sel:null,range:null,form:null,kind:0,cm:[],round:1,done:{},ai:true,lang:'en',ctx:'calls',open:{},lit:null};
-try{S.lang=localStorage.getItem('hr-lang')||'en'}catch(e){}
+const S={page:'overview',mode:'reading',cur:'check',file:null,sel:null,range:null,form:null,kind:0,cm:[],round:1,done:{},ai:true,lang:'en',ctx:'calls',open:{},lit:null,ctxUp:{},ctxDown:{}};
+try{S.lang=localStorage.getItem('hr-lang')||'en';S.editor=localStorage.getItem('hr-editor')||'rustrover'}catch(e){}
 const L=o=>o==null?'':typeof o==='string'?o:(o[S.lang]??o.en);
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const T=(en,zh)=>({en,zh});
@@ -380,7 +387,13 @@ function commentHTML(u,r){const K=key(u,r);let h='';S.cm.filter(c=>c.k===K).forE
  if(S.form===K){const rg=S.range||[r.n,r.n];h+=`<div class="form"><div class="row kinds">${UI.kinds.map((k,i)=>`<button data-kind="${i}" class="${S.kind===i?'on':''}">${L(k)}</button>`).join('')}<span class="sp"></span><span class="mono dim">${rg[0]===rg[1]?L(UI.line)+' '+rg[0]:L(UI.lines)+' '+rg[0]+'–'+rg[1]}</span></div><textarea id="ta" placeholder="${esc(L(UI.placeholder))}"></textarea><div class="acts"><span class="dim" style="font-size:12px;margin-right:auto">Shift-click ${L(T('another line number to extend the range','另一个行号可选多行'))}</span><button class="btn" data-cancel="1">${L(UI.cancel)}</button><button class="btn accent" data-add="1">${L(UI.add)}</button></div></div>`}
  return h}
 function callChip(u,t){if(/^\s*\/\//.test(t))return '';const hit=UNITS.find(x=>x.id!==u.id&&new RegExp('\\b'+x.name+'\\(').test(t));return hit?`<a class="callchip" data-goto="${hit.id}">→ §${secNo(hit.id)} ${esc(hit.name.length>28?hit.name.slice(0,27)+'…':hit.name)}</a>`:''}
-function codeHTML(u){const rs=rows(u);let h=`<div class="code"><div class="fh"><span class="mono">${esc(u.file)}</span><span class="sp"></span><a class="mono" href="rr://open?file=${RP+u.file}&line=${u.sig}">${L(T('Open in editor','在编辑器打开'))} ↗</a></div>`;
+function codeHTML(u){const rs=rows(u);let h=`<div class="code"><div class="fh"><span class="mono">${esc(u.file)}</span><span class="sp"></span><a class="mono" href="${edLink(RP+u.file,u.sig)}">${L(T('Open in','用'))} ${EDITORS[S.editor||'rustrover']}${S.lang==='zh'?' 打开':''} ↗</a></div>`;
+ const ns=rs.filter(r=>r.n!=null).map(r=>r.n),first=Math.min(...ns),last=Math.max(...ns),FS=(window.FILESRC||{})[u.file]||[],isNew=(window.NEWFILES||[]).includes(u.file);
+ const up=S.ctxUp[u.id]||0,down=S.ctxDown[u.id]||0;
+ const ctxLine=n=>{const r={k:isNew?'+':' ',t:FS[n-1]??'',n,o:isNew?null:n};const K=key(u,r);return `<div class="dl ${isNew?'add':''} ctxl ${S.sel===K?'sel':''}" data-k="${K}" data-u="${u.id}" data-n="${n}"><span class="o">${r.o??''}</span><span class="nn">${n}</span><span class="add-c" data-c="${K}">+</span><span class="mk">${isNew?'+':''}</span><span class="c">${hl(r.t)||' '}</span></div>`+commentHTML(u,r)};
+ const from=Math.max(1,first-up);
+ if(from>1)h+=`<div class="expand"><button data-exp="${u.id}:up:20">↑ ${L(T('Show 20 more lines','展开上方 20 行'))}</button><button data-exp="${u.id}:up:all">⇡ ${L(T('Expand to top of file','展开到文件开头'))}</button><span class="dim">${from-1} ${L(T('lines above','行在上方'))}</span></div>`;
+ for(let n=from;n<first;n++)h+=ctxLine(n);
  if(u.hunk.oldStart)h+=`<div class="hunk">@@ -${u.hunk.oldStart} +${u.hunk.newStart} @@ ${esc(u.name)}</div>`;
  let i=0;while(i<rs.length){const r=rs[i];
   // fold runs of >=3 unchanged context lines that carry no note and no comment
@@ -388,13 +401,15 @@ function codeHTML(u){const rs=rows(u);let h=`<div class="code"><div class="fh"><
   const nt=r.n!=null&&noteAt(u,r.n);if(nt)h+=`<div class="ghost" data-note="${u.id}:${nt[0]}:${nt[1]}"><span class="gg">✦</span><span class="gt">${esc(S.lang==='zh'?nt[3]:nt[2])}</span></div>`;
   const K=key(u,r),cls=r.k==='+'?'add':r.k==='-'?'del':'';const inR=S.range&&S.sel&&S.sel.startsWith(u.id+':')&&r.n!=null&&r.n>=S.range[0]&&r.n<=S.range[1];
   h+=`<div class="dl ${cls} ${S.sel===K?'sel':''} ${inR?'inrange':''}" data-k="${K}" data-u="${u.id}" data-n="${r.n??''}"><span class="o">${r.o??''}</span><span class="nn" data-ln="1">${r.n??''}</span>${r.n!=null?`<span class="add-c" data-c="${K}">+</span>`:''}<span class="mk">${r.k===' '?'':r.k}</span><span class="c">${hl(r.t)||' '}${callChip(u,r.t)}</span></div>`+commentHTML(u,r);i++}
+ const to=Math.min(FS.length,last+down);for(let n=last+1;n<=to;n++)h+=ctxLine(n);
+ if(to<FS.length)h+=`<div class="expand"><button data-exp="${u.id}:down:20">↓ ${L(T('Show 20 more lines','展开下方 20 行'))}</button><button data-exp="${u.id}:down:all">⇣ ${L(T('Expand to end of file','展开到文件末尾'))}</button><span class="dim">${FS.length-to} ${L(T('lines below','行在下方'))}</span></div>`;
  return h+'</div>'}
 function unitHTML(u,solo){const q=queue(),idx=q.findIndex(x=>x.id===u.id);
  return `<section id="u-${u.id}" style="${solo?'':'margin-bottom:34px'}"><div class="eyebrow" style="margin-bottom:4px">${L(T('Chapter','第'))} ${chapOf(u.id)+1}${S.lang==='zh'?' 章':''} · ${esc(L(CHAPTERS[chapOf(u.id)].n))} · §${secNo(u.id)}</div><div class="uhead">${flag(u)}<span class="uname">${esc(u.name)}</span><span class="sp"></span><span class="upos">${idx+1} ${L(UI.of)} ${q.length} · ${L(UI.estimate)} ${estMin(u)} ${L(UI.min)}</span></div>
  <div class="intro"><b>${L(T('Called from','谁调用它'))}</b><span>${u.callers.map(n=>({...n,pr:n.pr||(UNITS.find(x=>x.name===n.name)||{}).id})).map(n=>n.pr?`<a class="cn pr" data-goto="${n.pr}">§${secNo(n.pr)} ${esc(n.name)}</a>`:`<span class="mono">${esc(n.name)}</span>`).join(', ')||'—'}</span><b>${L(UI.what)}</b><span>${esc(L(u.gist))}</span>${crit(u)?`<b>⚑ ${L(T('Why critical','为什么关键'))}</b><span>${esc(L(u.why))}</span>`:''}${M.decide.filter(d=>d[3][0]===u.id).map(d=>`<b>● ${L(T('Your call','待你拍板'))}</b><span>${esc(L(d[1]))} <a class="cn pr" data-golinein="${d[3][1]}">${L(T('line','第'))} ${d[3][1]}${S.lang==='zh'?' 行':''}</a> · <a class="cn" data-todec="1">${L(T('see overview','看总览'))}</a></span>`).join('')}</div>${codeHTML(u)}</section>`}
-function cn(n){if(typeof n==='string')return `<span class="gap">⋯ ${esc(n)} ⋯</span>`;if(n.pr)return `<a class="cn pr" data-goto="${n.pr}">✦ ${esc(n.name)}</a>`;return `<a class="cn" href="rr://open?file=${RP+n.file}&line=${n.line}" title="${n.file}:${n.line}">${esc(n.name)}</a>`}
+function cn(n){if(typeof n==='string')return `<span class="gap">⋯ ${esc(n)} ⋯</span>`;if(n.pr)return `<a class="cn pr" data-goto="${n.pr}">✦ ${esc(n.name)}</a>`;return `<a class="cn" href="${edLink(RP+n.file,n.line)}" title="${n.file}:${n.line}">${esc(n.name)}</a>`}
 function buildTrie(chains,me){const root={kids:[]};chains.forEach(ch=>{let n=root;[...ch,me].forEach(x=>{const k=x.name+'@'+x.file;let c=n.kids.find(y=>y.k===k);if(!c){c={k,node:x,kids:[]};n.kids.push(c)}n=c})});return root}
-function cnT(n,isMe){if(isMe)return `<span class="me-node">● ${esc(n.name)}</span>`;const pr=n.pr||(UNITS.find(x=>x.name===n.name)||{}).id;return (pr?`<a class="cn pr" data-goto="${pr}">✦ ${esc(n.name)}</a>`:`<a class="cn ${n.key?'key':''}" href="rr://open?file=${RP+n.file}&line=${n.line}" title="${n.file}:${n.line}">${esc(n.name)}</a>`)+`<span class="loc">${n.file.split('/').pop()}:${n.line}</span>`}
+function cnT(n,isMe){if(isMe)return `<span class="me-node">● ${esc(n.name)}</span>`;const pr=n.pr||(UNITS.find(x=>x.name===n.name)||{}).id;return (pr?`<a class="cn pr" data-goto="${pr}">✦ ${esc(n.name)}</a>`:`<a class="cn ${n.key?'key':''}" href="${edLink(RP+n.file,n.line)}" title="${n.file}:${n.line}">${esc(n.name)}</a>`)+`<span class="loc">${n.file.split('/').pop()}:${n.line}</span>`}
 // a node is folded away when it is not key, not in the PR, has one child and is not the current function
 function foldable(c,me){return !c.node.key&&!c.node.pr&&c.kids.length===1&&c.node.name!==me.name}
 // Indent only where the stack branches; a single-child run stays in one column.
@@ -469,6 +484,7 @@ document.addEventListener('click',e=>{const c=x=>e.target.closest(x);
  if(c('[data-lang]')){S.lang=c('[data-lang]').dataset.lang;document.querySelector('.setpop')?.remove();try{localStorage.setItem('hr-lang',S.lang)}catch(_){}keepScroll(render);return}
  if(c('[data-skin]')){applySkin(c('[data-skin]').dataset.skin);document.querySelector('.skinpop')?.remove();document.querySelector('.setpop')?.remove();keepScroll(render);return}
  if(c('#setBtn')){if(document.querySelector('.setpop'))document.querySelector('.setpop').remove();else setPop(c('#setBtn'));return}
+ if(c('[data-editor]')){S.editor=c('[data-editor]').dataset.editor;try{localStorage.setItem('hr-editor',S.editor)}catch(_){}document.querySelector('.setpop')?.remove();keepScroll(render);return}
  if(c('[data-ai]')){S.ai=c('[data-ai]').dataset.ai==='1';document.querySelector('.setpop')?.remove();keepScroll(render);return}
  if(c('#theme')){if(document.querySelector('.skinpop'))document.querySelector('.skinpop').remove();else skinPop(c('#theme'));return}
  if(!c('.skinpop'))document.querySelector('.skinpop')?.remove();if(!c('.setpop')&&!c('#setBtn'))document.querySelector('.setpop')?.remove();
@@ -486,6 +502,7 @@ document.addEventListener('click',e=>{const c=x=>e.target.closest(x);
  if(c('[data-todec]')){e.stopPropagation();S.page='overview';render();setTimeout(()=>{const d=document.getElementById('decide');d?.scrollIntoView({behavior:'smooth',block:'start'});d?.classList.add('flashsec')},30);return}
  if(c('[data-golinein]')){const el=document.querySelector(`.dl[data-u="${S.cur}"][data-n="${c('[data-golinein]').dataset.golinein}"]`);if(el){el.scrollIntoView({block:'center',behavior:'smooth'});el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash')}return}
  if(c('[data-goline]')){const [id,ln]=c('[data-goline]').dataset.goline.split(':');S.mode='reading';goUnit(id,+ln);return}
+ if(c('[data-exp]')){const [id,dir,n]=c('[data-exp]').dataset.exp.split(':');const m=dir==='up'?S.ctxUp:S.ctxDown;m[id]=n==='all'?1e6:(m[id]||0)+20;keepScroll(render);return}
  if(c('[data-unfold]')){S.open[c('[data-unfold]').dataset.unfold]=1;keepScroll(render);return}
  if(c('[data-next]')){step(1);return} if(c('[data-prev]')){step(-1);return}
  if(c('[data-c]')){const k=c('[data-c]').dataset.c;S.sel=k;const n=+k.split(':')[1];if(!S.range||!(n>=S.range[0]&&n<=S.range[1]))S.range=[n,n];S.form=k.split(':')[0]+':'+S.range[1];S.kind=0;keepScroll(render);return}

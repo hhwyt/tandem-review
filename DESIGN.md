@@ -44,6 +44,11 @@ The page always shows the latest state. It does not display a round number; earl
 - Call hierarchy panel: the call stack from the entry point (`main`) down to the function as a
   tree, with unimportant frames folded; and what the function calls. Functions in the change jump
   within the page; others open in the editor.
+- Above and below each function, the reviewer can expand 20 more lines or the rest of the file;
+  expanded lines can be commented too.
+- "Open in editor" supports RustRover, VS Code and Cursor, chosen in Settings and remembered. The
+  page asks the local server to run the editor's launcher (`rustrover --line N <path>`,
+  `code -g <path>:N`, `cursor -g <path>:N`); more editors can be added later.
 - Comments on a line or a range, kinds Must fix / Follow-up / Question, sent in one batch.
 - English by default, Chinese available; a one-time hint points at the switch.
 - Ten color themes; every color on the page derives from the active theme.

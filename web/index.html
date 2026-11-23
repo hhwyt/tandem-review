@@ -115,7 +115,7 @@ details.files[open] summary:before{transform:rotate(90deg)}
 .qgrp{padding:14px 14px 4px;font-size:11.5px;font-weight:600;display:flex;align-items:center;gap:6px;color:var(--text2)}
 .qit{display:flex;gap:10px;align-items:flex-start;padding:7px 14px;cursor:pointer;border-left:2px solid transparent}
 .qit:hover{background:var(--surface2)}
-.qit.on{background:var(--surface);border-left-color:var(--accent)}
+.qit.on{background:color-mix(in srgb,var(--accent) 12%,var(--surface));border-left:3px solid var(--accent);padding-left:13px}.qit.on .fn{color:var(--accent);font-weight:700}
 .qit .st{flex:none;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line);margin-top:2px;font-size:10px;line-height:13px;text-align:center;color:#fff}
 .qit.done .st{background:var(--adds);border-color:var(--adds)}
 .qit .fn{font:500 12.5px var(--mono);word-break:break-all;color:var(--text)}
@@ -431,7 +431,7 @@ let raf=0;function drawBanner(){const svg=document.getElementById('ban');if(!svg
 function render(){document.getElementById('ban').parentNode.classList.toggle('on',S.page==='overview');if(S.page==='overview'&&!document.getElementById('ban').childNodes.length)drawBanner();document.documentElement.lang=S.lang==='zh'?'zh-CN':'en';renderTop();S.page==='overview'?renderOverview():renderReview()}
 function keepScroll(fn){const c=document.getElementById('center'),t=c?c.scrollTop:0;fn();const c2=document.getElementById('center');if(c2)c2.scrollTop=t}
 function toast(t){document.querySelector('.toast')?.remove();const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
-function goUnit(id,line){S.page='review';S.cur=id;S.sel=null;S.range=null;if(S.mode==='file')S.file=U(id).file;render();const c=document.getElementById('center');if(c)c.scrollTop=0;if(S.mode==='file')document.getElementById('u-'+id)?.scrollIntoView({block:'start'});if(line){const el=document.querySelector(`.dl[data-u="${id}"][data-n="${line}"]`);if(el){el.scrollIntoView({block:'center'});el.classList.add('flash')}}}
+function goUnit(id,line){S.page='review';S.cur=id;S.sel=null;S.range=null;if(S.mode==='file')S.file=U(id).file;render();document.querySelector('.qit.on')?.scrollIntoView({block:'nearest'});const c=document.getElementById('center');if(c)c.scrollTop=0;if(S.mode==='file')document.getElementById('u-'+id)?.scrollIntoView({block:'start'});if(line){const el=document.querySelector(`.dl[data-u="${id}"][data-n="${line}"]`);if(el){el.scrollIntoView({block:'center'});el.classList.add('flash')}}}
 function confetti(){const cs=['var(--accent)','var(--adds)','var(--t2)','var(--t3)'];for(let i=0;i<60;i++){const d=document.createElement('div');d.className='confetti';d.style.left=Math.random()*100+'vw';d.style.background=cs[i%4];d.style.animationDelay=Math.random()*.4+'s';document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}}
 function step(d){const q=queue(),i=q.findIndex(u=>u.id===S.cur);const was=Object.keys(S.done).length;if(d>0){S.done[S.cur]=1;saveState();}if(d>0&&was<UNITS.length&&Object.keys(S.done).length===UNITS.length)setTimeout(confetti,50);const j=i+d;if(j>=0&&j<q.length){S.cur=q[j].id;S.sel=null;S.range=null}render();const c=document.getElementById('center');if(c)c.scrollTop=0}
 function addComment(){const ta=document.getElementById('ta');const v=ta&&ta.value.trim();if(!v)return;const n=+S.form.split(':')[1];S.cm.push({id:Date.now(),k:S.form,kind:S.kind,text:v,sent:false,range:S.range||[n,n]});saveState();S.form=null;S.range=null;keepScroll(render)}

@@ -20,6 +20,7 @@ body{font:14px/1.5 -apple-system,"PingFang SC",sans-serif;background:#111;color:
 .over h1{font:500 40px/1.2 "Iowan Old Style","Charter",Georgia,serif;margin:10px 0 12px;max-width:760px}
 .over p{font:18px/1.6 "Iowan Old Style","Charter",Georgia,serif;max-width:680px;opacity:.85}
 .cap{position:absolute;right:16px;bottom:12px;font-size:12px;opacity:.6}
+html.embed body{background:transparent}html.embed .bar,html.embed .cap,html.embed .over{display:none}html.embed .stage{background:transparent}
 </style>
 </head>
 <body>
@@ -35,7 +36,9 @@ const STYLES=[
  ['sunrise','Sunrise ride','日出远行 · 代码山脉'],
  ['night','Night bridge','夜桥 · 光点 agent'],
  ['stars','Constellation','星座 · 立体旋转']];
-let cur='ink',asBg=false;
+const EMBED=new URLSearchParams(location.search).get('embed');let cur=EMBED||'ink',asBg=false;
+const MONO=new URLSearchParams(location.search).get('c');
+if(EMBED){document.documentElement.classList.add('embed')}
 const el=(tag,attrs,parent)=>{const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e};
 // geometry of the tandem, in a 600x300 local box
 const G={rw:[150,220],fw:[450,220],R:58,rc:[250,214],fc:[352,214],crank:22,rs:[236,138],fs:[340,138],bar:[436,118],stoker:[326,126],
@@ -68,15 +71,15 @@ function legPath(seat,crank,ang,phase){const p=[crank[0]+Math.cos(ang+phase)*G.c
 let parts=null,anim=[],t0=performance.now();
 function build(){const svg=document.getElementById('svg');svg.innerHTML='';anim=[];const A=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
  const defs=el('defs',{},svg);
- const scene=(bg)=>el('rect',{x:0,y:0,width:1200,height:600,fill:bg},svg);
+ const scene=(bg)=>EMBED?null:el('rect',{x:0,y:0,width:1200,height:600,fill:bg},svg);
  let g,o;
  if(cur==='ink'){scene('#f6f1e6');document.getElementById('over').style.color='#1d1c1a';
-  const pat=el('pattern',{id:'hatch',width:6,height:6,patternUnits:'userSpaceOnUse',patternTransform:'rotate(35)'},defs);el('line',{x1:0,y1:0,x2:0,y2:6,stroke:'#1d1c1a','stroke-width':.6,'stroke-opacity':.25},pat);
+  const pat=el('pattern',{id:'hatch',width:6,height:6,patternUnits:'userSpaceOnUse',patternTransform:'rotate(35)'},defs);el('line',{x1:0,y1:0,x2:0,y2:6,stroke:MONO||'#1d1c1a','stroke-width':.6,'stroke-opacity':.25},pat);
   el('path',{d:'M0,470 C300,420 600,520 1200,440 L1200,600 L0,600Z',fill:'url(#hatch)'},svg);
   const road=el('g',{},svg);const codes=['+ if args.IntervalRecalculation {','- tblInfo.EngineAttribute = …','+ newTblInfo := tblInfo.Clone()','+ return shouldApply(old, current)','+ cutoff := now.AddDate(-3, 0, 0)','  ver, err = updateVersion(…)'];
-  for(let i=0;i<12;i++){const c=codes[i%codes.length];el('text',{x:i*260,y:520+(i%3)*22,'font-family':'Menlo,monospace','font-size':15,fill:c[0]==='+'?'#4f7d3c':c[0]==='-'?'#b0503a':'#7a786f'},road).textContent=c}
+  for(let i=0;i<12;i++){const c=codes[i%codes.length];el('text',{x:i*260,y:520+(i%3)*22,'font-family':'Menlo,monospace','font-size':15,fill:MONO||(c[0]==='+'?'#4f7d3c':c[0]==='-'?'#b0503a':'#7a786f')},road).textContent=c}
   anim.push(dt=>road.setAttribute('transform',`translate(${-((dt*.09)%1560)},0)`));
-  g=el('g',{transform:'translate(330,190) scale(1.15)'},svg);o={stroke:'#1d1c1a',width:2.2,agent:A,agentFill:A}}
+  g=el('g',{transform:'translate(330,190) scale(1.15)'},svg);o=MONO?{stroke:MONO,width:2.2,agent:MONO,agentFill:MONO}:{stroke:'#1d1c1a',width:2.2,agent:A,agentFill:A}}
  else if(cur==='geo'){scene('#f7f7f4');document.getElementById('over').style.color='#111';
   for(let i=0;i<6;i++){const c=el('circle',{cx:900,cy:200,r:60+i*70,fill:'none',stroke:A,'stroke-opacity':.08+.02*i},svg);anim.push(dt=>c.setAttribute('r',60+i*70+Math.sin(dt/900+i)*8))}
   el('line',{x1:0,y1:478,x2:1200,y2:478,stroke:'#111','stroke-width':2},svg);
@@ -112,7 +115,7 @@ function frame(now){const dt=now-t0;if(parts){const ang=dt/260;
 function bar(){document.getElementById('bar').innerHTML=STYLES.map(([k,en,zh],i)=>`<button data-s="${k}" class="${cur===k?'on':''}">${i+1}. ${zh}</button>`).join('')+'<span class="sp"></span><button id="bg" class="'+(asBg?'on':'')+'">作为总览背景预览</button>'}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(b){cur=b.dataset.s;bar();build();return}if(e.target.id==='bg'){asBg=!asBg;document.getElementById('over').classList.toggle('on',asBg);document.getElementById('svg').style.opacity=asBg?.55:1;bar()}});
 try{const sk=localStorage.getItem('hr-skin');const m={paper:'#0969da',ocean:'#1f7a8c',forest:'#3f7d4e',rose:'#c2456a',sand:'#b07d12',graphite:'#e5a442',nord:'#88c0d0',midnight:'#5eb3ff',violet:'#b392f0'};if(m[sk])document.documentElement.style.setProperty('--accent',m[sk])}catch(_){}
-bar();build();requestAnimationFrame(frame);
+if(!EMBED)bar();build();requestAnimationFrame(frame);
 </script>
 </body>
 </html>

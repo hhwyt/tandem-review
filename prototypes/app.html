@@ -215,9 +215,9 @@ details.files[open] summary:before{transform:rotate(90deg)}
 .mbox h3{font:500 19px var(--serif);margin:0 0 12px}
 .mbox pre{white-space:pre-wrap;font:12.5px/1.6 var(--mono);background:var(--surface2);padding:12px;border-radius:8px;margin:0}
 .help td{padding:5px 10px 5px 0;font-size:13.5px}
-.bgart{position:fixed;left:50%;top:55%;transform:translate(-50%,-50%);width:min(900px,80vw);aspect-ratio:260/120;z-index:0;pointer-events:none;opacity:.09;display:none}
+.bgart{position:fixed;right:8px;bottom:0;width:min(560px,45vw);aspect-ratio:2/1;z-index:0;pointer-events:none;opacity:.14;display:none}
 .bgart.on{display:block}
-.bgart svg{width:100%;height:100%;display:block}
+.bgart svg{width:100%;height:100%;display:block}.bgart iframe{width:100%;height:100%;border:0;background:transparent;color-scheme:normal}
 .main{position:relative;z-index:1}
 .ghlink{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);color:var(--dim);background:var(--surface);transition:color .15s,border-color .15s}.ghlink:hover{color:var(--text);border-color:var(--dim);text-decoration:none}
 .vsep{width:1px;height:20px;background:var(--line);margin:0 4px}
@@ -261,7 +261,7 @@ section[id^="u-"]{animation:rise .35s cubic-bezier(.2,.7,.2,1)}
 </head>
 <body>
 <div class="top" id="top"></div>
-<div class="bgart" aria-hidden="true"><svg id="ban" viewBox="340 0 260 120" preserveAspectRatio="xMidYMax meet"></svg></div>
+<div class="bgart" aria-hidden="true"><iframe id="bgframe" tabindex="-1" title=""></iframe><svg id="ban" style="display:none"></svg></div>
 <div class="main" id="main"></div>
 <button class="helpfab" id="helpBtn" aria-label="Keyboard shortcuts">?</button>
 <script src="data.js"></script>
@@ -279,7 +279,7 @@ const SKINS={
  nord:{n:'Nord',dark:1,bg:'#2e3440',surface:'#353c4a',surface2:'#3b4252',line:'#4c566a',text:'#eceff4',dim:'#a3acbd',accent:'#88c0d0',adds:'#a3be8c',dels:'#bf616a',kw:'#81a1c1',str:'#a3be8c',fn:'#b48ead',com:'#7b8496',hl:'#ebcb8b'},
  midnight:{n:'Midnight',dark:1,bg:'#0f1420',surface:'#151c2b',surface2:'#1b2335',line:'#28324a',text:'#e6ebf5',dim:'#8b96ad',accent:'#5eb3ff',adds:'#58c48a',dels:'#ff6b81',kw:'#c792ea',str:'#58c48a',fn:'#82aaff',com:'#5f6b85',hl:'#5eb3ff'},
  violet:{n:'Violet Night',dark:1,bg:'#1d1a26',surface:'#24202f',surface2:'#2b2638',line:'#3b3450',text:'#f2eefc',dim:'#a49bbd',accent:'#b392f0',adds:'#7ee0a1',dels:'#ff7aa2',kw:'#ff79c6',str:'#f1fa8c',fn:'#8be9fd',com:'#6e6488',hl:'#b392f0'}};
-function applySkin(k){const s=SKINS[k]||SKINS.claude;const r=document.documentElement.style;['bg','surface','surface2','line','text','dim','accent','adds','dels','kw','str','fn','com'].forEach(x=>r.setProperty('--'+x,s[x]));r.setProperty('--hl',s.hl||'#f5c400');r.setProperty('--shadow',s.dark?'0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.35)':'0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.06)');document.documentElement.style.colorScheme=s.dark?'dark':'light';S.skin=k;try{localStorage.setItem('hr-skin',k)}catch(_){}}
+function applySkin(k){const s=SKINS[k]||SKINS.claude;const r=document.documentElement.style;['bg','surface','surface2','line','text','dim','accent','adds','dels','kw','str','fn','com'].forEach(x=>r.setProperty('--'+x,s[x]));r.setProperty('--hl',s.hl||'#f5c400');r.setProperty('--shadow',s.dark?'0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.35)':'0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.06)');document.documentElement.style.colorScheme=s.dark?'dark':'light';S.skin=k;const bf=document.getElementById('bgframe');if(bf)bf.src='../brand/hero.html?embed=ink&c='+encodeURIComponent(s.text);try{localStorage.setItem('hr-skin',k)}catch(_){}}
 function setPop(btn){document.querySelector('.setpop')?.remove();const p=document.createElement('div');p.className='setpop';
  p.innerHTML=`<div class="srow"><span>${L(T('Language','语言'))}</span><div class="seg"><button data-lang="en" class="${S.lang==='en'?'on':''}">EN</button><button data-lang="zh" class="${S.lang==='zh'?'on':''}">中文</button></div></div>
  <div class="srow"><span>${L(T('Notes between lines','行间说明'))} <span class="kbd">E</span></span><div class="seg"><button data-ai="1" class="${S.ai?'on':''}">${L(T('Show','显示'))}</button><button data-ai="0" class="${S.ai?'':'on'}">${L(T('Hide','隐藏'))}</button></div></div>

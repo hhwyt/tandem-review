@@ -2,6 +2,8 @@
 
 # Tandem Review
 
+<p align="center"><img src="brand/tandem.svg" alt="Tandem: a person and an agent riding a tandem bicycle over a road of code" width="560"></p>
+
 **Human steers. Agent pedals. Review together.**
 
 Tandem Review is a browser page where a person and a coding agent review a change together.

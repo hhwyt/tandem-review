@@ -2,6 +2,8 @@
 
 # Tandem Review
 
+<p align="center"><img src="brand/tandem.svg" alt="Tandem：人和 agent 骑着双人自行车，路面是一行行代码" width="560"></p>
+
 **人掌方向，agent 出力，一起 review。**
 
 Tandem Review 是一个浏览器页面，让人和编程 agent 一起 review 一份改动：agent 准备好讲解，

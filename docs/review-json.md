@@ -65,7 +65,12 @@ All eight keys are required. No other top-level keys are allowed.
   before and after, and any bug it fixes. No judgment ("sound", "looks good"), no risks, no open
   questions: those belong in `decide` and `cover`.
 - `bg`: the **Brief** background (two or three sentences for someone who knows the module).
-- `bgLong`: the **Detailed** background (definitions plus a worked example for a newcomer).
+- `bgLong`: the **Detailed** background for a newcomer. Never one long paragraph. Shape:
+  a `**Terms**` line followed by one `- ` bullet per term; then `**Example**:` with the setup in
+  one or two sentences; then `**Before**` and `**After**`, each followed by `1. ` numbered steps
+  that end in the wrong and the right result. Separate blocks with a blank line (`\n\n`).
+- Text in `bg` and `bgLong` is rendered with blank-line paragraphs, `- ` lists, `1. ` steps and
+  `**bold**`; write `\n` for line breaks inside the JSON string.
 - `depthWhy`: one line explaining why the default depth was chosen (e.g. commit count in the
   touched paths). Shown next to the Brief/Detailed switch.
 - `design`: the approach as ordered steps; one `T` per step.

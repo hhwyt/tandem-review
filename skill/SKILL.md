@@ -41,13 +41,21 @@ review:
 
 - **Language.** Write every text in both English and Chinese. Read `~/.config/tandem/prefs.json`;
   write the language in `lang` first and with the most care.
+- **Terms.** Keep computer, industry and project terms exactly as the code and the repository
+  write them, in both languages: unary, paging, coprocessor, StreamAgg, region, owner,
+  cop_max_resp_size. Do not translate them (not 一元请求 for unary); translate only the words
+  around them.
+- **Readable text.** No wall of text anywhere: one idea per sentence, short paragraphs, lists for
+  parallel items, numbered steps for anything that happens in order.
 - **Overview, in this order of thought:** summary (one neutral sentence on what the change does; no judgment), background (what exists today and what is wrong with it),
   approach (the idea, in two to four steps), the change map (`overview.map`: one lane per path the
   code runs, each a few steps from the entry to the effect, marked new, modified or unchanged and
   opening the unit that implements them), decisions that need the reader's call (each pointing at the line it is about), boundary
   (covered, not covered, watch out), files (one line each on what the file does).
 - **Background depth.** `bg` is two or three sentences for someone who knows the module. `bgLong`
-  adds definitions and one concrete worked example for someone new to it. `depthWhy` says in one
+  adds definitions and one concrete worked example for someone new to it, laid out as
+  blocks, never one paragraph: **Terms** as bullets, **Example** setup, **Before** and **After**
+  as numbered steps (format in `docs/review-json.md`). `depthWhy` says in one
   sentence why the default level fits this reader. Default to brief in self mode; in pr mode,
   brief if `git log --author` shows the reader has commits in the touched paths or CODEOWNERS
   names them, detailed otherwise.

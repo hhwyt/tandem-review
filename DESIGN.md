@@ -54,6 +54,18 @@ The page always shows the latest state. It does not display a round number; earl
 - Ten color themes; every color on the page derives from the active theme.
 - Keyboard: J/K, C, N/P, E, `?` (help button in the bottom-right corner).
 
+## Background depth
+
+- The agent writes two levels of background: **Brief** (two or three sentences for people who
+  know the module) and **Detailed** (definitions plus a worked example for someone new to it).
+- A Brief / Detailed switch sits on the Background heading and is remembered per repository.
+- Domain terms (less_than, IA, DDL owner, …) are underlined; hovering shows a one-line definition
+  with an example. A glossary at the end of the overview lists them all and opens by default in
+  Detailed.
+- The default level is picked from the reviewer's relationship to the change: self review starts
+  Brief; PR review starts Brief when the reviewer has commits in the touched paths or owns them in
+  CODEOWNERS, Detailed otherwise.
+
 ## Persistence
 
 - Preferences (theme, language, notes on/off, ordering, editor) live in

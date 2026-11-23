@@ -19,6 +19,26 @@ def gh(args, stdin=None):
     return subprocess.run(["gh"] + args, input=stdin, capture_output=True, text=True)
 
 
+def run_cmd(cmd):
+    """Run a command with an argument list (never a shell) and return the result."""
+    return subprocess.run(cmd, capture_output=True, text=True)
+
+
+def same_tree(root, local, remote, run=None):
+    """Return True if two commits in the checkout at root have the same tree.
+
+    A review branch is often the PR squashed into one commit: a different SHA with the
+    same files. Its line numbers are still right for the PR head.
+    """
+    if not root or not local or not remote:
+        return False
+    proc = (run or run_cmd)(["git", "-C", root, "rev-parse", local + "^{tree}", remote + "^{tree}"])
+    if proc.returncode != 0:
+        return False
+    trees = proc.stdout.split()
+    return len(trees) == 2 and trees[0] == trees[1]
+
+
 def parse_patch_lines(patch):
     """Return the set of new-file line numbers that appear in a unified diff patch."""
     lines = set()
@@ -96,7 +116,7 @@ def body_text(body_comments):
         from_line = int(comment.get("from", comment.get("to")))
         to_line = int(comment.get("to", from_line))
         ref = format_ref(comment.get("file"), from_line, to_line)
-        parts.append("- `%s` %s" % (ref, comment_body(comment)))
+        parts.append("- `%s` %s" % (ref, comment_body(comment).replace("\n", "\n  ")))
     return "\n".join(parts)
 
 
@@ -195,6 +215,22 @@ def main(argv):
         print("error: review.json meta.head is missing", file=sys.stderr)
         return 1
 
+    # The review must be about the PR head: the same commit, or a commit with the same tree.
+    proc = gh(["api", "repos/%s/%s/pulls/%d" % (owner, repo, num)])
+    if proc.returncode != 0:
+        detail = (proc.stderr or proc.stdout or "").strip()
+        print("error: gh api pulls failed: %s" % detail, file=sys.stderr)
+        return 1
+    try:
+        pr_head = json.loads(proc.stdout)["head"]["sha"]
+    except (json.JSONDecodeError, KeyError, TypeError):
+        print("error: gh api pulls returned no head.sha", file=sys.stderr)
+        return 1
+    if pr_head != head and not same_tree(meta.get("root"), head, pr_head):
+        print("error: review.json is for %s but the PR head is %s; check out the PR head "
+              "and regenerate review.json" % (head, pr_head), file=sys.stderr)
+        return 1
+
     # Fetch the PR's changed files and their patches.
     proc = gh(["api", "repos/%s/%s/pulls/%d/files" % (owner, repo, num), "--paginate"])
     if proc.returncode != 0:
@@ -220,7 +256,7 @@ def main(argv):
             body_comments.append(comment)
 
     payload = {
-        "commit_id": head,
+        "commit_id": pr_head,
         "event": args.event,
         "body": body_text(body_comments) if body_comments else "",
         "comments": inline_comments,

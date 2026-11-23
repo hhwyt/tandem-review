@@ -1,135 +1,14 @@
-"""Minimal JSON Schema (draft 2020-12) validator and its tests.
-
-This deliberately does NOT depend on the ``jsonschema`` package. It supports the
-keywords used by ``schema/review.schema.json``:
-
-    type, required, properties, items, enum, $ref, minItems, maxItems,
-    prefixItems, const, additionalProperties
-"""
+"""Tests of the review.json validator in tandem/validate.py."""
 
 import json
 import os
 import unittest
 
+from tandem.validate import ValidationError, check_review, validate
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCHEMA_PATH = os.path.join(ROOT, "schema", "review.schema.json")
 EXAMPLE_PATH = os.path.join(ROOT, "examples", "pr-73235", "review.json")
-
-
-class SchemaError(Exception):
-    pass
-
-
-class ValidationError(Exception):
-    def __init__(self, path, message):
-        self.path = path
-        self.message = message
-        super().__init__(f"{path}: {message}")
-
-
-def _type_matches(instance, typ):
-    if isinstance(typ, str):
-        types = [typ]
-    else:
-        types = list(typ)
-
-    for t in types:
-        if t == "object" and type(instance) is dict:
-            return True
-        if t == "array" and type(instance) is list:
-            return True
-        if t == "string" and type(instance) is str:
-            return True
-        if t == "boolean" and type(instance) is bool:
-            return True
-        if t == "null" and type(instance) is type(None):
-            return True
-        if t == "integer" and type(instance) is int:
-            return True
-        if t == "number" and type(instance) in (int, float):
-            return True
-    return False
-
-
-def _resolve_ref(ref, root):
-    if ref == "#":
-        return root
-    if ref.startswith("#/"):
-        node = root
-        for part in ref[2:].split("/"):
-            part = part.replace("~1", "/").replace("~0", "~")
-            if not isinstance(node, dict) or part not in node:
-                raise SchemaError(f"cannot resolve $ref {ref!r}")
-            node = node[part]
-        return node
-    raise SchemaError(f"unsupported $ref {ref!r}")
-
-
-def validate(instance, schema, root=None, path="$"):
-    """Validate ``instance`` against ``schema``; raise ValidationError on failure."""
-    if root is None:
-        root = schema
-    if not isinstance(schema, dict):
-        raise SchemaError(f"{path}: schema node is not an object")
-
-    if "$ref" in schema:
-        validate(instance, _resolve_ref(schema["$ref"], root), root, path)
-        return
-
-    if "type" in schema and not _type_matches(instance, schema["type"]):
-        got = type(instance).__name__
-        raise ValidationError(path, f"expected type {schema['type']!r}, got {got}")
-
-    if "enum" in schema and instance not in schema["enum"]:
-        raise ValidationError(path, f"value {instance!r} not in enum {schema['enum']!r}")
-
-    if "const" in schema and instance != schema["const"]:
-        raise ValidationError(path, f"value {instance!r} does not equal const {schema['const']!r}")
-
-    if type(instance) is dict:
-        if "required" in schema:
-            for key in schema["required"]:
-                if key not in instance:
-                    raise ValidationError(path, f"missing required property {key!r}")
-        if "properties" in schema:
-            for key, sub in schema["properties"].items():
-                if key in instance:
-                    validate(instance[key], sub, root, f"{path}.{key}")
-        ap = schema.get("additionalProperties")
-        if ap is not None:
-            known = set(schema.get("properties", {}))
-            for key, value in instance.items():
-                if key in known:
-                    continue
-                if ap is False:
-                    raise ValidationError(path, f"unexpected property {key!r}")
-                if isinstance(ap, dict):
-                    validate(value, ap, root, f"{path}.{key}")
-
-    if type(instance) is list:
-        if "minItems" in schema and len(instance) < schema["minItems"]:
-            raise ValidationError(
-                path, f"array has {len(instance)} items, fewer than minItems {schema['minItems']}"
-            )
-        if "maxItems" in schema and len(instance) > schema["maxItems"]:
-            raise ValidationError(
-                path, f"array has {len(instance)} items, more than maxItems {schema['maxItems']}"
-            )
-        prefix = schema.get("prefixItems")
-        if prefix:
-            for index, sub in enumerate(prefix):
-                if index < len(instance):
-                    validate(instance[index], sub, root, f"{path}[{index}]")
-        items = schema.get("items")
-        if items is not None:
-            start = len(prefix) if prefix else 0
-            if items is False and len(instance) > start:
-                raise ValidationError(path, "unexpected items beyond prefixItems")
-            if isinstance(items, dict):
-                for index in range(start, len(instance)):
-                    validate(instance[index], items, root, f"{path}[{index}]")
-
-    return instance
 
 
 def _load(path):
@@ -233,3 +112,61 @@ class TestValidatorKeywords(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestReferences(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.example = _load(EXAMPLE_PATH)
+
+    def _copy(self):
+        return json.loads(json.dumps(self.example))
+
+    def assertProblem(self, data, text):
+        problems = check_review(data)
+        self.assertTrue(any(text in p for p in problems), problems)
+
+    def test_example_has_no_problems(self):
+        self.assertEqual(check_review(self._copy()), [])
+
+    def test_decide_line_outside_unit(self):
+        data = self._copy()
+        data["overview"]["decide"][0][3][1] = 999999
+        self.assertProblem(data, "overview.decide[0] points at")
+
+    def test_map_unknown_unit(self):
+        data = self._copy()
+        data["overview"]["map"][0]["steps"][1]["go"] = ["nope", 1]
+        self.assertProblem(data, "unit 'nope', which does not exist")
+
+    def test_unit_missing_from_chapters(self):
+        data = self._copy()
+        data["chapters"][0]["items"].pop()
+        self.assertProblem(data, "appears 0 times in chapters")
+
+    def test_note_line_outside_unit(self):
+        data = self._copy()
+        data["units"][0]["notes"][0][0] = 999999
+        self.assertProblem(data, "uses line 999999")
+
+    def test_frame_pr_not_a_unit(self):
+        data = self._copy()
+        data["units"][0]["chains"][0][0]["pr"] = "nope"
+        self.assertProblem(data, "pr 'nope'")
+
+    def test_file_missing_from_filesrc(self):
+        data = self._copy()
+        del data["filesrc"][data["units"][0]["file"]]
+        self.assertProblem(data, "missing from filesrc")
+
+    def test_schema_error_is_reported(self):
+        data = self._copy()
+        del data["overview"]["map"]
+        self.assertProblem(data, "missing required property 'map'")
+
+    def test_doc_minimal_example_is_valid(self):
+        with open(os.path.join(ROOT, "docs", "review-json.md"), encoding="utf-8") as fh:
+            doc = fh.read()
+        block = doc[doc.index("## Minimal example"):]
+        block = block[block.index("```json") + len("```json"):]
+        self.assertEqual(check_review(json.loads(block[:block.index("```")])), [])

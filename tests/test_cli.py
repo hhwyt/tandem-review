@@ -110,6 +110,23 @@ class CliTestCase(unittest.TestCase):
         self.assertRegex(sj["token"], r"^[0-9a-f]{32}$")
         self.assertEqual(sj["port"], int(url.split(":")[2].split("/")[0]))
 
+    def test_serve_prints_url_when_stdout_is_a_file(self):
+        import subprocess
+        import sys
+        log = self.tmp / "serve.log"
+        bin_tandem = Path(__file__).resolve().parent.parent / "bin" / "tandem"
+        with open(log, "w") as out:
+            proc = subprocess.Popen([sys.executable, str(bin_tandem), "serve", "--review",
+                                     str(self.review)], stdout=out, stderr=subprocess.STDOUT)
+        try:
+            deadline = time.monotonic() + 10
+            while time.monotonic() < deadline and "?t=" not in log.read_text():
+                time.sleep(0.05)
+            self.assertIn("http://127.0.0.1:", log.read_text())
+        finally:
+            proc.terminate()
+            proc.wait(timeout=10)
+
     def test_serve_open(self):
         with mock.patch(
             "tandem.server.TandemServer.serve_forever", return_value=None

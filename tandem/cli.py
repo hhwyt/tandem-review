@@ -16,7 +16,8 @@ def _cmd_serve(args) -> int:
     review = Path(args.review)
     srv = server.create_server(review, args.port or 0)
     info = server.write_server_json(srv)
-    print(info["url"])
+    # Flush: in the background stdout is usually a file, and the agent reads the URL from it.
+    print(info["url"], flush=True)
     if args.open:
         webbrowser.open(info["url"])
     try:

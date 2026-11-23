@@ -20,22 +20,19 @@ def run_preflight(review_dir, pr=None):
     return rc, buf.getvalue()
 
 
-def write_review(review_dir, root, head="abc123", units=None, meta=None):
-    if units is None:
-        units = [{"id": "u1"}]
-    data_meta = {
-        "repo": "owner/repo",
-        "pr": 1,
-        "title": {"en": "t", "zh": "t"},
-        "mode": "pr",
-        "root": root,
-        "base": "base-sha",
-        "head": head,
-    }
+EXAMPLE_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                            "examples", "pr-73235", "review.json")
+
+
+def write_review(review_dir, root, head="abc123", meta=None):
+    """Write the valid example review with its meta pointed at root and head."""
+    with open(EXAMPLE_PATH, encoding="utf-8") as fh:
+        data = json.load(fh)
+    data["meta"].update({"root": root, "head": head})
     if meta:
-        data_meta.update(meta)
+        data["meta"].update(meta)
     with open(os.path.join(review_dir, "review.json"), "w", encoding="utf-8") as fh:
-        json.dump({"meta": data_meta, "units": units}, fh)
+        json.dump(data, fh)
 
 
 def make_tmp():
@@ -103,9 +100,27 @@ class PreflightTest(unittest.TestCase):
     def test_review_json_missing(self):
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
-        rc, out = run_preflight(tmp.name)
+        with mock.patch.object(preflight.socket, "socket", return_value=GoodSock()):
+            rc, out = run_preflight(tmp.name)
+        self.assertEqual(rc, 0, out)
+        self.assertIn("todo review.json", out)
+        self.assertNotIn("FAIL", out)
+
+    def test_review_json_schema_problem(self):
+        tmp, root = make_tmp()
+        self.addCleanup(tmp.cleanup)
+        write_review(tmp.name, root)
+        path = os.path.join(tmp.name, "review.json")
+        with open(path, encoding="utf-8") as fh:
+            data = json.load(fh)
+        data["overview"]["decide"][0][3][1] = 999999
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(data, fh)
+        with mock.patch.object(preflight, "_run", side_effect=git_ok):
+            rc, out = run_preflight(tmp.name)
         self.assertEqual(rc, 1)
         self.assertIn("FAIL review.json valid", out)
+        self.assertIn("overview.decide[0]", out)
 
     def test_review_json_invalid(self):
         tmp = tempfile.TemporaryDirectory()
@@ -225,6 +240,25 @@ class PreflightTest(unittest.TestCase):
         self.assertIn("FAIL gh head matches", out)
         self.assertIn("sha-remote", out)
         self.assertIn("sha-local", out)
+
+    def test_gh_head_same_tree(self):
+        tmp, root = make_tmp()
+        self.addCleanup(tmp.cleanup)
+        write_review(tmp.name, root, head="sha-squashed")
+        pr_json = {"head": {"sha": "sha-remote"}}
+        repo_json = {"permissions": {"pull": True}}
+        base = gh_fake(pr_json=pr_json, repo_json=repo_json)
+
+        def fake(cmd):
+            if cmd[0] == "git" and "rev-parse" in cmd and "^{tree}" in cmd[-1]:
+                return SimpleNamespace(returncode=0, stdout="tree1\ntree1\n", stderr="")
+            return base(cmd)
+        with mock.patch.object(preflight, "_run", side_effect=fake), \
+             mock.patch.object(preflight.shutil, "which", return_value="/usr/local/bin/gh"), \
+             mock.patch.object(preflight.socket, "socket", return_value=GoodSock()):
+            rc, out = run_preflight(tmp.name, pr="owner/repo#1")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("ok  gh head matches", out)
 
     def test_gh_head_match(self):
         tmp, root = make_tmp()

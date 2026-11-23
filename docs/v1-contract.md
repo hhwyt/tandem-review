@@ -47,19 +47,20 @@ Every human-readable string is a bilingual object `{"en": str, "zh": str}` (writ
   "overview": {
     "verdict": T, "bg": T, "bgLong": T, "depthWhy": T,
     "design": [T, ...],
+    "map": [{"lane": T, "steps": [{"t": T, "sub": T, "k": "new"|"mod"|"same", "go"?: ["<unitId>", <line>]}]}],
     "cover": [["✓"|"✗"|"!", T], ...],
     "decide": [[T /*kind*/, T /*question*/, T /*note*/, ["<unitId>", <line>]], ...]
   },
   "glossary": [["<term>", T], ...],
   "files": [{"path": str, "a": int, "d": int, "st": "new"|"mod", "tier": 1..5, "what": T}],
   "chapters": [{"n": T, "sub": T, "items": ["<unitId>", ...]}],
-  "units": [ /* exactly the objects in prototypes/data.js window.UNITS */ ],
+  "units": [ /* see docs/review-json.md */ ],
   "filesrc": {"<path>": ["line 1", "line 2", ...]},
   "newfiles": ["<path>", ...]
 }
 ```
 
-`units[i]` fields (see `prototypes/data.js`): `id, tier, name, file, sig, hunk:{oldStart,newStart},
+`units[i]` fields: `id, tier, name, file, sig, hunk:{oldStart,newStart},
 lines:[["+"|"-"|" ", text]], why:T, gist:T, notes:[[from,to,en,zh]], callers:[node],
 callees:[node], chains:[[node|str]]`, where `node = {name, file, line, key?:bool, pr?:unitId}`.
 

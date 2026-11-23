@@ -115,6 +115,8 @@ const review = {
     bgLong: out.M.bgLong,
     depthWhy: out.M.depthWhy,
     design: out.M.design,
+    // The prototype draws the change map in code; keep the map already in the example.
+    map: JSON.parse(fs.readFileSync(outPath, 'utf8')).overview.map,
     cover: out.M.cover,
     decide: out.M.decide,
   },

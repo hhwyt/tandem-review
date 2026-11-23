@@ -25,9 +25,14 @@ tandem preflight --review <dir>                      # self
 tandem preflight --review <dir> --pr owner/repo#123  # pr
 ```
 
-`<dir>` is `<repo>/.tandem/<branch-or-pr>/`; add `.tandem/` to the repository's `.git/info/exclude`
-so it is never committed. Fix every `FAIL` line before going on. In pr mode the checkout must be
-at the PR head commit.
+`<dir>` is `<repo>/.tandem/<branch-or-pr>/`; add `.tandem/` to the file
+`git rev-parse --git-path info/exclude` prints (in a worktree that is the main repository's
+`.git/info/exclude`) so it is never committed. Fix every `FAIL` line before going on; `todo
+review.json` is expected the first time. In pr mode the checkout must be the PR head commit, or a
+commit with the same tree (a review branch with the PR squashed into one commit is fine).
+
+Run preflight again after writing `review.json`: it checks the schema and that every unit id,
+line number and `pr` reference points at something that exists.
 
 ## 3. Write review.json
 
@@ -37,8 +42,9 @@ review:
 - **Language.** Write every text in both English and Chinese. Read `~/.config/tandem/prefs.json`;
   write the language in `lang` first and with the most care.
 - **Overview, in this order of thought:** background (what exists today and what is wrong with it),
-  approach (the idea, in two to four steps), the change map (the request path with the changed
-  steps), decisions that need the reader's call (each pointing at the line it is about), boundary
+  approach (the idea, in two to four steps), the change map (`overview.map`: one lane per path the
+  code runs, each a few steps from the entry to the effect, marked new, modified or unchanged and
+  opening the unit that implements them), decisions that need the reader's call (each pointing at the line it is about), boundary
   (covered, not covered, watch out), files (one line each on what the file does).
 - **Background depth.** `bg` is two or three sentences for someone who knows the module. `bgLong`
   adds definitions and one concrete worked example for someone new to it. `depthWhy` says in one
@@ -52,14 +58,16 @@ review:
   every function is read with its caller already known. Mark the units whose mistakes would hurt
   the most with tier 1; tier does not change the order.
 - **Units.** One unit per changed function (or struct). `lines` is the whole function from the
-  diff, with its comments. `why` says why the reader should care about this function; `gist` says
+  diff, with its comments. Test functions are not units; say what the tests cover in the
+  boundary. `why` says why the reader should care about this function; `gist` says
   what it does in one sentence.
 - **Notes.** One note per block of a few lines, attached to the block's first new-file line. Say
   what the block is for and anything non-obvious (an invariant, a reason, a risk). Do not restate
   the code.
 - **Call stacks.** `chains` run from the real entry point (`main`, a request handler, a background
   loop) down to the direct caller, one chain per distinct entry. Verify every frame's file and line
-  with `grep -n`; never guess. Mark a frame `key` when the reader should notice it; the page folds
+  with `grep -n`; never guess. A frame's `line` is its call site, the line that calls the next
+  frame. Mark a frame `key` when the reader should notice it; the page folds
   the rest. Set `pr` on frames that are units of this review.
 - **Decisions.** Only real choices the reader must make or confirm: compatibility, behavior,
   defaults, scope. Say what is unverified as unverified.
@@ -70,7 +78,8 @@ review:
 tandem serve --review <dir> --open
 ```
 
-Run it in the background; it prints the page URL and writes `<dir>/server.json`. Tell the user the
+Run it in the background; it prints the page URL and writes it, with the port and token, to
+`<dir>/server.json`. Tell the user the
 URL. The server binds 127.0.0.1 only and every API call needs the session token in the URL.
 
 ## 5. Wait for comments

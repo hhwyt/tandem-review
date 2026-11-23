@@ -42,6 +42,147 @@
         "zh": "job 执行时再查一遍：规则中途变了就跳过，只允许 STANDARD→IA。"
       }
     ],
+    "map": [
+      {
+        "lane": {
+          "en": "Statement time",
+          "zh": "语句执行时"
+        },
+        "steps": [
+          {
+            "t": {
+              "en": "CREATE / ALTER / ADD PARTITION",
+              "zh": "CREATE / ALTER / 加分区"
+            },
+            "sub": {
+              "en": "user DDL",
+              "zh": "用户 DDL"
+            },
+            "k": "same"
+          },
+          {
+            "t": {
+              "en": "Admission check",
+              "zh": "准入检查"
+            },
+            "sub": {
+              "en": "reject unsupported key",
+              "zh": "拒绝不支持的分区键"
+            },
+            "k": "mod",
+            "go": [
+              "check",
+              213
+            ]
+          },
+          {
+            "t": {
+              "en": "Compute partition tiers",
+              "zh": "计算分区档位"
+            },
+            "sub": {
+              "en": "INTERVAL → literal at now",
+              "zh": "INTERVAL → 此刻的固定值"
+            },
+            "k": "mod",
+            "go": [
+              "convert",
+              169
+            ]
+          },
+          {
+            "t": {
+              "en": "Partition tier",
+              "zh": "分区档位"
+            },
+            "sub": {
+              "en": "table metadata",
+              "zh": "表元数据"
+            },
+            "k": "same"
+          }
+        ]
+      },
+      {
+        "lane": {
+          "en": "Every period · new",
+          "zh": "每个周期 · 新增"
+        },
+        "steps": [
+          {
+            "t": {
+              "en": "DDL owner loop",
+              "zh": "DDL owner 循环"
+            },
+            "sub": {
+              "en": "default 24h",
+              "zh": "默认 24h"
+            },
+            "k": "new",
+            "go": [
+              "round",
+              188
+            ]
+          },
+          {
+            "t": {
+              "en": "Re-evaluate tables",
+              "zh": "重算分区表"
+            },
+            "sub": {
+              "en": "read only",
+              "zh": "只算不改"
+            },
+            "k": "new",
+            "go": [
+              "recalc",
+              246
+            ]
+          },
+          {
+            "t": {
+              "en": "Submit ALTER job",
+              "zh": "提交 ALTER job"
+            },
+            "sub": {
+              "en": "flag: interval recalculation",
+              "zh": "带重算标记"
+            },
+            "k": "new",
+            "go": [
+              "recalc",
+              257
+            ]
+          },
+          {
+            "t": {
+              "en": "Execute job",
+              "zh": "执行 job"
+            },
+            "sub": {
+              "en": "two gates",
+              "zh": "两道闸"
+            },
+            "k": "mod",
+            "go": [
+              "exec",
+              139
+            ]
+          },
+          {
+            "t": {
+              "en": "TiKV transition",
+              "zh": "TiKV 迁移"
+            },
+            "sub": {
+              "en": "next-gen only",
+              "zh": "仅 next-gen"
+            },
+            "k": "same"
+          }
+        ]
+      }
+    ],
     "cover": [
       [
         "✓",

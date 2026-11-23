@@ -7,6 +7,9 @@ import socket
 import subprocess
 import sys
 
+from tandem.github import same_tree
+from tandem.validate import check_review
+
 
 def _run(cmd):
     """Run a command with an argument list (never a shell) and return the result."""
@@ -30,7 +33,7 @@ def _load_review(review_dir):
     """Return (data, error). data is the parsed review.json or None on failure."""
     path = os.path.join(review_dir, "review.json")
     if not os.path.isfile(path):
-        return None, "review.json does not exist; create it in the review directory"
+        return None, None
     try:
         with open(path, "r", encoding="utf-8") as fh:
             data = json.load(fh)
@@ -43,6 +46,12 @@ def _load_review(review_dir):
     units = data.get("units")
     if not isinstance(units, list) or not units:
         return None, "review.json units is empty or missing; add at least one unit"
+    problems = check_review(data)
+    if problems:
+        shown = "; ".join(problems[:5])
+        if len(problems) > 5:
+            shown += "; and %d more" % (len(problems) - 5)
+        return None, shown
     return data, None
 
 
@@ -74,9 +83,14 @@ def main(argv):
         )
 
     # 2. review.json exists, valid JSON, units non-empty
+    # Preflight runs once before review.json is written and once after.
     data, review_err = _load_review(review_dir)
+    written = data is not None or review_err is not None
     if data is not None:
         check(True, "review.json valid")
+    elif review_err is None:
+        print("todo review.json: not written yet; run preflight again after writing it")
+        data = {}
     else:
         check(False, "review.json valid", review_err)
         data = {}
@@ -85,7 +99,9 @@ def main(argv):
 
     # 3. meta.root is an existing directory and a git repository
     root = meta.get("root") if isinstance(meta, dict) else None
-    if not isinstance(root, str) or not root:
+    if not written:
+        pass
+    elif not isinstance(root, str) or not root:
         check(False, "meta.root git repo",
               "meta.root is missing from review.json; set it to the checkout directory")
     elif not os.path.isdir(root):
@@ -156,18 +172,20 @@ def main(argv):
                 if isinstance(head, dict):
                     head_sha = head.get("sha")
             local_head = meta.get("head") if isinstance(meta, dict) else None
-            if pr_data is None:
+            if not written:
+                pass
+            elif pr_data is None:
                 check(False, "gh head matches", "PR could not be read")
             elif head_sha is None:
                 check(False, "gh head matches", "gh api response has no head.sha")
             elif local_head is None:
                 check(False, "gh head matches",
                       "meta.head is missing from review.json")
-            elif head_sha == local_head:
+            elif head_sha == local_head or same_tree(root, local_head, head_sha, _run):
                 check(True, "gh head matches")
             else:
                 check(False, "gh head matches",
-                      "PR head.sha %s != meta.head %s; checkout the PR head commit"
+                      "PR head.sha %s != meta.head %s and the trees differ; check out the PR head commit"
                       % (head_sha, local_head))
 
             # current account can comment (warn if we cannot tell)

@@ -22,7 +22,7 @@
     },
     "overview": {
       "type": "object",
-      "required": ["verdict", "bg", "bgLong", "depthWhy", "design", "cover", "decide"],
+      "required": ["verdict", "bg", "bgLong", "depthWhy", "design", "map", "cover", "decide"],
       "additionalProperties": false,
       "properties": {
         "verdict": {"$ref": "#/$defs/T"},
@@ -30,6 +30,37 @@
         "bgLong": {"$ref": "#/$defs/T"},
         "depthWhy": {"$ref": "#/$defs/T"},
         "design": {"type": "array", "items": {"$ref": "#/$defs/T"}},
+        "map": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["lane", "steps"],
+            "additionalProperties": false,
+            "properties": {
+              "lane": {"$ref": "#/$defs/T"},
+              "steps": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "required": ["t", "sub", "k"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "t": {"$ref": "#/$defs/T"},
+                    "sub": {"$ref": "#/$defs/T"},
+                    "k": {"enum": ["new", "mod", "same"]},
+                    "go": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "prefixItems": [{"type": "string"}, {"type": "integer"}]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "cover": {
           "type": "array",
           "items": {

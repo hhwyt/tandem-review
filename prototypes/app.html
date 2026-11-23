@@ -78,6 +78,9 @@ a{color:var(--accent-ink);text-decoration:none}a:hover{text-decoration:underline
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .decide{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .dcard{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:12px 14px}
+.gnode{cursor:pointer}.gnode rect{transition:stroke-width .15s}.gnode:hover rect{stroke-width:2.4}.garrow{fill:var(--dim);opacity:0;transition:opacity .15s}.gnode:hover .garrow{opacity:1;fill:var(--accent)}
+.dcard.go{cursor:pointer}.dcard.go:hover{border-color:var(--accent-line)}
+.golink{font:11.5px var(--mono);color:var(--dim)}.dcard.go:hover .golink{color:var(--accent-ink)}
 .dcard .q{font-weight:600;margin:4px 0 2px;font-size:14px;line-height:1.45}
 .dcard .n{color:var(--dim);font-size:13px}
 .steps{margin:0;padding:0;list-style:none;counter-reset:s}
@@ -313,20 +316,20 @@ const M={
   ['✗',T('Moving partitions back from IA to STANDARD','把分区从 IA 挪回 STANDARD')],
   ['!',T('CREATE TABLE … LIKE copies the rule without the partition-key check','CREATE TABLE … LIKE 复制规则时不做分区键检查')],
   ['!',T('Classic kernel: jobs change metadata but stage no TiKV transition','经典内核：job 会改元数据，但不排 TiKV 迁移')]],
- decide:[[T('Compat','兼容'),T('What does an older DDL owner do with a recalculation job during a rolling upgrade?','滚动升级时，老版本 DDL owner 拿到重算 job 会怎么处理？'),T('Unverified. Old decoders read only the first argument.','未验证。老版本只解第一个参数。')],
-  [T('Behavior','行为'),T('If the clock goes back, the whole table is skipped with a Warn and a metric.','时钟回拨时，整张表跳过，打 Warn 和指标。'),T('Alternative: apply only the STANDARD→IA part.','另一种：只应用 STANDARD→IA 的部分。')],
-  [T('Design','设计'),T('Default period 24h, floor 10m, cutoff in UTC.','默认周期 24h，下限 10m，截止时间按 UTC。'),T('A partition can lag up to one period.','分区最多晚一个周期转 IA。')],
-  [T('Scope','范围'),T('IA only, no transitions.','只支持 IA，不支持 transitions。'),T('Keeps the gate simple.','让闸保持简单。')]]
+ decide:[[T('Compat','兼容'),T('What does an older DDL owner do with a recalculation job during a rolling upgrade?','滚动升级时，老版本 DDL owner 拿到重算 job 会怎么处理？'),T('Unverified. Old decoders read only the first argument.','未验证。老版本只解第一个参数。'),['exec',139]],
+  [T('Behavior','行为'),T('If the clock goes back, the whole table is skipped with a Warn and a metric.','时钟回拨时，整张表跳过，打 Warn 和指标。'),T('Alternative: apply only the STANDARD→IA part.','另一种：只应用 STANDARD→IA 的部分。'),['recalc',250]],
+  [T('Design','设计'),T('Default period 24h, floor 10m, cutoff in UTC.','默认周期 24h，下限 10m，截止时间按 UTC。'),T('A partition can lag up to one period.','分区最多晚一个周期转 IA。'),['cutoff',93]],
+  [T('Scope','范围'),T('IA only, no transitions.','只支持 IA，不支持 transitions。'),T('Keeps the gate simple.','让闸保持简单。'),['gate',117]]]
 };
 function pathSVG(){const W=1040,H=228;const st={new:['var(--add)','var(--adds)'],mod:['color-mix(in srgb,var(--t2) 12%,var(--surface))','var(--t2)'],same:['var(--surface2)','var(--line)']};
- const box=(x,y,w,t,k,sub)=>`<rect x="${x}" y="${y}" width="${w}" height="54" rx="10" fill="${st[k][0]}" stroke="${st[k][1]}" stroke-width="1.2"/><text x="${x+12}" y="${y+22}" font-size="13" font-weight="600" fill="var(--text)">${esc(L(t))}</text><text x="${x+12}" y="${y+41}" font-size="11.5" fill="var(--dim)">${esc(L(sub))}</text>`;
+ const box=(x,y,w,t,k,sub,g)=>(g?`<g class="gnode" data-goline="${g}"><title>§${secNo(g.split(':')[0])} ${esc(U(g.split(':')[0]).name)}</title>`:'<g>')+`<rect x="${x}" y="${y}" width="${w}" height="54" rx="10" fill="${st[k][0]}" stroke="${st[k][1]}" stroke-width="1.2"/><text x="${x+12}" y="${y+22}" font-size="13" font-weight="600" fill="var(--text)">${esc(L(t))}</text><text x="${x+12}" y="${y+41}" font-size="11.5" fill="var(--dim)">${esc(L(sub))}</text>`+(g?`<text x="${x+w-14}" y="${y+22}" font-size="12" text-anchor="end" class="garrow">→</text>`:'')+'</g>';
  const ar=(x1,y,x2)=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="var(--dim)" stroke-width="1.2" marker-end="url(#a)"/>`;
  let s=`<defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--dim)"/></marker></defs>`;
  s+=`<text x="0" y="13" font-size="10.5" letter-spacing="1" font-weight="600" fill="var(--dim)">${esc(L(T('STATEMENT TIME','语句执行时')))}</text>`;
- s+=box(0,22,190,T('CREATE / ALTER / ADD PARTITION','CREATE / ALTER / 加分区'),'same',T('user DDL','用户 DDL'))+box(222,22,200,T('Admission check','准入检查'),'mod',T('reject unsupported key','拒绝不支持的分区键'))+box(454,22,240,T('Compute partition tiers','计算分区档位'),'mod',T('INTERVAL → literal at now','INTERVAL → 此刻的固定值'))+box(726,22,150,T('Partition tier','分区档位'),'same',T('table metadata','表元数据'));
+ s+=box(0,22,190,T('CREATE / ALTER / ADD PARTITION','CREATE / ALTER / 加分区'),'same',T('user DDL','用户 DDL'))+box(222,22,200,T('Admission check','准入检查'),'mod',T('reject unsupported key','拒绝不支持的分区键'),'check:213')+box(454,22,240,T('Compute partition tiers','计算分区档位'),'mod',T('INTERVAL → literal at now','INTERVAL → 此刻的固定值'),'convert:169')+box(726,22,150,T('Partition tier','分区档位'),'same',T('table metadata','表元数据'));
  s+=ar(190,49,220)+ar(422,49,452)+ar(694,49,724);
  s+=`<text x="0" y="117" font-size="10.5" letter-spacing="1" font-weight="600" fill="var(--dim)">${esc(L(T('EVERY PERIOD · NEW','每个周期 · 新增')))}</text>`;
- s+=box(0,126,190,T('DDL owner loop','DDL owner 循环'),'new',T('default 24h','默认 24h'))+box(222,126,200,T('Re-evaluate tables','重算分区表'),'new',T('read only','只算不改'))+box(454,126,240,T('Submit ALTER job','提交 ALTER job'),'new',T('flag: interval recalculation','带重算标记'))+box(726,126,150,T('Execute job','执行 job'),'mod',T('two gates','两道闸'))+box(900,126,140,T('TiKV transition','TiKV 迁移'),'same',T('next-gen only','仅 next-gen'));
+ s+=box(0,126,190,T('DDL owner loop','DDL owner 循环'),'new',T('default 24h','默认 24h'),'round:188')+box(222,126,200,T('Re-evaluate tables','重算分区表'),'new',T('read only','只算不改'),'recalc:246')+box(454,126,240,T('Submit ALTER job','提交 ALTER job'),'new',T('flag: interval recalculation','带重算标记'),'recalc:257')+box(726,126,150,T('Execute job','执行 job'),'mod',T('two gates','两道闸'),'exec:139')+box(900,126,140,T('TiKV transition','TiKV 迁移'),'same',T('next-gen only','仅 next-gen'));
  s+=`<path class="flowdash" d="M190,153 L220,153 M422,153 L452,153 M694,153 L724,153 M876,153 L898,153" stroke="var(--adds)" stroke-width="2" fill="none"/>`;
  s+=ar(190,153,220)+ar(422,153,452)+ar(694,153,724)+ar(876,153,898)+`<line x1="801" y1="126" x2="801" y2="78" stroke="var(--dim)" stroke-dasharray="3 3" marker-end="url(#a)"/><text x="808" y="106" font-size="11" fill="var(--dim)">${esc(L(T('same tier logic','同一套定档逻辑')))}</text>`;
  const lg=(x,k,t)=>`<rect x="${x}" y="206" width="12" height="12" rx="3" fill="${st[k][0]}" stroke="${st[k][1]}"/><text x="${x+18}" y="216" font-size="11.5" fill="var(--dim)">${esc(L(t))}</text>`;
@@ -392,7 +395,7 @@ function renderOverview(){const q=queue();const _plan=chapterList(id=>`<div clas
  let ft='';let lt=null;FILES.forEach(f=>{if(f.tier!==lt){lt=f.tier;ft+=`<tr class="grp"><td colspan="4">${chip(f.tier)}</td></tr>`}ft+=`<tr><td><span class="tagline ${f.st}">${L(f.st==='new'?T('new','新增'):T('modified','修改'))}</span></td><td class="mono">${esc(f.path)}</td><td class="mono" style="white-space:nowrap"><span class="plus-n">+${f.a}</span> <span class="minus-n">−${f.d}</span></td><td>${esc(L(f.what))}</td></tr>`});
  document.getElementById('main').innerHTML=`<div class="ov"><div class="ovw"><div>
  <div class="eyebrow">${L(UI.verdict)}</div><div class="h1">${esc(L(M.title))}</div><p class="lede">${esc(L(M.verdict))}</p>
- <div class="sec"><h2>${L(UI.decide)} <small>${M.decide.length}</small></h2><div class="decide">${M.decide.map(([t,q,n])=>`<div class="dcard"><span class="tagline">${esc(L(t))}</span><div class="q">${esc(L(q))}</div><div class="n">${esc(L(n))}</div></div>`).join('')}</div></div>
+ <div class="sec"><h2>${L(UI.decide)} <small>${M.decide.length}</small></h2><div class="decide">${M.decide.map(([t,q,n,g])=>`<div class="dcard go" data-goline="${g[0]}:${g[1]}"><div style="display:flex;align-items:center;gap:8px"><span class="tagline">${esc(L(t))}</span><span class="sp"></span><span class="golink">§${secNo(g[0])} ${esc(U(g[0]).file.split('/').pop())}:${g[1]} →</span></div><div class="q">${esc(L(q))}</div><div class="n">${esc(L(n))}</div></div>`).join('')}</div></div>
  <div class="sec grid2"><div><h2>${L(UI.bg)}</h2><div class="card">${esc(L(M.bg))}</div></div><div><h2>${L(UI.design)}</h2><div class="card"><ol class="steps">${M.design.map(d=>`<li><span>${esc(L(d))}</span></li>`).join('')}</ol></div></div></div>
  <div class="sec"><h2>${L(UI.path)}</h2><div class="card">${pathSVG()}</div></div>
  <div class="sec"><h2>${L(UI.boundary)}</h2><div class="card"><ul class="cov">${M.cover.map(([m,t])=>`<li><span class="m" style="color:${m==='✓'?'var(--adds)':m==='✗'?'var(--dels)':'var(--t2)'}">${m}</span><span>${esc(L(t))}</span></li>`).join('')}</ul></div></div>
@@ -441,6 +444,7 @@ document.addEventListener('click',e=>{const c=x=>e.target.closest(x);
  if(c('[data-goto]')){e.preventDefault();goUnit(c('[data-goto]').dataset.goto);return}
  if(c('[data-gocm]')){const k=c('[data-gocm]').dataset.gocm;const [id,n]=k.split(':');goUnit(id,+n);return}
  if(c('[data-tfold]')){S.open[c('[data-tfold]').dataset.tfold]=1;keepScroll(render);return}
+ if(c('[data-goline]')){const [id,ln]=c('[data-goline]').dataset.goline.split(':');S.mode='reading';goUnit(id,+ln);return}
  if(c('[data-unfold]')){S.open[c('[data-unfold]').dataset.unfold]=1;keepScroll(render);return}
  if(c('[data-next]')){step(1);return} if(c('[data-prev]')){step(-1);return}
  if(c('[data-c]')){const k=c('[data-c]').dataset.c;S.sel=k;const n=+k.split(':')[1];if(!S.range||!(n>=S.range[0]&&n<=S.range[1]))S.range=[n,n];S.form=k.split(':')[0]+':'+S.range[1];S.kind=0;keepScroll(render);return}

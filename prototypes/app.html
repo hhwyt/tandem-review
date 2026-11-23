@@ -78,9 +78,9 @@ a{color:var(--accent-ink);text-decoration:none}a:hover{text-decoration:underline
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .decide{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .dcard{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:12px 14px}
-.gnode{cursor:pointer}.gnode rect{transition:stroke-width .15s}.gnode:hover rect{stroke-width:2.4}.garrow{fill:var(--dim);opacity:0;transition:opacity .15s}.gnode:hover .garrow{opacity:1;fill:var(--accent)}
+.gnode{cursor:pointer}.gnode rect{transition:stroke-width .15s}.gnode:hover rect{stroke-width:2.4}.garrow{fill:var(--accent);opacity:.75;transition:opacity .15s,transform .15s}.gnode:hover .garrow{opacity:1}.gnode rect{filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.08))}.gnode:hover rect{filter:drop-shadow(0 3px 6px rgba(0,0,0,.12))}
 .dcard.go{cursor:pointer}.dcard.go:hover{border-color:var(--accent-line)}
-.golink{font:11.5px var(--mono);color:var(--dim)}.dcard.go:hover .golink{color:var(--accent-ink)}
+.golink{font:11.5px var(--mono);color:var(--accent-ink);border-bottom:1px dashed var(--accent-line)}.dcard.go:hover .golink{border-bottom-style:solid}.dcard.go:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
 .dcard .q{font-weight:600;margin:4px 0 2px;font-size:14px;line-height:1.45}
 .dcard .n{color:var(--dim);font-size:13px}
 .steps{margin:0;padding:0;list-style:none;counter-reset:s}
@@ -333,7 +333,7 @@ function pathSVG(){const W=1040,H=228;const st={new:['var(--add)','var(--adds)']
  s+=`<path class="flowdash" d="M190,153 L220,153 M422,153 L452,153 M694,153 L724,153 M876,153 L898,153" stroke="var(--adds)" stroke-width="2" fill="none"/>`;
  s+=ar(190,153,220)+ar(422,153,452)+ar(694,153,724)+ar(876,153,898)+`<line x1="801" y1="126" x2="801" y2="78" stroke="var(--dim)" stroke-dasharray="3 3" marker-end="url(#a)"/><text x="808" y="106" font-size="11" fill="var(--dim)">${esc(L(T('same tier logic','同一套定档逻辑')))}</text>`;
  const lg=(x,k,t)=>`<rect x="${x}" y="206" width="12" height="12" rx="3" fill="${st[k][0]}" stroke="${st[k][1]}"/><text x="${x+18}" y="216" font-size="11.5" fill="var(--dim)">${esc(L(t))}</text>`;
- s+=lg(0,'new',T('new','新增'))+lg(70,'mod',T('modified','修改'))+lg(160,'same',T('unchanged','未改'));
+ s+=lg(0,'new',T('new','新增'))+lg(70,'mod',T('modified','修改'))+lg(160,'same',T('unchanged','未改'))+`<text x="270" y="216" font-size="11.5" fill="var(--accent)">→</text><text x="284" y="216" font-size="11.5" fill="var(--dim)">${esc(L(T('opens the code','打开对应代码')))}</text>`;
  return `<svg viewBox="0 0 ${W} ${H}" width="100%">${s}</svg>`}
 const CHAPTERS=[
  {n:T('Statement time','语句执行时'),sub:T('user CREATE / ALTER','用户 CREATE / ALTER'),items:['check','parse','convert','cutoff']},

@@ -35,9 +35,7 @@ The page always shows the latest state. It does not display a round number; earl
 ## Page
 
 - Two tabs: **Overview** and **Code**.
-- Overview: summary, decisions that need the reviewer's call (each jumps to the code it is about),
-  background and approach, a diagram of where the change attaches (changed nodes jump to code),
-  boundary, and the file list. No code on this page.
+- Overview, in this order: summary, background and approach, where the change attaches (changed nodes jump to code), decisions that need the reviewer's call (each jumps to the code it is about), boundary, files. A faint animated tandem sits in the background. No code on this page.
 - Code: two orderings only. **Reading order** (default): chapters along the paths the code runs,
   callers before callees. **By file**: for reference. Critical functions carry a ⚑; importance
   does not change the order.

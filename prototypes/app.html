@@ -66,7 +66,7 @@ a{color:var(--accent-ink);text-decoration:none}a:hover{text-decoration:underline
 .ring svg{display:block}
 .main{flex:1;min-height:0;display:flex}
 /* overview */
-.ov{flex:1;overflow:auto}
+.ov{flex:1;overflow:auto;background:transparent}
 .ovw{max-width:920px;margin:0 auto;padding:32px 28px 60px}
 .eyebrow{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:600}
 .h1{font:500 28px/1.25 var(--serif);letter-spacing:-.015em;margin:6px 0 12px}
@@ -215,6 +215,10 @@ details.files[open] summary:before{transform:rotate(90deg)}
 .mbox h3{font:500 19px var(--serif);margin:0 0 12px}
 .mbox pre{white-space:pre-wrap;font:12.5px/1.6 var(--mono);background:var(--surface2);padding:12px;border-radius:8px;margin:0}
 .help td{padding:5px 10px 5px 0;font-size:13.5px}
+.bgart{position:fixed;right:28px;bottom:20px;width:420px;aspect-ratio:260/120;z-index:0;pointer-events:none;opacity:.13;display:none}
+.bgart.on{display:block}
+.bgart svg{width:100%;height:100%;display:block}
+.main{position:relative;z-index:1}
 .helpfab{position:fixed;right:18px;bottom:18px;z-index:25;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--dim);font:600 15px var(--sans);cursor:pointer;box-shadow:var(--shadow);transition:transform .15s,color .15s}
 .helpfab:hover{color:var(--accent);transform:translateY(-2px)}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:9px 16px;border-radius:10px;font-size:13px;z-index:40;box-shadow:var(--shadow)}
@@ -247,6 +251,7 @@ section[id^="u-"]{animation:rise .35s cubic-bezier(.2,.7,.2,1)}
 </head>
 <body>
 <div class="top" id="top"></div>
+<div class="bgart" aria-hidden="true"><svg id="ban" viewBox="340 0 260 120" preserveAspectRatio="xMidYMax meet"></svg></div>
 <div class="main" id="main"></div>
 <button class="helpfab" id="helpBtn" aria-label="Keyboard shortcuts">?</button>
 <script src="data.js"></script>
@@ -398,9 +403,9 @@ function renderOverview(){const q=queue();const _plan=chapterList(id=>`<div clas
  let ft='';let lt=null;FILES.forEach(f=>{if(f.tier!==lt){lt=f.tier;ft+=`<tr class="grp"><td colspan="4">${chip(f.tier)}</td></tr>`}ft+=`<tr><td><span class="tagline ${f.st}">${L(f.st==='new'?T('new','新增'):T('modified','修改'))}</span></td><td class="mono">${esc(f.path)}</td><td class="mono" style="white-space:nowrap"><span class="plus-n">+${f.a}</span> <span class="minus-n">−${f.d}</span></td><td>${esc(L(f.what))}</td></tr>`});
  document.getElementById('main').innerHTML=`<div class="ov"><div class="ovw"><div>
  <div class="eyebrow">${L(UI.verdict)}</div><div class="h1">${esc(L(M.title))}</div><p class="lede">${esc(L(M.verdict))}</p>
- <div class="sec"><h2>${L(UI.decide)} <small>${M.decide.length}</small></h2><div class="decide">${M.decide.map(([t,q,n,g])=>`<div class="dcard go" data-goline="${g[0]}:${g[1]}"><div style="display:flex;align-items:center;gap:8px"><span class="tagline">${esc(L(t))}</span><span class="sp"></span><span class="golink">§${secNo(g[0])} ${esc(U(g[0]).file.split('/').pop())}:${g[1]} →</span></div><div class="q">${esc(L(q))}</div><div class="n">${esc(L(n))}</div></div>`).join('')}</div></div>
  <div class="sec grid2"><div><h2>${L(UI.bg)}</h2><div class="card">${esc(L(M.bg))}</div></div><div><h2>${L(UI.design)}</h2><div class="card"><ol class="steps">${M.design.map(d=>`<li><span>${esc(L(d))}</span></li>`).join('')}</ol></div></div></div>
  <div class="sec"><h2>${L(UI.path)}</h2><div class="card">${pathSVG()}</div></div>
+ <div class="sec"><h2>${L(UI.decide)} <small>${M.decide.length}</small></h2><div class="decide">${M.decide.map(([t,q,n,g])=>`<div class="dcard go" data-goline="${g[0]}:${g[1]}"><div style="display:flex;align-items:center;gap:8px"><span class="tagline">${esc(L(t))}</span><span class="sp"></span><span class="golink">§${secNo(g[0])} ${esc(U(g[0]).file.split('/').pop())}:${g[1]} →</span></div><div class="q">${esc(L(q))}</div><div class="n">${esc(L(n))}</div></div>`).join('')}</div></div>
  <div class="sec"><h2>${L(UI.boundary)}</h2><div class="card"><ul class="cov">${M.cover.map(([m,t])=>`<li><span class="m" style="color:${m==='✓'?'var(--adds)':m==='✗'?'var(--dels)':'var(--t2)'}">${m}</span><span>${esc(L(t))}</span></li>`).join('')}</ul></div></div>
  <div class="sec"><details class="files card"><summary><h2 style="margin:0">${L(UI.files)}</h2><span class="dim">${FILES.length} · <span class="plus-n">+${FILES.reduce((a,f)=>a+f.a,0)}</span> <span class="minus-n">−${FILES.reduce((a,f)=>a+f.d,0)}</span></span></summary><table class="ftab">${ft}</table></details></div>
  <div class="sec" style="display:flex;justify-content:flex-end"><button class="btn accent" style="height:40px;padding:0 22px;font-size:14px" data-page="review">${L(UI.start)} →</button></div></div></div></div>`}
@@ -415,7 +420,19 @@ function renderReview(){const q=queue();let side=`<div class="qhead"><div class=
  const cu=S.mode==='reading'?U(S.cur):(S.sel?U(S.sel.split(':')[0]):UNITS.filter(u=>u.file===S.file).sort((a,b)=>a.sig-b.sig)[0]);
  document.getElementById('main').innerHTML=`<div class="queue">${side}</div><div class="center ${S.ai?'':'noAI'}" id="center"><div class="cw">${center}</div>${foot}</div><aside class="ctx"><div class="seg"><button data-ctx="calls" class="${S.ctx==='calls'?'on':''}">${L(UI.calls)}</button><button data-ctx="comments" class="${S.ctx==='comments'?'on':''}">${L(UI.comments)}${S.cm.length?` <span class="count">${S.cm.length}</span>`:''}</button></div><div class="pad" id="ctxBody">${S.ctx==='calls'?callsHTML(cu):commentsList()}</div></aside>`;
  const ta=document.getElementById('ta');if(ta)ta.focus()}
-function render(){document.documentElement.lang=S.lang==='zh'?'zh-CN':'en';renderTop();S.page==='overview'?renderOverview():renderReview()}
+let raf=0;function drawBanner(){const svg=document.getElementById('ban');if(!svg)return;const NS='http://www.w3.org/2000/svg';const e=(t,a)=>{const x=document.createElementNS(NS,t);for(const k in a)x.setAttribute(k,a[k]);svg.appendChild(x);return x};
+ const st={fill:'none',stroke:'var(--text)','stroke-width':1.6,'stroke-linecap':'round','stroke-linejoin':'round'};
+ e('line',{...st,x1:0,y1:104,x2:900,y2:104,'stroke-opacity':.25});const ticks=e('g',{});for(let i=0;i<60;i++){const l=document.createElementNS(NS,'line');l.setAttribute('x1',i*30);l.setAttribute('x2',i*30+10);l.setAttribute('y1',110);l.setAttribute('y2',110);l.setAttribute('stroke','var(--dim)');l.setAttribute('stroke-opacity','.4');ticks.appendChild(l)}
+ const g=e('g',{transform:'translate(380,0)'});const add=(t,a)=>{const x=document.createElementNS(NS,t);for(const k in a)x.setAttribute(k,a[k]);g.appendChild(x);return x};
+ const w1=add('g',{transform:'translate(40,80)'}),w2=add('g',{transform:'translate(150,80)'});[w1,w2].forEach(w=>{const c=document.createElementNS(NS,'circle');c.setAttribute('r',22);Object.entries(st).forEach(([k,v])=>c.setAttribute(k,v));w.appendChild(c);for(let i=0;i<6;i++){const l=document.createElementNS(NS,'line');l.setAttribute('x2',Math.cos(i)*22);l.setAttribute('y2',Math.sin(i)*22);l.setAttribute('stroke','var(--dim)');l.setAttribute('stroke-width',.8);w.appendChild(l)}});
+ add('path',{...st,d:'M40,80 L78,78 L114,78 L150,80 M40,80 L72,52 L78,78 M72,52 L110,52 L114,78 M110,52 L140,46 L150,80 M78,78 L110,52'});
+ add('path',{...st,d:'M72,46 L80,26 L106,47 M110,46 L118,26 L142,44','stroke-width':2});add('circle',{...st,cx:120,cy:16,r:6});
+ add('path',{d:'M0,-7 C1,-2 2,-1 7,0 C2,1 1,2 0,7 C-1,2 -2,1 -7,0 C-2,-1 -1,-2 0,-7Z',fill:'var(--accent)',transform:'translate(82,16)'});
+ const legs=add('path',{...st,'stroke-width':1.8});let t=0;
+ function f(){{t+=.015;w1.setAttribute('transform',`translate(40,80) rotate(${t*60})`);w2.setAttribute('transform',`translate(150,80) rotate(${t*60})`);ticks.setAttribute('transform',`translate(${-((t*12)%30)},0)`);
+  const p=(cx,cy,ph)=>[cx+Math.cos(t*2+ph)*8,cy+Math.sin(t*2+ph)*8];const a=p(78,78,0),b=p(114,78,Math.PI);legs.setAttribute('d',`M74,46 L${(74+a[0])/2+6},${(46+a[1])/2} L${a} M112,46 L${(112+b[0])/2+6},${(46+b[1])/2} L${b}`)}
+  raf=requestAnimationFrame(f)}f()}
+function render(){document.getElementById('ban').parentNode.classList.toggle('on',S.page==='overview');if(S.page==='overview'&&!document.getElementById('ban').childNodes.length)drawBanner();document.documentElement.lang=S.lang==='zh'?'zh-CN':'en';renderTop();S.page==='overview'?renderOverview():renderReview()}
 function keepScroll(fn){const c=document.getElementById('center'),t=c?c.scrollTop:0;fn();const c2=document.getElementById('center');if(c2)c2.scrollTop=t}
 function toast(t){document.querySelector('.toast')?.remove();const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
 function goUnit(id,line){S.page='review';S.cur=id;S.sel=null;S.range=null;if(S.mode==='file')S.file=U(id).file;render();const c=document.getElementById('center');if(c)c.scrollTop=0;if(S.mode==='file')document.getElementById('u-'+id)?.scrollIntoView({block:'start'});if(line){const el=document.querySelector(`.dl[data-u="${id}"][data-n="${line}"]`);if(el){el.scrollIntoView({block:'center'});el.classList.add('flash')}}}

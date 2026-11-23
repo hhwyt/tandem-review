@@ -13,7 +13,7 @@
   --add:color-mix(in srgb,var(--adds) 9%,var(--surface));--addg:color-mix(in srgb,var(--adds) 18%,var(--surface));
   --del:color-mix(in srgb,var(--dels) 9%,var(--surface));--delg:color-mix(in srgb,var(--dels) 18%,var(--surface));
   --hunk:var(--surface2);--sel:color-mix(in srgb,var(--hl) 22%,var(--surface));--range:color-mix(in srgb,var(--accent) 9%,var(--surface));
-  --t1:var(--accent);--t2:#b8862b;--t3:#5f86ad;--t4:#5f8f5a;--t5:var(--dim);
+  --t1:var(--accent);--t2:color-mix(in srgb,var(--accent) 55%,var(--text));--t3:color-mix(in srgb,var(--fn) 80%,var(--text));--t4:var(--adds);--t5:var(--dim);
   --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.06);
   --serif:"Tiempos Headline","Iowan Old Style","Charter","Georgia","Songti SC",serif;
   --sans:-apple-system,BlinkMacSystemFont,"Inter","PingFang SC","Helvetica Neue",sans-serif;
@@ -321,8 +321,8 @@ const M={
   [T('Design','设计'),T('Default period 24h, floor 10m, cutoff in UTC.','默认周期 24h，下限 10m，截止时间按 UTC。'),T('A partition can lag up to one period.','分区最多晚一个周期转 IA。'),['cutoff',93]],
   [T('Scope','范围'),T('IA only, no transitions.','只支持 IA，不支持 transitions。'),T('Keeps the gate simple.','让闸保持简单。'),['gate',117]]]
 };
-function pathSVG(){const W=1040,H=228;const st={new:['var(--add)','var(--adds)'],mod:['color-mix(in srgb,var(--t2) 12%,var(--surface))','var(--t2)'],same:['var(--surface2)','var(--line)']};
- const box=(x,y,w,t,k,sub,g)=>(g?`<g class="gnode" data-goline="${g}"><title>§${secNo(g.split(':')[0])} ${esc(U(g.split(':')[0]).name)}</title>`:'<g>')+`<rect x="${x}" y="${y}" width="${w}" height="54" rx="10" fill="${st[k][0]}" stroke="${st[k][1]}" stroke-width="1.2"/><text x="${x+12}" y="${y+22}" font-size="13" font-weight="600" fill="var(--text)">${esc(L(t))}</text><text x="${x+12}" y="${y+41}" font-size="11.5" fill="var(--dim)">${esc(L(sub))}</text>`+(g?`<text x="${x+w-14}" y="${y+22}" font-size="12" text-anchor="end" class="garrow">→</text>`:'')+'</g>';
+function pathSVG(){const W=1040,H=228;const st={new:['var(--accent-soft)','var(--accent)'],mod:['var(--surface)','var(--accent)'],same:['var(--surface2)','var(--line)']};
+ const box=(x,y,w,t,k,sub,g)=>(g?`<g class="gnode" data-goline="${g}"><title>§${secNo(g.split(':')[0])} ${esc(U(g.split(':')[0]).name)}</title>`:'<g>')+`<rect x="${x}" y="${y}" width="${w}" height="54" rx="10" fill="${st[k][0]}" stroke="${st[k][1]}" stroke-width="1.2" ${k==='mod'?'stroke-dasharray="5 3"':''}/><text x="${x+12}" y="${y+22}" font-size="13" font-weight="600" fill="var(--text)">${esc(L(t))}</text><text x="${x+12}" y="${y+41}" font-size="11.5" fill="var(--dim)">${esc(L(sub))}</text>`+(g?`<text x="${x+w-14}" y="${y+22}" font-size="12" text-anchor="end" class="garrow">→</text>`:'')+'</g>';
  const ar=(x1,y,x2)=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="var(--dim)" stroke-width="1.2" marker-end="url(#a)"/>`;
  let s=`<defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--dim)"/></marker></defs>`;
  s+=`<text x="0" y="13" font-size="10.5" letter-spacing="1" font-weight="600" fill="var(--dim)">${esc(L(T('STATEMENT TIME','语句执行时')))}</text>`;
@@ -330,9 +330,9 @@ function pathSVG(){const W=1040,H=228;const st={new:['var(--add)','var(--adds)']
  s+=ar(190,49,220)+ar(422,49,452)+ar(694,49,724);
  s+=`<text x="0" y="117" font-size="10.5" letter-spacing="1" font-weight="600" fill="var(--dim)">${esc(L(T('EVERY PERIOD · NEW','每个周期 · 新增')))}</text>`;
  s+=box(0,126,190,T('DDL owner loop','DDL owner 循环'),'new',T('default 24h','默认 24h'),'round:188')+box(222,126,200,T('Re-evaluate tables','重算分区表'),'new',T('read only','只算不改'),'recalc:246')+box(454,126,240,T('Submit ALTER job','提交 ALTER job'),'new',T('flag: interval recalculation','带重算标记'),'recalc:257')+box(726,126,150,T('Execute job','执行 job'),'mod',T('two gates','两道闸'),'exec:139')+box(900,126,140,T('TiKV transition','TiKV 迁移'),'same',T('next-gen only','仅 next-gen'));
- s+=`<path class="flowdash" d="M190,153 L220,153 M422,153 L452,153 M694,153 L724,153 M876,153 L898,153" stroke="var(--adds)" stroke-width="2" fill="none"/>`;
+ s+=`<path class="flowdash" d="M190,153 L220,153 M422,153 L452,153 M694,153 L724,153 M876,153 L898,153" stroke="var(--accent)" stroke-width="2" fill="none"/>`;
  s+=ar(190,153,220)+ar(422,153,452)+ar(694,153,724)+ar(876,153,898)+`<line x1="801" y1="126" x2="801" y2="78" stroke="var(--dim)" stroke-dasharray="3 3" marker-end="url(#a)"/><text x="808" y="106" font-size="11" fill="var(--dim)">${esc(L(T('same tier logic','同一套定档逻辑')))}</text>`;
- const lg=(x,k,t)=>`<rect x="${x}" y="206" width="12" height="12" rx="3" fill="${st[k][0]}" stroke="${st[k][1]}"/><text x="${x+18}" y="216" font-size="11.5" fill="var(--dim)">${esc(L(t))}</text>`;
+ const lg=(x,k,t)=>`<rect x="${x}" y="206" width="12" height="12" rx="3" fill="${st[k][0]}" stroke="${st[k][1]}" ${k==='mod'?'stroke-dasharray="3 2"':''}/><text x="${x+18}" y="216" font-size="11.5" fill="var(--dim)">${esc(L(t))}</text>`;
  s+=lg(0,'new',T('new','新增'))+lg(70,'mod',T('modified','修改'))+lg(160,'same',T('unchanged','未改'))+`<text x="270" y="216" font-size="11.5" fill="var(--accent)">→</text><text x="284" y="216" font-size="11.5" fill="var(--dim)">${esc(L(T('opens the code','打开对应代码')))}</text>`;
  return `<svg viewBox="0 0 ${W} ${H}" width="100%">${s}</svg>`}
 const CHAPTERS=[

@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tandem Overview</title>
+<style>
+:root{--bg:#faf9f5;--surface:#fff;--surface2:#f5f4ed;--line:#e6e3d8;--text:#141413;--dim:#7a786f;--accent:#c96442;--adds:#4f7d3c;--dels:#b0503a;--fn:#5b5bb5;
+ --line2:color-mix(in srgb,var(--line) 55%,var(--bg));--text2:color-mix(in srgb,var(--text) 78%,var(--bg));
+ --accent-ink:color-mix(in srgb,var(--accent) 85%,var(--text));--accent-soft:color-mix(in srgb,var(--accent) 11%,var(--surface));--accent-line:color-mix(in srgb,var(--accent) 38%,var(--surface));
+ --add:color-mix(in srgb,var(--adds) 9%,var(--surface));--t2:color-mix(in srgb,var(--accent) 55%,var(--text));
+ --e1:0 1px 2px rgba(0,0,0,.04),0 2px 8px rgba(0,0,0,.04);--e2:0 2px 4px rgba(0,0,0,.05),0 10px 28px rgba(0,0,0,.08);
+ --serif:"Tiempos Headline","Iowan Old Style","Charter","Georgia","Songti SC",serif;--sans:-apple-system,BlinkMacSystemFont,"Inter","PingFang SC",sans-serif;--mono:"SF Mono",ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}html,body{margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font:14px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}a{color:var(--accent-ink)}
+.top{position:sticky;top:0;z-index:20;height:52px;display:flex;align-items:center;gap:12px;padding:0 18px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.brand{font:600 17px var(--serif);display:flex;gap:6px;align-items:center}.brand b{color:var(--accent)}
+.vt{display:flex;gap:4px;margin-left:10px}.vt button{border:1px solid transparent;background:none;border-radius:8px;padding:4px 12px;cursor:pointer;font-size:13px;color:var(--dim)}
+.vt button.on{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent-ink)}
+.sp{flex:1}
+.btn{display:inline-flex;align-items:center;gap:6px;height:32px;border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:0 14px;cursor:pointer;font-size:13px;transition:box-shadow .15s,transform .15s}
+.btn.go{background:var(--accent);border-color:var(--accent);color:#fff}.btn.go:hover{box-shadow:var(--e2)}
+.seg{display:flex;background:var(--surface2);border-radius:8px;padding:2px}.seg button{border:0;background:none;height:26px;padding:0 10px;border-radius:6px;cursor:pointer;font-size:12.5px;color:var(--dim)}.seg button.on{background:var(--surface);color:var(--text);box-shadow:var(--e1)}
+.eyebrow{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.h1{font:500 30px/1.25 var(--serif);letter-spacing:-.015em;margin:6px 0 12px}
+.lede{font:17px/1.65 var(--serif);color:var(--text2);margin:0}
+h2{font:500 19px var(--serif);margin:0 0 12px;display:flex;align-items:baseline;gap:10px}h2 small{font:13px var(--sans);color:var(--dim)}
+.sec{margin-top:36px;scroll-margin-top:70px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;box-shadow:var(--e1)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dcard{display:block;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:12px 14px;box-shadow:var(--e1);cursor:pointer;transition:box-shadow .18s,transform .18s}
+.dcard:hover{box-shadow:var(--e2);transform:translateY(-1px)}
+.dcard .row{display:flex;align-items:center;gap:8px}
+.tag{font-size:11px;line-height:18px;padding:0 7px;border-radius:5px;border:1px solid var(--line);color:var(--dim)}
+.golink{font:11.5px var(--mono);color:var(--accent-ink);border-bottom:1px dashed var(--accent-line)}.dcard:hover .golink{border-bottom-style:solid}
+.dcard .q{font-weight:600;margin:6px 0 2px;line-height:1.45}.dcard .n{color:var(--dim);font-size:13px}
+.steps{margin:0;padding:0;list-style:none;counter-reset:s}.steps li{counter-increment:s;display:flex;gap:10px;padding:5px 0}
+.steps li:before{content:counter(s);flex:none;width:22px;height:22px;border-radius:50%;background:var(--surface2);font:600 12px/22px var(--sans);text-align:center;color:var(--text2)}
+.cov{list-style:none;margin:0;padding:0}.cov li{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--line2)}.cov li:last-child{border:0}.cov b{width:16px;text-align:center}
+.ftab{width:100%;border-collapse:collapse;font-size:13.5px}.ftab td{padding:7px 8px;border-top:1px solid var(--line2);vertical-align:top}.mono{font-family:var(--mono);font-size:12.5px}
+.pn{color:var(--adds);font-weight:600}.mn{color:var(--dels);font-weight:600}
+.foot{display:flex;justify-content:flex-end;margin-top:36px}
+/* diagram behaviour shared */
+.gnode{cursor:pointer}.gnode rect{transition:stroke-width .15s,filter .15s}.gnode:hover rect{stroke-width:2.4;filter:drop-shadow(0 3px 6px rgba(0,0,0,.12))}.garrow{fill:var(--accent);opacity:.75}.gnode.sel rect{stroke-width:2.6}
+.flowdash{stroke-dasharray:4 6;animation:dash 1.4s linear infinite}@keyframes dash{to{stroke-dashoffset:-20}}
+/* V1 report */
+.w1{max-width:900px;margin:0 auto;padding:36px 28px 80px}
+.banner{height:120px;border-radius:14px;overflow:hidden;background:var(--surface);border:1px solid var(--line);margin-bottom:24px;position:relative;box-shadow:var(--e1)}
+.banner svg{width:100%;height:100%}
+.banner .pause{position:absolute;right:10px;bottom:8px;font-size:11.5px;color:var(--dim);cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:0 7px}
+/* V2 guide */
+.w2{max-width:1120px;margin:0 auto;padding:36px 28px 80px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:40px}
+.toc{position:sticky;top:76px;align-self:start;font-size:13.5px}
+.toc a{display:block;padding:6px 12px;color:var(--dim);text-decoration:none;border-left:2px solid var(--line);transition:color .15s,border-color .15s}
+.toc a.on{color:var(--text);border-left-color:var(--accent);font-weight:600}
+.toc .pg{height:3px;border-radius:2px;background:var(--line);margin:14px 0 6px;overflow:hidden}.toc .pg i{display:block;height:100%;background:var(--accent);width:0;transition:width .2s}
+/* V3 decisions first */
+.w3{max-width:920px;margin:0 auto;padding:36px 28px 80px}
+.chk{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--surface);box-shadow:var(--e1);margin-bottom:10px}
+.chk .opts{display:flex;gap:6px;flex:none}
+.chk .opts button{height:26px;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:0 9px;font-size:12px;cursor:pointer;color:var(--dim)}
+.chk .opts button.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.chk.done{background:var(--surface2)}
+.chk .mark{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;transition:background .2s,border-color .2s}
+.chk.done .mark{background:var(--adds);border-color:var(--adds)}
+.meter{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--dim);margin:6px 0 14px}.meter .bar{flex:1;height:6px;border-radius:3px;background:var(--line);overflow:hidden}.meter .bar i{display:block;height:100%;background:var(--adds);transition:width .3s}
+/* V4 diagram first */
+.w4{max-width:1180px;margin:0 auto;padding:30px 28px 80px}
+.dgwrap{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;align-items:start}
+.insp{position:sticky;top:76px}
+.insp .empty{color:var(--dim);font-size:13.5px}
+.insp h3{font:500 17px var(--serif);margin:0 0 6px}
+/* V5 dashboard */
+.w5{max-width:1180px;margin:0 auto;padding:30px 28px 80px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 6px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--e1)}
+.tile .v{font:600 26px var(--serif)}.tile .k{font-size:12px;color:var(--dim)}
+.g5{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:16px}
+.span6{grid-column:span 6}.span12{grid-column:span 12}.span4{grid-column:span 4}.span8{grid-column:span 8}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:9px 16px;border-radius:10px;font-size:13px;z-index:40}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:900px){.grid2,.w2,.dgwrap,.tiles{grid-template-columns:1fr}.toc,.insp{position:static}.span6,.span4,.span8{grid-column:span 12}}
+</style>
+</head>
+<body>
+<div class="top"><span class="brand"><b>✦</b>Tandem</span><div class="vt" id="vt"></div><span class="sp"></span><div class="seg" id="lang"></div><button class="btn go" data-start="1" id="startTop"></button></div>
+<div id="main"></div>
+<script>
+const T=(en,zh)=>({en,zh});const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const S={v:'report',lang:'en',sel:null,chk:{},paused:false};try{S.lang=localStorage.getItem('hr-lang')||'en';S.v=localStorage.getItem('hr-ov5')||'report'}catch(_){}
+const L=o=>o==null?'':typeof o==='string'?o:(o[S.lang]??o.en);
+const SKINS={
+ claude:{n:'Claude',bg:'#faf9f5',surface:'#ffffff',surface2:'#f5f4ed',line:'#e6e3d8',text:'#141413',dim:'#7a786f',accent:'#c96442',adds:'#4f7d3c',dels:'#b0503a',kw:'#a9502f',str:'#4f7d3c',fn:'#5b5bb5',com:'#9a978c'},
+ paper:{n:'Paper',bg:'#ffffff',surface:'#ffffff',surface2:'#f6f8fa',line:'#d0d7de',text:'#1f2328',dim:'#656d76',accent:'#0969da',adds:'#1a7f37',dels:'#cf222e',kw:'#cf222e',str:'#0a3069',fn:'#8250df',com:'#6e7781'},
+ ocean:{n:'Ocean',bg:'#f4f8fb',surface:'#ffffff',surface2:'#eaf1f7',line:'#d4e0ea',text:'#13293d',dim:'#5d7287',accent:'#1f7a8c',adds:'#2a8f6a',dels:'#c0504d',kw:'#1f6f99',str:'#2a8f6a',fn:'#7a4fb0',com:'#8ca0b3'},
+ forest:{n:'Forest',bg:'#f5f7f2',surface:'#ffffff',surface2:'#eef2ea',line:'#dbe2d3',text:'#1c2a1e',dim:'#6b7a69',accent:'#3f7d4e',adds:'#3f7d4e',dels:'#b5523b',kw:'#7a5a1f',str:'#3f7d4e',fn:'#5b6db5',com:'#93a08f'},
+ rose:{n:'Rosé',bg:'#fdf7f7',surface:'#ffffff',surface2:'#f9eeee',line:'#efdcdc',text:'#2d1b1f',dim:'#87696e',accent:'#c2456a',adds:'#4b8a5f',dels:'#c2456a',kw:'#a33a5a',str:'#4b8a5f',fn:'#6a5acd',com:'#ab9499'},
+ sand:{n:'Sand',bg:'#fbf6ec',surface:'#fffdf8',surface2:'#f4ecdc',line:'#e8dcc4',text:'#2b2418',dim:'#857a63',accent:'#b07d12',adds:'#5d7f2f',dels:'#b4492e',kw:'#9a5b12',str:'#5d7f2f',fn:'#5866b0',com:'#a89c84'},
+ graphite:{n:'Graphite',dark:1,bg:'#1c1c1e',surface:'#242426',surface2:'#2c2c2f',line:'#3a3a3d',text:'#ececec',dim:'#9a9a9f',accent:'#e5a442',adds:'#7fbf6e',dels:'#e57373',kw:'#e5a442',str:'#9fd38a',fn:'#9ab4ff',com:'#7d7d82',hl:'#e5a442'},
+ nord:{n:'Nord',dark:1,bg:'#2e3440',surface:'#353c4a',surface2:'#3b4252',line:'#4c566a',text:'#eceff4',dim:'#a3acbd',accent:'#88c0d0',adds:'#a3be8c',dels:'#bf616a',kw:'#81a1c1',str:'#a3be8c',fn:'#b48ead',com:'#7b8496',hl:'#ebcb8b'},
+ midnight:{n:'Midnight',dark:1,bg:'#0f1420',surface:'#151c2b',surface2:'#1b2335',line:'#28324a',text:'#e6ebf5',dim:'#8b96ad',accent:'#5eb3ff',adds:'#58c48a',dels:'#ff6b81',kw:'#c792ea',str:'#58c48a',fn:'#82aaff',com:'#5f6b85',hl:'#5eb3ff'},
+ violet:{n:'Violet Night',dark:1,bg:'#1d1a26',surface:'#24202f',surface2:'#2b2638',line:'#3b3450',text:'#f2eefc',dim:'#a49bbd',accent:'#b392f0',adds:'#7ee0a1',dels:'#ff7aa2',kw:'#ff79c6',str:'#f1fa8c',fn:'#8be9fd',com:'#6e6488',hl:'#b392f0'}};
+function applySkin(k){const s=SKINS[k]||SKINS.claude;const r=document.documentElement.style;['bg','surface','surface2','line','text','dim','accent','adds','dels','kw','str','fn','com'].forEach(x=>r.setProperty('--'+x,s[x]));r.setProperty('--hl',s.hl||'#f5c400');r.setProperty('--shadow',s.dark?'0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.35)':'0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.06)');document.documentElement.style.colorScheme=s.dark?'dark':'light';S.skin=k;try{localStorage.setItem('hr-skin',k)}catch(_){}}
+
+const M={
+ title:T('Storage class: INTERVAL selector for partition tiers','存储档位：用 INTERVAL 选择分区档位'),
+ verdict:T('Lets an IA rule say “older than 3 years” instead of a fixed date, and keeps it moving with a periodic DDL-owner job. The direction is sound; one rolling-upgrade question and three behavior choices need your call.','让 IA 规则可以写「早于 3 年前」而不是固定日期，并由 DDL owner 定期重算，让这条线随时间往前走。方向没问题；一个滚动升级问题和三个行为取舍要你拍板。'),
+ bg:T('Storage class rules move old partitions to cheaper IA storage. A less_than selector is a fixed boundary, and tiers are computed only when a DDL touches the table, so “3 years ago” written as a date never moves.','storage class 规则把老分区放到更便宜的 IA 存储。less_than 选择器是固定边界，档位只在 DDL 碰到表时才算，所以写成日期的「三年前」永远不会动。'),
+ design:[T('At statement time, INTERVAL n UNIT becomes the literal it stands for at now (UTC) and matches exactly like a literal.','语句执行时，INTERVAL n UNIT 换算成「现在（UTC）」对应的固定值，按固定值规则匹配。'),
+  T('Every period, the DDL owner re-evaluates partitioned tables and submits an ALTER job where partitions newly cross the cutoff.','每个周期，DDL owner 重算分区表，有分区新越线就提交 ALTER job。'),
+  T('The job re-checks when it runs: skip if the rule changed meanwhile, apply only STANDARD→IA.','job 执行时再查一遍：规则中途变了就跳过，只允许 STANDARD→IA。')],
+ cover:[['✓',T('RANGE COLUMNS(DATE / DATETIME), RANGE(TO_DAYS(col)), RANGE(UNIX_TIMESTAMP(col))','RANGE COLUMNS(DATE / DATETIME)、RANGE(TO_DAYS(col))、RANGE(UNIX_TIMESTAMP(col))')],
+  ['✓',T('CREATE TABLE, ALTER ENGINE_ATTRIBUTE, ADD / REORGANIZE PARTITION','CREATE TABLE、ALTER ENGINE_ATTRIBUTE、ADD / REORGANIZE PARTITION')],
+  ['✗',T('Tiers other than IA, or combined with transitions','IA 以外的档位，或和 transitions 一起用')],
+  ['✗',T('Moving partitions back from IA to STANDARD','把分区从 IA 挪回 STANDARD')],
+  ['!',T('CREATE TABLE … LIKE copies the rule without the partition-key check','CREATE TABLE … LIKE 复制规则时不做分区键检查')],
+  ['!',T('Classic kernel: jobs change metadata but stage no TiKV transition','经典内核：job 会改元数据，但不排 TiKV 迁移')]],
+ decide:[[T('Compat','兼容'),T('What does an older DDL owner do with a recalculation job during a rolling upgrade?','滚动升级时，老版本 DDL owner 拿到重算 job 会怎么处理？'),T('Unverified. Old decoders read only the first argument.','未验证。老版本只解第一个参数。'),['exec',139]],
+  [T('Behavior','行为'),T('If the clock goes back, the whole table is skipped with a Warn and a metric.','时钟回拨时，整张表跳过，打 Warn 和指标。'),T('Alternative: apply only the STANDARD→IA part.','另一种：只应用 STANDARD→IA 的部分。'),['recalc',250]],
+  [T('Design','设计'),T('Default period 24h, floor 10m, cutoff in UTC.','默认周期 24h，下限 10m，截止时间按 UTC。'),T('A partition can lag up to one period.','分区最多晚一个周期转 IA。'),['cutoff',93]],
+  [T('Scope','范围'),T('IA only, no transitions.','只支持 IA，不支持 transitions。'),T('Keeps the gate simple.','让闸保持简单。'),['gate',117]]]
+};
+
+const Fi=(path,a,d,st,tier,what)=>({path,a,d,st,tier,what});
+const FILES=[
+ Fi('pkg/ddl/storage_class_interval.go',243,0,'new',1,T('Parses INTERVAL, computes the cutoff, maps it onto the partition key, admission checks.','解析 INTERVAL、算截止时间、映射到分区键、准入检查。')),
+ Fi('pkg/ddl/storage_class_interval_recalc.go',313,0,'new',1,T('DDL-owner loop that re-evaluates tables and submits jobs; the STANDARD→IA gate.','DDL owner 上的重算循环，提交 job；STANDARD→IA 的闸。')),
+ Fi('pkg/ddl/engine_attribute.go',22,2,'mod',1,T('Two gates in the shared ALTER executor; admission check on ALTER.','共用 ALTER 执行函数里的两道闸；ALTER 时的准入检查。')),
+ Fi('pkg/ddl/storage_class.go',83,38,'mod',2,T('Evaluator: interval rules match exactly like literal rules.','evaluator：interval 规则和固定值规则走同一套匹配。')),
+ Fi('pkg/ddl/job_scheduler.go',19,0,'mod',3,T('Starts the loop when the node becomes DDL owner.','节点成为 DDL owner 时启动循环。')),
+ Fi('pkg/ddl/executor.go',6,0,'mod',3,T('CREATE TABLE rejects an unsupported partition key.','CREATE TABLE 拒绝不支持的分区键。')),
+ Fi('pkg/meta/model/job_args.go',7,2,'mod',3,T('New job argument IntervalRecalculation.','新增 job 参数 IntervalRecalculation。')),
+ Fi('pkg/sessionctx/variable/sysvar.go',17,0,'mod',3,T('Recalculation period: 0 disables, below 10m raised to 10m.','重算周期：0 关闭，小于 10m 提到 10m。')),
+ Fi('pkg/sessionctx/vardef/tidb_vars.go',5,0,'mod',3,T('Name and default (24h).','变量名和默认值（24h）。')),
+ Fi('pkg/ddl/storage_class_interval_recalc_test.go',358,0,'new',4,T('Loop, gates, clock skew, owner change.','循环、两道闸、时钟回拨、owner 切换。')),
+ Fi('pkg/ddl/storage_class_interval_test.go',335,0,'new',4,T('Parsing, cutoff math, key kinds, fuzz.','解析、截止时间计算、分区键类型、fuzz。')),
+ Fi('tests/integrationtest/t/ddl/storage_class.test',28,0,'mod',4,T('User-visible SQL behavior.','用户可见的 SQL 行为。')),
+ Fi('tests/integrationtest/r/ddl/storage_class.result',44,0,'mod',4,T('Recorded output.','录制的输出。')),
+ Fi('pkg/meta/model/job_args_test.go',21,0,'mod',4,T('Argument round trip.','参数编解码往返。')),
+ Fi('pkg/ddl/storage_class_partition_test.go',1,1,'mod',4,T('One assertion updated.','改了一处断言。')),
+ Fi('pkg/ddl/BUILD.bazel',4,0,'mod',5,T('Registers new files.','登记新文件。')),
+ Fi('docs/agents/ddl/01-execution-flow.md',1,0,'mod',5,T('Mentions owner-submitted jobs.','提到 owner 自己提交的 job。')),
+ Fi('docs/agents/ddl/05-file-map.md',1,0,'mod',5,T('File map entry.','文件地图条目。'))];
+
+const SEC={check:1,parse:2,convert:3,cutoff:4,round:5,recalc:6,exec:7,gate:8};const NAMES={check:'checkStorageClassIntervalPartitionKey',convert:'convertStorageClassIntervalToLessThan',cutoff:'cutoff',round:'runRound',recalc:'recalcTable',exec:'onModifyTableEngineAttribute',gate:'shouldApplyStorageClassIntervalRecalculation'};
+const FILEOF={check:'storage_class_interval.go',convert:'storage_class_interval.go',cutoff:'storage_class_interval.go',round:'storage_class_interval_recalc.go',recalc:'storage_class_interval_recalc.go',exec:'engine_attribute.go',gate:'storage_class_interval_recalc.go'};
+const secNo=id=>SEC[id];const U=id=>({name:NAMES[id],file:'pkg/ddl/'+FILEOF[id]});
+function pathSVG(){const W=1040,H=228;const st={new:['var(--accent-soft)','var(--accent)'],mod:['var(--surface)','var(--accent)'],same:['var(--surface2)','var(--line)']};
+ const box=(x,y,w,t,k,sub,g)=>(g?`<g class="gnode" data-goline="${g}"><title>§${secNo(g.split(':')[0])} ${esc(U(g.split(':')[0]).name)}</title>`:'<g>')+`<rect x="${x}" y="${y}" width="${w}" height="54" rx="10" fill="${st[k][0]}" stroke="${st[k][1]}" stroke-width="1.2" ${k==='mod'?'stroke-dasharray="5 3"':''}/><text x="${x+12}" y="${y+22}" font-size="13" font-weight="600" fill="var(--text)">${esc(L(t))}</text><text x="${x+12}" y="${y+41}" font-size="11.5" fill="var(--dim)">${esc(L(sub))}</text>`+(g?`<text x="${x+w-14}" y="${y+22}" font-size="12" text-anchor="end" class="garrow">→</text>`:'')+'</g>';
+ const ar=(x1,y,x2)=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="var(--dim)" stroke-width="1.2" marker-end="url(#a)"/>`;
+ let s=`<defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--dim)"/></marker></defs>`;
+ s+=`<text x="0" y="13" font-size="10.5" letter-spacing="1" font-weight="600" fill="var(--dim)">${esc(L(T('STATEMENT TIME','语句执行时')))}</text>`;
+ s+=box(0,22,190,T('CREATE / ALTER / ADD PARTITION','CREATE / ALTER / 加分区'),'same',T('user DDL','用户 DDL'))+box(222,22,200,T('Admission check','准入检查'),'mod',T('reject unsupported key','拒绝不支持的分区键'),'check:213')+box(454,22,240,T('Compute partition tiers','计算分区档位'),'mod',T('INTERVAL → literal at now','INTERVAL → 此刻的固定值'),'convert:169')+box(726,22,150,T('Partition tier','分区档位'),'same',T('table metadata','表元数据'));
+ s+=ar(190,49,220)+ar(422,49,452)+ar(694,49,724);
+ s+=`<text x="0" y="117" font-size="10.5" letter-spacing="1" font-weight="600" fill="var(--dim)">${esc(L(T('EVERY PERIOD · NEW','每个周期 · 新增')))}</text>`;
+ s+=box(0,126,190,T('DDL owner loop','DDL owner 循环'),'new',T('default 24h','默认 24h'),'round:188')+box(222,126,200,T('Re-evaluate tables','重算分区表'),'new',T('read only','只算不改'),'recalc:246')+box(454,126,240,T('Submit ALTER job','提交 ALTER job'),'new',T('flag: interval recalculation','带重算标记'),'recalc:257')+box(726,126,150,T('Execute job','执行 job'),'mod',T('two gates','两道闸'),'exec:139')+box(900,126,140,T('TiKV transition','TiKV 迁移'),'same',T('next-gen only','仅 next-gen'));
+ s+=`<path class="flowdash" d="M190,153 L220,153 M422,153 L452,153 M694,153 L724,153 M876,153 L898,153" stroke="var(--accent)" stroke-width="2" fill="none"/>`;
+ s+=ar(190,153,220)+ar(422,153,452)+ar(694,153,724)+ar(876,153,898)+`<line x1="801" y1="126" x2="801" y2="78" stroke="var(--dim)" stroke-dasharray="3 3" marker-end="url(#a)"/><text x="808" y="106" font-size="11" fill="var(--dim)">${esc(L(T('same tier logic','同一套定档逻辑')))}</text>`;
+ const lg=(x,k,t)=>`<rect x="${x}" y="206" width="12" height="12" rx="3" fill="${st[k][0]}" stroke="${st[k][1]}" ${k==='mod'?'stroke-dasharray="3 2"':''}/><text x="${x+18}" y="216" font-size="11.5" fill="var(--dim)">${esc(L(t))}</text>`;
+ s+=lg(0,'new',T('new','新增'))+lg(70,'mod',T('modified','修改'))+lg(160,'same',T('unchanged','未改'))+`<text x="270" y="216" font-size="11.5" fill="var(--accent)">→</text><text x="284" y="216" font-size="11.5" fill="var(--dim)">${esc(L(T('opens the code','打开对应代码')))}</text>`;
+ return `<svg viewBox="0 0 ${W} ${H}" width="100%">${s}</svg>`}
+const CHAPTERS=[
+ {n:T('Statement time','语句执行时'),sub:T('user CREATE / ALTER','用户 CREATE / ALTER'),items:['check','parse','convert','cutoff']},
+ {n:T('Periodic recalculation','后台周期重算'),sub:T('new path on the DDL owner','DDL owner 上的新路径'),items:['round','recalc','exec','gate']}];
+
+const STEPINFO={'check:213':T('New admission check on CREATE / ALTER: an interval rule needs a DATE/DATETIME column, TO_DAYS(col) or UNIX_TIMESTAMP(col) partition key.','CREATE / ALTER 时新增的准入检查：interval 规则要求分区键是 DATE/DATETIME 列、TO_DAYS(col) 或 UNIX_TIMESTAMP(col)。'),
+ 'convert:169':T('Tier computation now converts INTERVAL to the literal it stands for at now, then matches it like any literal.','定档时先把 INTERVAL 换算成此刻对应的固定值，再按固定值匹配。'),
+ 'round:188':T('New loop on the DDL owner. Runs every tidb_storage_class_interval_recalc_period (default 24h).','DDL owner 上新增的循环，每隔 tidb_storage_class_interval_recalc_period（默认 24h）跑一次。'),
+ 'recalc:246':T('Evaluates each partitioned table without touching metadata.','逐表重算，只算不改元数据。'),
+ 'recalc:257':T('Submits an ALTER job flagged as interval recalculation when partitions newly cross the cutoff.','有分区新越线时，提交一个带重算标记的 ALTER job。'),
+ 'exec:139':T('The executor skips the job if the rule changed, and applies it only if every change is STANDARD→IA.','执行时：规则变了就跳过；只有全部是 STANDARD→IA 才应用。')};
+const decide=()=>M.decide.map(([t,q,n,g],i)=>`<a class="dcard" data-go="${g[0]}:${g[1]}"><div class="row"><span class="tag">${esc(L(t))}</span><span class="sp"></span><span class="golink">§${SEC[g[0]]} ${esc(FILEOF[g[0]])}:${g[1]} →</span></div><div class="q">${esc(L(q))}</div><div class="n">${esc(L(n))}</div></a>`).join('');
+const head=()=>`<div class="eyebrow">${L(T('Summary','总结'))}</div><div class="h1">${esc(L(M.title))}</div><p class="lede">${esc(L(M.verdict))}</p>`;
+const bg=()=>`<div class="card">${esc(L(M.bg))}</div>`;const ap=()=>`<div class="card"><ol class="steps">${M.design.map(d=>`<li><span>${esc(L(d))}</span></li>`).join('')}</ol></div>`;
+const cov=()=>`<div class="card"><ul class="cov">${M.cover.map(([m,t])=>`<li><b style="color:${m==='✓'?'var(--adds)':m==='✗'?'var(--dels)':'var(--accent)'}">${m}</b><span>${esc(L(t))}</span></li>`).join('')}</ul></div>`;
+const files=()=>{let h='<table class="ftab">';FILES.forEach(f=>h+=`<tr><td class="mono">${esc(f.path)}</td><td class="mono" style="white-space:nowrap"><span class="pn">+${f.a}</span> <span class="mn">−${f.d}</span></td><td>${esc(L(f.what))}</td></tr>`);return `<details class="card"><summary style="cursor:pointer"><b>${FILES.length} ${L(T('files','个文件'))}</b> <span class="pn">+${FILES.reduce((a,f)=>a+f.a,0)}</span> <span class="mn">−${FILES.reduce((a,f)=>a+f.d,0)}</span></summary>${h}</table></details>`};
+const foot=()=>`<div class="foot"><button class="btn go" data-start="1" style="height:40px;padding:0 22px">${L(T('Start review','开始 review'))} →</button></div>`;
+const S2=(id,title,body,extra='')=>`<section class="sec" id="${id}"><h2>${title}${extra}</h2>${body}</section>`;
+function banner(){return `<div class="banner"><svg id="ban" viewBox="0 0 900 120" preserveAspectRatio="xMidYMid meet"></svg><span class="pause" id="pause">${S.paused?'▶':'❚❚'}</span></div>`}
+const V={
+report(){return `<div class="w1">${banner()}${head()}${S2('d',L(T('Needs your call','需要你拍板')),`<div class="grid2">${decide()}</div>`,`<small>${M.decide.length}</small>`)}<div class="sec grid2"><div><h2>${L(T('Background','背景'))}</h2>${bg()}</div><div><h2>${L(T('Approach','做法'))}</h2>${ap()}</div></div>${S2('p',L(T('Where it attaches','改动挂在哪')),`<div class="card">${pathSVG()}</div>`)}${S2('b',L(T('Boundary','改动边界')),cov())}${S2('f',L(T('Files','文件')),files())}${foot()}</div>`},
+guide(){const items=[['s',T('Summary','总结')],['d',T('Needs your call','需要你拍板')],['bg',T('Background','背景')],['ap',T('Approach','做法')],['p',T('Where it attaches','改动挂在哪')],['b',T('Boundary','改动边界')],['f',T('Files','文件')]];
+ return `<div class="w2"><nav class="toc" id="toc">${items.map(([id,n])=>`<a href="#${id}" data-toc="${id}">${esc(L(n))}</a>`).join('')}<div class="pg"><i id="pgbar"></i></div><button class="btn go" data-start="1" style="width:100%;justify-content:center;margin-top:8px">${L(T('Start review','开始 review'))} →</button></nav><div><section class="sec" id="s" style="margin-top:0">${head()}</section>${S2('d',L(T('Needs your call','需要你拍板')),`<div class="grid2">${decide()}</div>`)}${S2('bg',L(T('Background','背景')),bg())}${S2('ap',L(T('Approach','做法')),ap())}${S2('p',L(T('Where it attaches','改动挂在哪')),`<div class="card">${pathSVG()}</div>`)}${S2('b',L(T('Boundary','改动边界')),cov())}${S2('f',L(T('Files','文件')),files())}</div></div>`},
+decisions(){const n=M.decide.length,done=Object.keys(S.chk).length;const opts=[T('Agree','同意'),T('Question','有疑问'),T('Disagree','不同意')];
+ return `<div class="w3">${head()}<section class="sec"><h2>${L(T('Needs your call','需要你拍板'))}</h2><div class="meter"><span>${done}/${n}</span><span class="bar"><i style="width:${done/n*100}%"></i></span></div>${M.decide.map(([t,q,nn,g],i)=>`<div class="chk ${S.chk[i]!=null?'done':''}"><span class="mark">${S.chk[i]!=null?'✓':''}</span><div style="flex:1"><div style="display:flex;gap:8px;align-items:center"><span class="tag">${esc(L(t))}</span><a class="golink" data-go="${g[0]}:${g[1]}" style="cursor:pointer">§${SEC[g[0]]} ${esc(FILEOF[g[0]])}:${g[1]} →</a></div><div style="font-weight:600;margin:6px 0 2px">${esc(L(q))}</div><div style="color:var(--dim);font-size:13px">${esc(L(nn))}</div></div><div class="opts">${opts.map((o,k)=>`<button data-chk="${i}:${k}" class="${S.chk[i]===k?'on':''}">${esc(L(o))}</button>`).join('')}</div></div>`).join('')}</section>
+ <div class="sec grid2"><div><h2>${L(T('Background','背景'))}</h2>${bg()}</div><div><h2>${L(T('Approach','做法'))}</h2>${ap()}</div></div>${S2('p',L(T('Where it attaches','改动挂在哪')),`<div class="card">${pathSVG()}</div>`)}${S2('b',L(T('Boundary','改动边界')),cov())}${S2('f',L(T('Files','文件')),files())}${foot()}</div>`},
+diagram(){const sel=S.sel;const info=sel?`<div class="card"><div class="eyebrow">§${SEC[sel.split(':')[0]]} · ${esc(FILEOF[sel.split(':')[0]])}:${sel.split(':')[1]}</div><h3>${esc(NAMES[sel.split(':')[0]])}</h3><p style="margin:6px 0 12px">${esc(L(STEPINFO[sel]))}</p>${M.decide.filter(d=>d[3][0]===sel.split(':')[0]).map(([t,q])=>`<div class="tag" style="display:inline-block;margin-bottom:6px">${esc(L(t))}</div><div style="font-weight:600;margin-bottom:10px">${esc(L(q))}</div>`).join('')}<button class="btn go" data-go="${sel}">${L(T('Open the code','打开代码'))} →</button></div>`:`<div class="card empty">${L(T('Pick a highlighted step in the diagram to see what changed there.','点图里有颜色的步骤，看那一步改了什么。'))}</div>`;
+ return `<div class="w4">${head()}<section class="sec"><h2>${L(T('Where it attaches','改动挂在哪'))}</h2><div class="dgwrap"><div class="card" id="dg">${pathSVG()}</div><div class="insp">${info}</div></div></section>${S2('d',L(T('Needs your call','需要你拍板')),`<div class="grid2">${decide()}</div>`)}<div class="sec grid2"><div><h2>${L(T('Background','背景'))}</h2>${bg()}</div><div><h2>${L(T('Approach','做法'))}</h2>${ap()}</div></div>${S2('b',L(T('Boundary','改动边界')),cov())}${S2('f',L(T('Files','文件')),files())}${foot()}</div>`},
+dash(){const tiles=[[FILES.length,T('files','个文件')],['+'+FILES.reduce((a,f)=>a+f.a,0)+' −'+FILES.reduce((a,f)=>a+f.d,0),T('lines','行')],[8,T('functions to read','个函数要读')],[M.decide.length,T('decisions for you','件事要你拍板')]];
+ return `<div class="w5">${head()}<div class="tiles">${tiles.map(([v,k])=>`<div class="tile"><div class="v">${v}</div><div class="k">${esc(L(k))}</div></div>`).join('')}</div><div class="g5"><div class="span8"><h2 style="margin-top:20px">${L(T('Needs your call','需要你拍板'))}</h2><div class="grid2">${decide()}</div></div><div class="span4"><h2 style="margin-top:20px">${L(T('Background','背景'))}</h2>${bg()}</div><div class="span12"><h2 style="margin-top:20px">${L(T('Where it attaches','改动挂在哪'))}</h2><div class="card">${pathSVG()}</div></div><div class="span6"><h2 style="margin-top:20px">${L(T('Approach','做法'))}</h2>${ap()}</div><div class="span6"><h2 style="margin-top:20px">${L(T('Boundary','改动边界'))}</h2>${cov()}</div><div class="span12"><h2 style="margin-top:20px">${L(T('Files','文件'))}</h2>${files()}</div></div>${foot()}</div>`}
+};
+// slow, small banner: the tandem rolling along a line
+let raf=0;function drawBanner(){const svg=document.getElementById('ban');if(!svg)return;const NS='http://www.w3.org/2000/svg';const e=(t,a)=>{const x=document.createElementNS(NS,t);for(const k in a)x.setAttribute(k,a[k]);svg.appendChild(x);return x};
+ const st={fill:'none',stroke:'var(--text)','stroke-width':1.6,'stroke-linecap':'round','stroke-linejoin':'round'};
+ e('line',{...st,x1:0,y1:104,x2:900,y2:104,'stroke-opacity':.25});const ticks=e('g',{});for(let i=0;i<60;i++){const l=document.createElementNS(NS,'line');l.setAttribute('x1',i*30);l.setAttribute('x2',i*30+10);l.setAttribute('y1',110);l.setAttribute('y2',110);l.setAttribute('stroke','var(--dim)');l.setAttribute('stroke-opacity','.4');ticks.appendChild(l)}
+ const g=e('g',{transform:'translate(380,0)'});const add=(t,a)=>{const x=document.createElementNS(NS,t);for(const k in a)x.setAttribute(k,a[k]);g.appendChild(x);return x};
+ const w1=add('g',{transform:'translate(40,80)'}),w2=add('g',{transform:'translate(150,80)'});[w1,w2].forEach(w=>{const c=document.createElementNS(NS,'circle');c.setAttribute('r',22);Object.entries(st).forEach(([k,v])=>c.setAttribute(k,v));w.appendChild(c);for(let i=0;i<6;i++){const l=document.createElementNS(NS,'line');l.setAttribute('x2',Math.cos(i)*22);l.setAttribute('y2',Math.sin(i)*22);l.setAttribute('stroke','var(--dim)');l.setAttribute('stroke-width',.8);w.appendChild(l)}});
+ add('path',{...st,d:'M40,80 L78,78 L114,78 L150,80 M40,80 L72,52 L78,78 M72,52 L110,52 L114,78 M110,52 L140,46 L150,80 M78,78 L110,52'});
+ add('path',{...st,d:'M72,46 L80,26 L106,47 M110,46 L118,26 L142,44','stroke-width':2});add('circle',{...st,cx:120,cy:16,r:6});
+ add('path',{d:'M0,-7 C1,-2 2,-1 7,0 C2,1 1,2 0,7 C-1,2 -2,1 -7,0 C-2,-1 -1,-2 0,-7Z',fill:'var(--accent)',transform:'translate(82,16)'});
+ const legs=add('path',{...st,'stroke-width':1.8});let t=0;
+ function f(){if(!S.paused){t+=.04;w1.setAttribute('transform',`translate(40,80) rotate(${t*60})`);w2.setAttribute('transform',`translate(150,80) rotate(${t*60})`);ticks.setAttribute('transform',`translate(${-((t*12)%30)},0)`);
+  const p=(cx,cy,ph)=>[cx+Math.cos(t*2+ph)*8,cy+Math.sin(t*2+ph)*8];const a=p(78,78,0),b=p(114,78,Math.PI);legs.setAttribute('d',`M74,46 L${(74+a[0])/2+6},${(46+a[1])/2} L${a} M112,46 L${(112+b[0])/2+6},${(46+b[1])/2} L${b}`)}
+  raf=requestAnimationFrame(f)}f()}
+function render(){cancelAnimationFrame(raf);document.documentElement.lang=S.lang==='zh'?'zh-CN':'en';
+ document.getElementById('vt').innerHTML=[['report',T('1 Report','① 报告')],['guide',T('2 Guided','② 导读')],['decisions',T('3 Decisions first','③ 决策优先')],['diagram',T('4 Diagram first','④ 图为主')],['dash',T('5 Dashboard','⑤ 仪表')]].map(([k,n])=>`<button data-v="${k}" class="${S.v===k?'on':''}">${esc(L(n))}</button>`).join('');
+ document.getElementById('lang').innerHTML=`<button data-lang="en" class="${S.lang==='en'?'on':''}">EN</button><button data-lang="zh" class="${S.lang==='zh'?'on':''}">中文</button>`;
+ document.getElementById('startTop').textContent=L(T('Start review','开始 review'))+' →';
+ document.getElementById('main').innerHTML=V[S.v]();if(S.v==='report')drawBanner();if(S.v==='diagram'&&S.sel)document.querySelector(`.gnode[data-goline="${S.sel}"]`)?.classList.add('sel');spy()}
+function spy(){const toc=document.getElementById('toc');if(!toc)return;const ids=[...toc.querySelectorAll('[data-toc]')].map(a=>a.dataset.toc);let cur=ids[0];ids.forEach(id=>{const s=document.getElementById(id);if(s&&s.getBoundingClientRect().top<120)cur=id});toc.querySelectorAll('[data-toc]').forEach(a=>a.classList.toggle('on',a.dataset.toc===cur));const h=document.documentElement;document.getElementById('pgbar').style.width=Math.min(100,h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%'}
+addEventListener('scroll',spy,{passive:true});
+document.addEventListener('click',e=>{const c=x=>e.target.closest(x);
+ if(c('[data-v]')){S.v=c('[data-v]').dataset.v;try{localStorage.setItem('hr-ov5',S.v)}catch(_){}render();scrollTo(0,0);return}
+ if(c('[data-lang]')){S.lang=c('[data-lang]').dataset.lang;try{localStorage.setItem('hr-lang',S.lang)}catch(_){}render();return}
+ if(c('#pause')){S.paused=!S.paused;c('#pause').textContent=S.paused?'▶':'❚❚';return}
+ if(c('[data-chk]')){const [i,k]=c('[data-chk]').dataset.chk.split(':').map(Number);S.chk[i]=S.chk[i]===k?undefined:k;if(S.chk[i]===undefined)delete S.chk[i];render();return}
+ if(S.v==='diagram'&&c('.gnode')){S.sel=c('.gnode').dataset.goline;render();return}
+ if(c('[data-go]')||c('[data-goline]')){const g=(c('[data-go]')||c('[data-goline]')).dataset.go||c('[data-goline]').dataset.goline;location.href='app.html'+location.search+'#go='+g;return}
+ if(c('[data-start]')){location.href='app.html'+location.search+'#code';return}});
+let sk=null;try{sk=localStorage.getItem('hr-skin')}catch(_){};const s0=SKINS[sk]||SKINS.claude;['bg','surface','surface2','line','text','dim','accent','adds','dels','fn'].forEach(k=>document.documentElement.style.setProperty('--'+k,s0[k]));document.documentElement.style.colorScheme=s0.dark?'dark':'light';
+if(matchMedia('(prefers-reduced-motion: reduce)').matches)S.paused=true;
+render();
+</script>
+</body>
+</html>

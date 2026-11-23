@@ -45,7 +45,7 @@ Every human-readable string is a bilingual object `{"en": str, "zh": str}` (writ
   "meta": {"repo": "pingcap/tidb", "pr": 73235, "title": T, "mode": "self"|"pr",
            "root": "/abs/path/of/checkout/", "base": "<sha>", "head": "<sha>"},
   "overview": {
-    "verdict": T, "bg": T, "bgLong": T, "depthWhy": T,
+    "summary": T, "bg": T, "bgLong": T, "depthWhy": T,
     "design": [T, ...],
     "map": [{"lane": T, "steps": [{"t": T, "sub": T, "k": "new"|"mod"|"same", "go"?: ["<unitId>", <line>]}]}],
     "cover": [["✓"|"✗"|"!", T], ...],

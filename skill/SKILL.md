@@ -41,7 +41,7 @@ review:
 
 - **Language.** Write every text in both English and Chinese. Read `~/.config/tandem/prefs.json`;
   write the language in `lang` first and with the most care.
-- **Overview, in this order of thought:** background (what exists today and what is wrong with it),
+- **Overview, in this order of thought:** summary (one neutral sentence on what the change does; no judgment), background (what exists today and what is wrong with it),
   approach (the idea, in two to four steps), the change map (`overview.map`: one lane per path the
   code runs, each a few steps from the entry to the effect, marked new, modified or unchanged and
   opening the unit that implements them), decisions that need the reader's call (each pointing at the line it is about), boundary

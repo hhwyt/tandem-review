@@ -50,7 +50,7 @@ All eight keys are required. No other top-level keys are allowed.
 
 ```json
 {
-  "verdict": T,
+  "summary": T,
   "bg": T,
   "bgLong": T,
   "depthWhy": T,
@@ -61,7 +61,9 @@ All eight keys are required. No other top-level keys are allowed.
 }
 ```
 
-- `verdict`: the summary verdict shown under the title.
+- `summary`: one plain sentence under the title saying what the change does: the behavior
+  before and after, and any bug it fixes. No judgment ("sound", "looks good"), no risks, no open
+  questions: those belong in `decide` and `cover`.
 - `bg`: the **Brief** background (two or three sentences for someone who knows the module).
 - `bgLong`: the **Detailed** background (definitions plus a worked example for a newcomer).
 - `depthWhy`: one line explaining why the default depth was chosen (e.g. commit count in the
@@ -206,7 +208,7 @@ Paths that are newly added in this PR; the page renders their lines as additions
     "base": "aa4109", "head": "61d912"
   },
   "overview": {
-    "verdict": {"en": "Verdict", "zh": "结论"},
+    "summary": {"en": "Summary", "zh": "摘要"},
     "bg": {"en": "Brief", "zh": "简"},
     "bgLong": {"en": "Detailed", "zh": "详"},
     "depthWhy": {"en": "why", "zh": "原因"},

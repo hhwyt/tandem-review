@@ -12,7 +12,7 @@
     "head": "61d912dd20e0b21420772633063b0f7c84aeb103"
   },
   "overview": {
-    "verdict": {
+    "summary": {
       "en": "Lets an IA rule say “older than 3 years” instead of a fixed date, and keeps it moving with a periodic DDL-owner job. The direction is sound; one rolling-upgrade question and three behavior choices need your call.",
       "zh": "让 IA 规则可以写「早于 3 年前」而不是固定日期，并由 DDL owner 定期重算，让这条线随时间往前走。方向没问题；一个滚动升级问题和三个行为取舍要你拍板。"
     },

@@ -22,10 +22,10 @@
     },
     "overview": {
       "type": "object",
-      "required": ["verdict", "bg", "bgLong", "depthWhy", "design", "map", "cover", "decide"],
+      "required": ["summary", "bg", "bgLong", "depthWhy", "design", "map", "cover", "decide"],
       "additionalProperties": false,
       "properties": {
-        "verdict": {"$ref": "#/$defs/T"},
+        "summary": {"$ref": "#/$defs/T"},
         "bg": {"$ref": "#/$defs/T"},
         "bgLong": {"$ref": "#/$defs/T"},
         "depthWhy": {"$ref": "#/$defs/T"},

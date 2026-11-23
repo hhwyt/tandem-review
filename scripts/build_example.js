@@ -110,7 +110,7 @@ const review = {
     head: '61d912dd20e0b21420772633063b0f7c84aeb103',
   },
   overview: {
-    verdict: out.M.verdict,
+    summary: out.M.verdict,
     bg: out.M.bg,
     bgLong: out.M.bgLong,
     depthWhy: out.M.depthWhy,

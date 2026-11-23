@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tandem Hero Art</title>
+<style>
+:root{--accent:#c96442;--ink:#1d1c1a;--paper:#f6f1e6}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{font:14px/1.5 -apple-system,"PingFang SC",sans-serif;background:#111;color:#eee;display:flex;flex-direction:column}
+.bar{display:flex;gap:6px;padding:10px 16px;align-items:center;background:#1b1b1b;border-bottom:1px solid #2a2a2a;flex-wrap:wrap}
+.bar button{border:1px solid #333;background:#222;color:#bbb;border-radius:8px;padding:5px 12px;cursor:pointer;font-size:13px}
+.bar button.on{background:#c96442;border-color:#c96442;color:#fff}
+.sp{flex:1}
+.stage{flex:1;position:relative;overflow:hidden}
+.stage svg{position:absolute;inset:0;width:100%;height:100%}
+.over{position:absolute;inset:0;display:none;padding:60px 8vw;pointer-events:none}
+.over.on{display:block}
+.over .e{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;opacity:.8}
+.over h1{font:500 40px/1.2 "Iowan Old Style","Charter",Georgia,serif;margin:10px 0 12px;max-width:760px}
+.over p{font:18px/1.6 "Iowan Old Style","Charter",Georgia,serif;max-width:680px;opacity:.85}
+.cap{position:absolute;right:16px;bottom:12px;font-size:12px;opacity:.6}
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<div class="stage" id="stage"><svg id="svg" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice"></svg>
+<div class="over" id="over"><div class="e">Summary</div><h1>Storage class: INTERVAL selector for partition tiers</h1><p>Lets an IA rule say “older than 3 years” instead of a fixed date, and keeps it moving with a periodic DDL-owner job.</p></div>
+<div class="cap" id="cap"></div></div>
+<script>
+const NS='http://www.w3.org/2000/svg';
+const STYLES=[
+ ['ink','Ink & code road','铜版线条 · 代码路面'],
+ ['geo','Geometric','几何极简 · 放大镜与齿轮'],
+ ['sunrise','Sunrise ride','日出远行 · 代码山脉'],
+ ['night','Night bridge','夜桥 · 光点 agent'],
+ ['stars','Constellation','星座 · 立体旋转']];
+let cur='ink',asBg=false;
+const el=(tag,attrs,parent)=>{const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e};
+// geometry of the tandem, in a 600x300 local box
+const G={rw:[150,220],fw:[450,220],R:58,rc:[250,214],fc:[352,214],crank:22,rs:[236,138],fs:[340,138],bar:[436,118],stoker:[326,126],
+ humanHead:[372,64],agentHead:[262,66]};
+function legPts(seat,pedal,forward){const dx=pedal[0]-seat[0],dy=pedal[1]-seat[1],d=Math.hypot(dx,dy),th=46,sh=46;const a=Math.acos(Math.min(1,(th*th+d*d-sh*sh)/(2*th*d)));const base=Math.atan2(dy,dx);const k=base-(forward?a:-a)*-1;return [seat[0]+Math.cos(base-a)*th,seat[1]+Math.sin(base-a)*th]}
+function tandem(g,o){ // o: {stroke,width,fill,agent,human,wheelFront,wheelRear,dots}
+ const s={stroke:o.stroke,'stroke-width':o.width,fill:'none','stroke-linecap':'round','stroke-linejoin':'round'};
+ const P={};
+ P.rw=el('g',{},g);P.fw=el('g',{},g);
+ const wheel=(grp,c,kind)=>{grp.setAttribute('transform',`translate(${c[0]},${c[1]})`);const inner=el('g',{},grp);
+  if(kind==='gear'){let d='';for(let i=0;i<24;i++){const a=i/24*6.283,a2=(i+.5)/24*6.283,r1=G.R,r2=G.R-7;d+=(i?'L':'M')+(Math.cos(a)*r1)+','+(Math.sin(a)*r1)+'L'+(Math.cos(a2)*r2)+','+(Math.sin(a2)*r2)}el('path',{...s,d:d+'Z'},inner);el('circle',{...s,r:14},inner)}
+  else if(kind==='lens'){el('circle',{...s,r:G.R},inner);el('circle',{...s,r:G.R-10,'stroke-opacity':.4},inner);el('line',{...s,x1:30,y1:30,x2:52,y2:52,'stroke-width':o.width*2.2},inner)}
+  else{el('circle',{...s,r:G.R},inner);for(let i=0;i<12;i++){const a=i/12*6.283;el('line',{...s,'stroke-width':o.width*.45,x1:0,y1:0,x2:Math.cos(a)*G.R,y2:Math.sin(a)*G.R},inner)}}
+  el('circle',{r:3,fill:o.stroke},grp);return inner};
+ P.rwi=wheel(P.rw,G.rw,o.wheelRear||'spoke');P.fwi=wheel(P.fw,G.fw,o.wheelFront||'spoke');
+ // frame
+ el('path',{...s,d:`M${G.rw} L${G.rc} L${G.fc} L${G.fw} M${G.rw} L${G.rs} L${G.rc} M${G.rs} L${G.fs} L${G.fc} M${G.fs} L${G.bar[0]-8},${G.bar[1]+6} L${G.fw} M${G.rc} L${G.fs}`},g);
+ el('path',{...s,d:`M${G.bar[0]-12},${G.bar[1]+2} L${G.bar[0]+8},${G.bar[1]-4}`},g);
+ el('path',{...s,d:`M${G.rs[0]-14},${G.rs[1]-4} L${G.rs[0]+12},${G.rs[1]-4} M${G.fs[0]-14},${G.fs[1]-4} L${G.fs[0]+12},${G.fs[1]-4}`,'stroke-width':o.width*1.6},g);
+ // riders: torso + arm (static), legs (animated)
+ const rider=(seat,head,hand,who)=>{const shoulder=[seat[0]+(head[0]-seat[0])*.78,seat[1]+(head[1]-seat[1])*.72+6];const c=o[who]||o.stroke;
+  el('path',{...s,stroke:c,d:`M${seat[0]},${seat[1]-8} L${shoulder} L${hand}`,'stroke-width':o.width*1.4},g);
+  const legA=el('path',{...s,stroke:c,'stroke-width':o.width*1.3},g),legB=el('path',{...s,stroke:c,'stroke-width':o.width*1.3,'stroke-opacity':.55},g);
+  let headEl;if(who==='agent'){headEl=el('path',{d:'M0,-15 C2,-4 4,-2 15,0 C4,2 2,4 0,15 C-2,4 -4,2 -15,0 C-4,-2 -2,-4 0,-15Z',fill:o.agentFill||c,transform:`translate(${head[0]},${head[1]})`},g)}else{headEl=el('circle',{cx:head[0],cy:head[1],r:13,fill:o.humanFill||'none',stroke:c,'stroke-width':o.width*1.3},g)}
+  return {legA,legB,seat:[seat[0],seat[1]-6],headEl}};
+ P.agent=rider(G.rs,G.agentHead,G.stoker,'agent');P.human=rider(G.fs,G.humanHead,G.bar,'human');
+ P.cranks=el('path',{...s,'stroke-width':o.width*1.2},g);
+ return P}
+function legPath(seat,crank,ang,phase){const p=[crank[0]+Math.cos(ang+phase)*G.crank,crank[1]+Math.sin(ang+phase)*G.crank];const dx=p[0]-seat[0],dy=p[1]-seat[1],d=Math.min(91,Math.hypot(dx,dy));const L1=46,L2=46;const a=Math.acos((L1*L1+d*d-L2*L2)/(2*L1*d));const b=Math.atan2(dy,dx);const knee=[seat[0]+Math.cos(b-a)*L1,seat[1]+Math.sin(b-a)*L1];return [`M${seat} L${knee} L${p}`,p]}
+let parts=null,anim=[],t0=performance.now();
+function build(){const svg=document.getElementById('svg');svg.innerHTML='';anim=[];const A=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+ const defs=el('defs',{},svg);
+ const scene=(bg)=>el('rect',{x:0,y:0,width:1200,height:600,fill:bg},svg);
+ let g,o;
+ if(cur==='ink'){scene('#f6f1e6');document.getElementById('over').style.color='#1d1c1a';
+  const pat=el('pattern',{id:'hatch',width:6,height:6,patternUnits:'userSpaceOnUse',patternTransform:'rotate(35)'},defs);el('line',{x1:0,y1:0,x2:0,y2:6,stroke:'#1d1c1a','stroke-width':.6,'stroke-opacity':.25},pat);
+  el('path',{d:'M0,470 C300,420 600,520 1200,440 L1200,600 L0,600Z',fill:'url(#hatch)'},svg);
+  const road=el('g',{},svg);const codes=['+ if args.IntervalRecalculation {','- tblInfo.EngineAttribute = …','+ newTblInfo := tblInfo.Clone()','+ return shouldApply(old, current)','+ cutoff := now.AddDate(-3, 0, 0)','  ver, err = updateVersion(…)'];
+  for(let i=0;i<12;i++){const c=codes[i%codes.length];el('text',{x:i*260,y:520+(i%3)*22,'font-family':'Menlo,monospace','font-size':15,fill:c[0]==='+'?'#4f7d3c':c[0]==='-'?'#b0503a':'#7a786f'},road).textContent=c}
+  anim.push(dt=>road.setAttribute('transform',`translate(${-((dt*.09)%1560)},0)`));
+  g=el('g',{transform:'translate(330,190) scale(1.15)'},svg);o={stroke:'#1d1c1a',width:2.2,agent:A,agentFill:A}}
+ else if(cur==='geo'){scene('#f7f7f4');document.getElementById('over').style.color='#111';
+  for(let i=0;i<6;i++){const c=el('circle',{cx:900,cy:200,r:60+i*70,fill:'none',stroke:A,'stroke-opacity':.08+.02*i},svg);anim.push(dt=>c.setAttribute('r',60+i*70+Math.sin(dt/900+i)*8))}
+  el('line',{x1:0,y1:478,x2:1200,y2:478,stroke:'#111','stroke-width':2},svg);
+  g=el('g',{transform:'translate(340,200) scale(1.12)'},svg);o={stroke:'#111',width:3,agent:A,agentFill:A,wheelFront:'lens',wheelRear:'gear'}}
+ else if(cur==='sunrise'){const lg=el('linearGradient',{id:'sky',x1:0,y1:0,x2:0,y2:1},defs);[['0','#2b1b3d'],['.55',A],['1','#f4c27a']].forEach(([o,c])=>el('stop',{offset:o,'stop-color':c},lg));scene('url(#sky)');document.getElementById('over').style.color='#fff';
+  const sun=el('circle',{cx:820,cy:430,r:110,fill:'#ffe3a8','fill-opacity':.9},svg);anim.push(dt=>sun.setAttribute('cy',430-Math.min(140,dt*.01)%140));
+  const mount=(y,col,sp,h)=>{const m=el('g',{},svg);let d='M0,600';for(let x=0;x<=2400;x+=80){d+=` L${x},${y-((x/80)%3===0?h:(x/80)%3===1?h*.4:h*.75)}`}el('path',{d:d+' L2400,600Z',fill:col},m);for(let x=0;x<2400;x+=160)el('rect',{x:x+20,y:y-h*.3,width:24,height:10,fill:'#fff','fill-opacity':.12},m);anim.push(dt=>m.setAttribute('transform',`translate(${-((dt*sp)%1200)},0)`))};
+  mount(470,'#3a2440',.02,120);mount(520,'#24172b',.05,90);
+  el('rect',{x:0,y:555,width:1200,height:45,fill:'#160e1a'},svg);
+  g=el('g',{transform:'translate(360,260) scale(1)'},svg);o={stroke:'#140c17',width:3.2,agent:'#140c17',agentFill:'#ffe3a8',humanFill:'#140c17'}}
+ else if(cur==='night'){scene('#0c1220');document.getElementById('over').style.color='#e6ebf5';
+  for(let i=0;i<90;i++){const s=el('circle',{cx:Math.random()*1200,cy:Math.random()*380,r:Math.random()*1.6+.3,fill:'#fff'},svg);const ph=Math.random()*6;anim.push(dt=>s.setAttribute('fill-opacity',.3+.6*Math.abs(Math.sin(dt/1200+ph))))}
+  const br=el('g',{},svg);for(let i=0;i<30;i++){el('line',{x1:i*80,y1:470,x2:i*80+40,y2:520,stroke:A,'stroke-opacity':.35},br)}el('line',{x1:0,y1:470,x2:2400,y2:470,stroke:A,'stroke-width':2,'stroke-opacity':.7},br);anim.push(dt=>br.setAttribute('transform',`translate(${-((dt*.12)%80)},0)`));
+  const trail=el('path',{fill:'none',stroke:A,'stroke-width':3,'stroke-opacity':.5,'stroke-linecap':'round'},svg);anim.push(dt=>{let d='M330,410';for(let i=1;i<14;i++)d+=` L${330-i*22},${410+Math.sin(dt/300-i*.5)*6}`;trail.setAttribute('d',d)});
+  g=el('g',{transform:'translate(320,218) scale(1.05)',filter:''},svg);o={stroke:'#c9d4ea',width:2.2,agent:A,agentFill:A}}
+ else{scene('#07070c');document.getElementById('over').style.color='#e8e6ff';
+  for(let i=0;i<160;i++){const s=el('circle',{cx:Math.random()*1200,cy:Math.random()*600,r:Math.random()*1.3,fill:'#fff','fill-opacity':Math.random()*.7},svg);const sp=Math.random()*.02;anim.push(dt=>s.setAttribute('cx',(+s.getAttribute('cx')+1200-sp)%1200))}
+  g=el('g',{transform:'translate(330,180) scale(1.15)'},svg);o={stroke:'#8f8fff',width:1.2,agent:A,agentFill:A};
+ }
+ parts=tandem(g,o);parts.g=g;parts.style=cur;
+ if(cur==='stars'){g.querySelectorAll('path,line,circle').forEach(e=>{e.setAttribute('stroke-dasharray','2 5')});const base=g.getAttribute('transform');anim.push(dt=>{const k=Math.cos(dt/2600);g.setAttribute('transform',base+` translate(${300*(1-k)},0) scale(${k},1)`)});
+  const pts=[G.rw,G.fw,G.rc,G.fc,G.rs,G.fs,G.bar,G.humanHead,G.agentHead];pts.forEach((p,i)=>{const c=el('circle',{cx:p[0],cy:p[1],r:3.5,fill:i===8?getComputedStyle(document.documentElement).getPropertyValue('--accent'):'#fff'},g);anim.push(dt=>c.setAttribute('r',2.5+1.5*Math.abs(Math.sin(dt/500+i))))})}
+ if(cur==='night'){const ag=parts.agent.headEl;anim.push(dt=>ag.setAttribute('transform',`translate(${G.agentHead[0]},${G.agentHead[1]}) rotate(${dt/20}) scale(${1+.15*Math.sin(dt/300)})`))}
+ if(cur==='ink'||cur==='geo'){const ag=parts.agent.headEl;anim.push(dt=>ag.setAttribute('transform',`translate(${G.agentHead[0]},${G.agentHead[1]}) rotate(${dt/30})`))}
+ document.getElementById('cap').textContent=STYLES.find(s=>s[0]===cur)[2];
+}
+function frame(now){const dt=now-t0;if(parts){const ang=dt/260;
+  parts.rwi.setAttribute('transform',`rotate(${ang*57.3*1.3})`);parts.fwi.setAttribute('transform',`rotate(${ang*57.3*1.3})`);
+  [[parts.agent,G.rc],[parts.human,G.fc]].forEach(([r,c])=>{const [a,pa]=legPath(r.seat,c,ang,0),[b,pb]=legPath(r.seat,c,ang,Math.PI);r.legA.setAttribute('d',a);r.legB.setAttribute('d',b)});
+  const cr=(c)=>`M${c[0]+Math.cos(ang)*G.crank},${c[1]+Math.sin(ang)*G.crank} L${c[0]-Math.cos(ang)*G.crank},${c[1]-Math.sin(ang)*G.crank}`;parts.cranks.setAttribute('d',cr(G.rc)+cr(G.fc));
+  const bob=Math.sin(dt/130)*1.2;parts.agent.headEl.parentNode&&0;
+  anim.forEach(f=>f(dt))}requestAnimationFrame(frame)}
+function bar(){document.getElementById('bar').innerHTML=STYLES.map(([k,en,zh],i)=>`<button data-s="${k}" class="${cur===k?'on':''}">${i+1}. ${zh}</button>`).join('')+'<span class="sp"></span><button id="bg" class="'+(asBg?'on':'')+'">作为总览背景预览</button>'}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(b){cur=b.dataset.s;bar();build();return}if(e.target.id==='bg'){asBg=!asBg;document.getElementById('over').classList.toggle('on',asBg);document.getElementById('svg').style.opacity=asBg?.55:1;bar()}});
+try{const sk=localStorage.getItem('hr-skin');const m={paper:'#0969da',ocean:'#1f7a8c',forest:'#3f7d4e',rose:'#c2456a',sand:'#b07d12',graphite:'#e5a442',nord:'#88c0d0',midnight:'#5eb3ff',violet:'#b392f0'};if(m[sk])document.documentElement.style.setProperty('--accent',m[sk])}catch(_){}
+bar();build();requestAnimationFrame(frame);
+</script>
+</body>
+</html>

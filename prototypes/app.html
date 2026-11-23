@@ -174,7 +174,7 @@ details.files[open] summary:before{transform:rotate(90deg)}
 .form textarea:focus{border-color:var(--accent)}
 .form .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:8px;align-items:center}
 .ufoot{position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 30%);padding:18px 26px 14px}
-.ufoot .in{max-width:988px;margin:0 auto;display:flex;align-items:center;gap:10px}
+.ufoot .in{max-width:988px;padding-right:44px;margin:0 auto;display:flex;align-items:center;gap:10px}
 .hints{display:flex;gap:12px;font-size:12px;color:var(--dim);flex-wrap:wrap}
 .ctx{width:316px;border-left:1px solid var(--line);overflow:auto;flex:none;background:var(--bg)}
 .ctx .seg{margin:12px 14px}
@@ -215,6 +215,8 @@ details.files[open] summary:before{transform:rotate(90deg)}
 .mbox h3{font:500 19px var(--serif);margin:0 0 12px}
 .mbox pre{white-space:pre-wrap;font:12.5px/1.6 var(--mono);background:var(--surface2);padding:12px;border-radius:8px;margin:0}
 .help td{padding:5px 10px 5px 0;font-size:13.5px}
+.helpfab{position:fixed;right:18px;bottom:18px;z-index:25;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--dim);font:600 15px var(--sans);cursor:pointer;box-shadow:var(--shadow);transition:transform .15s,color .15s}
+.helpfab:hover{color:var(--accent);transform:translateY(-2px)}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:9px 16px;border-radius:10px;font-size:13px;z-index:40;box-shadow:var(--shadow)}
 .seg.hint{animation:ring 1.4s ease-out infinite}
 @keyframes ring{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent)}100%{box-shadow:0 0 0 10px transparent}}
@@ -246,6 +248,7 @@ section[id^="u-"]{animation:rise .35s cubic-bezier(.2,.7,.2,1)}
 <body>
 <div class="top" id="top"></div>
 <div class="main" id="main"></div>
+<button class="helpfab" id="helpBtn" aria-label="Keyboard shortcuts">?</button>
 <script src="data.js"></script>
 <script>
 let UNITS=window.UNITS;const RP=window.RP;
@@ -389,7 +392,7 @@ const pending=()=>S.cm.filter(c=>!c.sent).length;
 function ringSVG(p){const r=8,c=2*Math.PI*r;return `<svg width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="${r}" fill="none" stroke="var(--line)" stroke-width="2.5"/><circle cx="11" cy="11" r="${r}" fill="none" stroke="var(--adds)" stroke-width="2.5" stroke-dasharray="${c*p} ${c}" transform="rotate(-90 11 11)" stroke-linecap="round"/></svg>`}
 function chapterList(item,cls){return CHAPTERS.map((c,ci)=>`<div class="chap"><div class="chn">${L(T('Chapter','第'))} ${ci+1}${S.lang==='zh'?' 章':''} · ${esc(L(c.n))}</div><div class="chs">${esc(L(c.sub))}</div></div>`+c.items.map(x=>typeof x==='string'?item(x):`<div class="${cls} off" title="${esc(L(UI.rest))}"><span class="${cls==='pit'?'no':'st'}">·</span><div class="fn" style="font-weight:400">${esc(L(x.ph))}</div></div>`).join('')).join('')}
 function renderTop(){const n=Object.keys(S.done).length,N=UNITS.length;
- document.getElementById('top').innerHTML=`<span class="brand"><span class="spark">✦</span>Tandem</span><span class="prref">pingcap/tidb#73235 · ${L(UI.roundN)} ${S.round} ${L(UI.roundS)}</span><nav class="tabs"><button data-page="overview" class="${S.page==='overview'?'on':''}">${L(UI.overview)}</button><button data-page="review" class="${S.page==='review'?'on':''}">${L(UI.review)}</button></nav><span class="sp"></span><span class="ring">${ringSVG(n/N)}${n}/${N}</span>${S.page==='review'?`<button class="btn ${S.ai?'on':''}" id="aiBtn">✦ ${L(UI.notes)}</button>`:''}<div class="seg" id="langSeg"><button data-lang="en" class="${S.lang==='en'?'on':''}">EN</button><button data-lang="zh" class="${S.lang==='zh'?'on':''}">中文</button></div><button class="btn ghost skinbtn" id="theme"><span class="sw" style="background:var(--accent)"></span>${L(T('Theme','主题'))}</button><button class="btn ghost" id="helpBtn" title="?">?</button><button class="btn" id="sendBtn" ${pending()?'':'disabled'}>${L(UI.send)}${pending()?` <span class="count">${pending()}</span>`:''}</button><button class="btn primary" id="finishBtn">${L(UI.finish)}</button>`}
+ document.getElementById('top').innerHTML=`<span class="brand"><span class="spark">✦</span>Tandem</span><span class="prref">pingcap/tidb#73235</span><nav class="tabs"><button data-page="overview" class="${S.page==='overview'?'on':''}">${L(UI.overview)}</button><button data-page="review" class="${S.page==='review'?'on':''}">${L(UI.review)}</button></nav><span class="sp"></span><span class="ring">${ringSVG(n/N)}${n}/${N}</span>${S.page==='review'?`<button class="btn ${S.ai?'on':''}" id="aiBtn">✦ ${L(UI.notes)}</button>`:''}<div class="seg" id="langSeg"><button data-lang="en" class="${S.lang==='en'?'on':''}">EN</button><button data-lang="zh" class="${S.lang==='zh'?'on':''}">中文</button></div><button class="btn ghost skinbtn" id="theme"><span class="sw" style="background:var(--accent)"></span>${L(T('Theme','主题'))}</button><button class="btn" id="sendBtn" ${pending()?'':'disabled'}>${L(UI.send)}${pending()?` <span class="count">${pending()}</span>`:''}</button><button class="btn primary" id="finishBtn">${L(UI.finish)}</button>`}
 function renderOverview(){const q=queue();const _plan=chapterList(id=>`<div class="pit ${S.done[id]?'done':''}" data-open="${id}"><span class="no">${S.done[id]?'✓':secNo(id)}</span><div><div class="fn">${esc(U(id).name)}${crit(U(id))?' <span style="color:var(--accent)">⚑</span>':''}</div><div class="w">${esc(L(U(id).gist))}</div></div></div>`,'pit');
  const total=q.reduce((a,u)=>a+estMin(u),0);
  let ft='';let lt=null;FILES.forEach(f=>{if(f.tier!==lt){lt=f.tier;ft+=`<tr class="grp"><td colspan="4">${chip(f.tier)}</td></tr>`}ft+=`<tr><td><span class="tagline ${f.st}">${L(f.st==='new'?T('new','新增'):T('modified','修改'))}</span></td><td class="mono">${esc(f.path)}</td><td class="mono" style="white-space:nowrap"><span class="plus-n">+${f.a}</span> <span class="minus-n">−${f.d}</span></td><td>${esc(L(f.what))}</td></tr>`});
@@ -467,6 +470,7 @@ document.addEventListener('keydown',e=>{if(e.target.tagName==='TEXTAREA'){if(e.k
  if((e.key==='c'||e.key==='C')&&S.sel){S.form=S.sel.split(':')[0]+':'+S.range[1];S.kind=0;keepScroll(render);e.preventDefault()}});
 let _sk=null;try{_sk=localStorage.getItem('hr-skin')}catch(_){};applySkin(_sk||(matchMedia('(prefers-color-scheme: dark)').matches?'graphite':'claude'));
 render();
+{const m=location.hash.match(/go=(\w+):(\d+)/);if(m){S.mode='reading';goUnit(m[1],+m[2])}else if(location.hash==='#code'){S.page='review';render()}}
 let first=false;try{first=!localStorage.getItem('hr-lang-hinted')}catch(_){}
 if(first){const seg=document.getElementById('langSeg');seg.classList.add('hint');const tip=document.createElement('div');tip.className='langtip';tip.textContent='EN / 中文';document.body.appendChild(tip);const r=seg.getBoundingClientRect();tip.style.left=(r.left+r.width/2)+'px';tip.style.top=(r.bottom+10)+'px';
  const off=()=>{tip.remove();document.getElementById('langSeg')?.classList.remove('hint');try{localStorage.setItem('hr-lang-hinted','1')}catch(_){}};document.addEventListener('click',e=>{if(e.target.closest('[data-lang]'))off()});setTimeout(off,6000)}

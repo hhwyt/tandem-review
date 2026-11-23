@@ -36,6 +36,10 @@ Preferences live in `~/.config/tandem/prefs.json` (override the directory with e
 "editor": "rustrover"|"vscode"|"cursor", "depth": {"<owner/repo>": "brief"|"detail"},
 "hinted": bool}`. Unknown keys are kept.
 
+`<config>/reviews.json` (same directory as `prefs.json`) is the local review registry written by
+`tandem serve`: `{"<absolute review directory>": {"url": str, "pid": int, "port": int}}`.
+`tandem serve` adds its own entry on startup and removes it on shutdown.
+
 ## review.json (top level)
 
 Every human-readable string is a bilingual object `{"en": str, "zh": str}` (written `T` below).
@@ -76,6 +80,13 @@ callees:[node], chains:[[node|str]]`, where `node = {name, file, line, key?:bool
 - `GET /api/version` → `{"version": int}` (read from `<dir>/version`, 0 if missing).
 - `GET /api/prefs`, `PUT /api/prefs` (JSON body, merged into the file, atomic write).
 - `GET /api/state`, `PUT /api/state` (JSON body replaces `state.json`, atomic write).
+- `GET /api/reviews` → `{"reviews": [...]}`, one item per live local review from
+  `<config>/reviews.json`. Each item is `{"url", "repo", "pr", "title", "units", "done",
+  "decide", "current"}`; `units` is `len(units)`, `done` is the number of keys in
+  `state.json`'s `done` object (0 if missing), `decide` is `len(overview.decide)`, and
+  `current` is true for this server's own review directory. Entries whose `pid` no longer
+  exists or whose `review.json` is missing/invalid are skipped. The current review is listed
+  first (even if it is not in `reviews.json`); the rest keep `reviews.json` order.
 - `POST /api/send` body `{"comments": [{"file": str, "from": int, "to": int, "kind": "must"|"followup"|"question", "text": str, "unit": str}], "final": bool}`
   → writes `comments-round-N.md` and `.json`, returns `{"round": N, "path": "<md path>"}`.
 - `POST /api/open` body `{"path": str, "line": int}` → runs the editor from prefs:

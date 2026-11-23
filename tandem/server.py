@@ -51,6 +51,28 @@ def atomic_write_json(path: Path, obj) -> None:
     atomic_write(path, json.dumps(obj, ensure_ascii=False, indent=2) + "\n")
 
 
+def config_dir() -> Path:
+    """Directory that holds prefs.json and reviews.json."""
+    base = os.environ.get("TANDEM_CONFIG_DIR")
+    return Path(base) if base else Path.home() / ".config" / "tandem"
+
+
+def reviews_path() -> Path:
+    return config_dir() / "reviews.json"
+
+
+def read_reviews_json() -> dict:
+    """Read ``<config>/reviews.json`` ({} when missing or invalid)."""
+    p = reviews_path()
+    if p.is_file():
+        try:
+            obj = json.loads(p.read_text(encoding="utf-8"))
+            return obj if isinstance(obj, dict) else {}
+        except (ValueError, OSError):
+            return {}
+    return {}
+
+
 def read_version(review_dir) -> int:
     """Read ``<review_dir>/version``; 0 when missing or unparseable."""
     p = Path(review_dir) / "version"
@@ -106,6 +128,26 @@ def write_server_json(server) -> dict:
     return obj
 
 
+def register_review(server) -> dict:
+    """Add this server to ``<config>/reviews.json`` (read-merge-atomic-write)."""
+    info = server_json(server)
+    reviews = read_reviews_json()
+    reviews[str(server.review_dir)] = {
+        "url": info["url"],
+        "pid": info["pid"],
+        "port": info["port"],
+    }
+    atomic_write_json(reviews_path(), reviews)
+    return info
+
+
+def unregister_review(review_dir) -> None:
+    """Remove one review directory's entry from ``<config>/reviews.json``."""
+    reviews = read_reviews_json()
+    if reviews.pop(str(Path(review_dir).resolve()), None) is not None:
+        atomic_write_json(reviews_path(), reviews)
+
+
 class TandemHandler(BaseHTTPRequestHandler):
     """Request handler. Config is attached to the server instance."""
 
@@ -141,9 +183,7 @@ class TandemHandler(BaseHTTPRequestHandler):
         return len(values) == 1 and secrets.compare_digest(values[0], self.server.token)
 
     def _prefs_path(self) -> Path:
-        base = os.environ.get("TANDEM_CONFIG_DIR")
-        directory = Path(base) if base else Path.home() / ".config" / "tandem"
-        return directory / "prefs.json"
+        return config_dir() / "prefs.json"
 
     def _load_prefs(self) -> dict:
         p = self._prefs_path()
@@ -179,6 +219,86 @@ class TandemHandler(BaseHTTPRequestHandler):
             return json.loads(raw.decode("utf-8"))
         except (ValueError, UnicodeDecodeError):
             return (400, "invalid json")
+
+    def _pid_alive(self, pid) -> bool:
+        if not isinstance(pid, int):
+            try:
+                pid = int(pid)
+            except (TypeError, ValueError):
+                return False
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            return False
+        except PermissionError:
+            return True
+        return True
+
+    def _review_list_item(self, review_dir, url, current: bool):
+        """Build one /api/reviews item, or ``None`` when it should be skipped."""
+        review_dir = Path(review_dir)
+        rp = review_dir / "review.json"
+        if not rp.is_file():
+            return None
+        try:
+            data = json.loads(rp.read_text(encoding="utf-8"))
+        except (ValueError, OSError):
+            return None
+        if not isinstance(data, dict):
+            return None
+
+        meta = data.get("meta") or {}
+        if not isinstance(meta, dict):
+            meta = {}
+        units = data.get("units") or []
+        if not isinstance(units, list):
+            units = []
+        overview = data.get("overview") or {}
+        if not isinstance(overview, dict):
+            overview = {}
+        decide = overview.get("decide") or []
+        if not isinstance(decide, list):
+            decide = []
+
+        done = 0
+        sp = review_dir / "state.json"
+        if sp.is_file():
+            try:
+                state = json.loads(sp.read_text(encoding="utf-8"))
+                if isinstance(state, dict) and isinstance(state.get("done"), dict):
+                    done = len(state["done"])
+            except (ValueError, OSError):
+                done = 0
+
+        return {
+            "url": url,
+            "repo": meta.get("repo"),
+            "pr": meta.get("pr"),
+            "title": meta.get("title"),
+            "units": len(units),
+            "done": done,
+            "decide": len(decide),
+            "current": current,
+        }
+
+    def _api_reviews(self) -> None:
+        current_key = str(self.server.review_dir)
+        current_url = f"http://127.0.0.1:{self.server.server_address[1]}/?t={self.server.token}"
+        items = []
+        current_item = self._review_list_item(current_key, current_url, True)
+        if current_item is not None:
+            items.append(current_item)
+        for key, entry in read_reviews_json().items():
+            if key == current_key:
+                continue
+            if not isinstance(entry, dict):
+                continue
+            if not self._pid_alive(entry.get("pid")):
+                continue
+            item = self._review_list_item(key, entry.get("url"), False)
+            if item is not None:
+                items.append(item)
+        self._send_json({"reviews": items})
 
     # --- static files -----------------------------------------------------
     def _serve_static(self, path: str) -> None:
@@ -242,6 +362,9 @@ class TandemHandler(BaseHTTPRequestHandler):
                     self._send_json({})
             else:
                 self._send_json({})
+            return
+        if path == "/api/reviews":
+            self._api_reviews()
             return
         self._send_error_json(404, "not found")
 

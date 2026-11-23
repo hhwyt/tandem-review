@@ -5,6 +5,8 @@ from __future__ import annotations
 import http.client
 import json
 import os
+import subprocess
+import sys
 import tempfile
 import threading
 import unittest
@@ -88,6 +90,95 @@ class ServerTestCase(unittest.TestCase):
     def test_api_requires_token(self):
         status, _, _ = self.request("GET", "/api/review")
         self.assertEqual(status, 403)
+
+    def test_reviews_requires_token(self):
+        status, _, _ = self.request("GET", "/api/reviews")
+        self.assertEqual(status, 403)
+
+    def test_api_reviews(self):
+        # Current review is not registered in reviews.json: it still must be
+        # listed first with current=true.
+        live = self.tmp / "live"
+        live.mkdir()
+        (live / "review.json").write_text(
+            json.dumps(
+                {
+                    "meta": {
+                        "repo": "pingcap/tidb",
+                        "pr": 42,
+                        "title": {"en": "Live", "zh": "活"},
+                        "mode": "self",
+                        "root": str(live),
+                        "base": "b",
+                        "head": "h",
+                    },
+                    "overview": {"decide": [[None] * 4] * 4},
+                    "units": [{"id": "u1"}, {"id": "u2"}],
+                    "files": [],
+                    "filesrc": {},
+                    "newfiles": [],
+                }
+            ),
+            encoding="utf-8",
+        )
+        (live / "state.json").write_text(
+            json.dumps({"done": {"a": 1, "b": 2, "c": 3}, "drafts": []}),
+            encoding="utf-8",
+        )
+
+        missing = self.tmp / "missing"
+        missing.mkdir()
+
+        proc = subprocess.Popen([sys.executable, "-c", "pass"])
+        dead_pid = proc.pid
+        proc.wait()
+
+        reviews = {
+            str(live): {
+                "url": "http://127.0.0.1:1/?t=live",
+                "pid": os.getpid(),
+                "port": 1,
+            },
+            str(missing): {
+                "url": "http://127.0.0.1:2/?t=missing",
+                "pid": os.getpid(),
+                "port": 2,
+            },
+            str(self.tmp / "dead"): {
+                "url": "http://127.0.0.1:3/?t=dead",
+                "pid": dead_pid,
+                "port": 3,
+            },
+        }
+        (self.config / "reviews.json").write_text(
+            json.dumps(reviews, ensure_ascii=False), encoding="utf-8"
+        )
+
+        status, _, raw = self.request("GET", f"/api/reviews?t={self.token}")
+        self.assertEqual(status, 200)
+        data = json.loads(raw)
+        items = data["reviews"]
+        self.assertEqual(len(items), 2)
+
+        current = items[0]
+        self.assertTrue(current["current"])
+        self.assertEqual(current["url"], f"http://127.0.0.1:{self.port}/?t={self.token}")
+        self.assertEqual(current["repo"], "pingcap/tidb")
+        self.assertEqual(current["pr"], 73235)
+        self.assertEqual(current["title"], {"en": "t", "zh": "t"})
+        self.assertEqual(current["units"], 0)
+        self.assertEqual(current["done"], 0)
+        self.assertEqual(current["decide"], 0)
+
+        other = items[1]
+        self.assertFalse(other["current"])
+        self.assertEqual(other["url"], "http://127.0.0.1:1/?t=live")
+        self.assertEqual(other["repo"], "pingcap/tidb")
+        self.assertEqual(other["pr"], 42)
+        self.assertEqual(other["title"], {"en": "Live", "zh": "活"})
+        self.assertEqual(other["units"], 2)
+        self.assertEqual(other["done"], 3)
+        self.assertEqual(other["decide"], 4)
 
     def test_body_too_large_413(self):
         # Claim a huge Content-Length without actually sending 2 MB: the server

@@ -16,6 +16,7 @@ def _cmd_serve(args) -> int:
     review = Path(args.review)
     srv = server.create_server(review, args.port or 0)
     info = server.write_server_json(srv)
+    server.register_review(srv)
     # Flush: in the background stdout is usually a file, and the agent reads the URL from it.
     print(info["url"], flush=True)
     if args.open:
@@ -25,6 +26,7 @@ def _cmd_serve(args) -> int:
     except KeyboardInterrupt:
         pass
     finally:
+        server.unregister_review(review)
         srv.server_close()
     return 0
 

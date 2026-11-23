@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PR 切换控件 · 5 个原型</title>
+<style>
+:root{
+  --bg:#ffffff; --bg2:#f6f8fa; --border:#d1d9e0; --text:#1f2328;
+  --muted:#59636e; --blue:#0969da; --green:#1a7f37; --red:#d1242f; --yellow:#9a6700;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5}
+.wrap{max-width:960px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:24px;margin:0 0 6px}
+.sub{color:var(--muted);margin:0 0 28px;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:8px;transition:box-shadow .15s ease,border-color .15s ease}
+.card:hover{border-color:#8b949e;box-shadow:0 8px 22px rgba(0,0,0,.08)}
+.badge{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;font-weight:700;color:var(--blue);background:#ddf4ff;border-radius:6px;padding:2px 8px;align-self:flex-start}
+.name{font-size:17px;font-weight:700}
+.desc{color:var(--muted);font-size:13px;flex:1}
+.open{color:var(--blue);text-decoration:none;font-weight:600;font-size:13px}
+.open:hover{text-decoration:underline}
+.footer{margin-top:28px;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>PR 切换控件 · 5 个原型</h1>
+  <p class="sub">为 Tandem Review 顶栏「切换 PR」功能做的 5 个可点击 HTML 原型，供产品负责人挑选。</p>
+  <div class="grid">
+    <div class="card">
+      <span class="badge">方案 A</span>
+      <span class="name">下拉菜单</span>
+      <span class="desc">顶栏内嵌下拉，支持搜索过滤，键盘 ↑↓ 选择、Enter 切换。</span>
+      <a class="open" href="a-dropdown.html">打开 →</a>
+    </div>
+    <div class="card">
+      <span class="badge">方案 B</span>
+      <span class="name">命令面板</span>
+      <span class="desc">⌘K / Ctrl+K 弹出中央命令面板，带遮罩与缩放动画。</span>
+      <a class="open" href="b-palette.html">打开 →</a>
+    </div>
+    <div class="card">
+      <span class="badge">方案 C</span>
+      <span class="name">左侧窄栏</span>
+      <span class="desc">页面最左边 56px 竖栏，色块切换，悬停弹出提示卡。</span>
+      <a class="open" href="c-rail.html">打开 →</a>
+    </div>
+    <div class="card">
+      <span class="badge">方案 D</span>
+      <span class="name">顶部标签页</span>
+      <span class="desc">浏览器式标签页，可关闭标签，也可从 + 重新打开。</span>
+      <a class="open" href="d-tabs.html">打开 →</a>
+    </div>
+    <div class="card">
+      <span class="badge">方案 E</span>
+      <span class="name">面包屑 + 弹出卡片</span>
+      <span class="desc">三段面包屑，仓库段弹仓库列表，PR 段弹分组卡片。</span>
+      <a class="open" href="e-breadcrumb.html">打开 →</a>
+    </div>
+  </div>
+  <p class="footer">所有方案共享同一份 4 个 PR 的假数据，配色为 GitHub 浅色主题。</p>
+</div>
+</body>
+</html>

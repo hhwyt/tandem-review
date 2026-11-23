@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>方案 D · 顶部标签页 — PR 切换控件</title>
+<style>
+:root{
+  --bg:#ffffff; --bg2:#f6f8fa; --border:#d1d9e0; --text:#1f2328;
+  --muted:#59636e; --blue:#0969da; --green:#1a7f37; --red:#d1242f; --yellow:#9a6700;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+
+/* tab strip above topbar */
+.tabstrip{display:flex;align-items:center;gap:6px;padding:8px 14px 0;background:var(--bg2);border-bottom:1px solid var(--border);position:relative;z-index:40;flex-wrap:wrap}
+.ptab{position:relative;display:inline-flex;align-items:center;gap:7px;max-width:240px;padding:7px 10px;background:#eaeef2;border:1px solid var(--border);border-radius:9px 9px 0 0;cursor:pointer;border-bottom:none}
+.ptab:hover{background:#dfe5ea}
+.ptab.current{background:var(--bg);border-bottom:1px solid var(--bg);margin-bottom:-1px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.dot.blue{background:var(--blue)} .dot.green{background:var(--green)} .dot.gray{background:#8b949e}
+.ptab-title{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ptab-close{background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;line-height:1;padding:0 2px;border-radius:4px}
+.ptab-close:hover{color:var(--text);background:#d0d7de}
+.ptab-tip{position:absolute;left:0;top:calc(100% + 8px);width:280px;background:var(--bg);border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 26px rgba(0,0,0,.14);padding:10px 12px;display:none;z-index:70;cursor:default}
+.ptab:hover .ptab-tip{display:block}
+.ptab-tip .tt-title{font-weight:700;font-size:13px;line-height:1.4}
+.ptab-tip .tt-meta{color:var(--muted);font-size:12px;margin-top:4px}
+.ptab-tip .code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.tabstrip-add{width:28px;height:28px;border:1px dashed var(--border);background:none;color:var(--muted);border-radius:7px;cursor:pointer;font-size:16px;line-height:1;position:relative}
+.tabstrip-add:hover{color:var(--blue);border-color:var(--blue)}
+.closed-menu{position:absolute;left:14px;top:calc(100% + 6px);width:300px;background:var(--bg);border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.14);padding:8px;display:none;z-index:80}
+.closed-menu.open{display:block}
+.closed-menu .cm-head{font-size:12px;color:var(--muted);padding:4px 8px}
+.cm-item{padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px}
+.cm-item:hover{background:var(--bg2)}
+.cm-empty{padding:10px;color:var(--muted);font-size:13px;text-align:center}
+
+.topbar{height:56px;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--border);background:var(--bg);position:relative;z-index:30}
+.top-left{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.brand{display:flex;align-items:center;gap:6px;font-weight:700;font-size:15px;white-space:nowrap}
+.brand .star{color:var(--blue)}
+.current-label{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.current-label .code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.tabs{display:flex;align-items:center;gap:20px;position:relative;height:56px;margin:0 auto}
+.tab{background:none;border:none;cursor:pointer;font-size:14px;color:var(--muted);height:100%;padding:0 2px;display:flex;align-items:center;font-family:inherit}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--text);font-weight:600}
+.tab-underline{position:absolute;bottom:0;height:2px;background:var(--blue);transition:left .2s ease,width .2s ease;border-radius:2px}
+.top-right{display:flex;align-items:center;gap:10px;flex:1;justify-content:flex-end}
+.progress{color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.btn-done{background:#000;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-done:hover{background:#24292f}
+
+.content{max-width:900px;margin:0 auto;padding:28px 24px 60px;transition:opacity .1s ease}
+.content.fading{opacity:0}
+h1.pr-title{font-size:22px;margin:0 0 10px;line-height:1.3}
+.pr-summary{color:var(--muted);margin:0 0 16px}
+.decide-link{color:var(--blue);text-decoration:none;font-weight:600;cursor:pointer}
+.decide-link:hover{text-decoration:underline}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;height:130px}
+@media(max-width:720px){.cards{grid-template-columns:1fr}}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1f2328;color:#fff;padding:9px 16px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:all .2s ease;z-index:100}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.pager{position:fixed;right:14px;bottom:14px;display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:999px;padding:6px 10px;box-shadow:0 4px 14px rgba(0,0,0,.1);font-size:12px;z-index:60}
+.pager a{color:var(--blue);text-decoration:none}
+.pager a:hover{text-decoration:underline}
+.pager .loc{color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+</style>
+</head>
+<body>
+<div class="tabstrip" id="tabstrip"></div>
+<header class="topbar">
+  <div class="top-left">
+    <span class="brand"><span class="star">✦</span> Tandem</span>
+    <span class="current-label" id="currentLabel"></span>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="overview">总览</button>
+    <button class="tab" data-tab="code">代码</button>
+    <span class="tab-underline" id="underline"></span>
+  </nav>
+  <div class="top-right">
+    <span class="progress" id="progressText">12/30</span>
+    <button class="btn-done" id="btnDone">完成</button>
+  </div>
+</header>
+
+<main class="content" id="content">
+  <h1 class="pr-title" id="prTitle"></h1>
+  <p class="pr-summary" id="prSummary"></p>
+  <a class="decide-link" id="decideLink" href="#"></a>
+  <div class="cards"><div class="card"></div><div class="card"></div><div class="card"></div></div>
+</main>
+
+<nav class="pager">
+  <a href="c-rail.html">← 上一个方案</a>
+  <span class="loc">方案 4 / 5</span>
+  <a href="e-breadcrumb.html">下一个方案 →</a>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PRS = [
+  {id:1,org:"tidbcloud",repo:"cloud-storage-engine",repoShort:"CSE",num:"7160",numTail:"160",title:"coprocessor：服务端切页前先排空部分结果",author:"hwy",progress:"12/30",done:12,total:30,decisions:5,status:"进行中",summary:"服务端在切页前先排空部分结果，避免结果集过大占用内存。"},
+  {id:2,org:"pingcap",repo:"tidb",repoShort:"TiDB",num:"73235",numTail:"235",title:"ddl：存储分层 less_than 支持 interval，并由 owner 定期重算",author:"lcwangchao",progress:"30/30",done:30,total:30,decisions:4,status:"已看完",summary:"存储分层的 less_than 边界支持 interval 写法，并由 owner 定期重算，减少手工维护成本。"},
+  {id:3,org:"tikv",repo:"tikv",repoShort:"TiKV",num:"18512",numTail:"512",title:"raftstore：快照落盘前校验 checksum",author:"overvenus",progress:"0/14",done:0,total:14,decisions:2,status:"未开始",summary:"快照落盘前校验 checksum，避免坏块数据被持久化到磁盘。"},
+  {id:4,org:"tidbcloud",repo:"cloud-storage-engine",repoShort:"CSE",num:"7172",numTail:"172",title:"compaction：大分区按 key 范围拆分后台任务",author:"hwy",progress:"3/22",done:3,total:22,decisions:1,status:"进行中",summary:"大分区 compaction 按 key 范围拆分为后台任务并行执行，缩短长尾耗时。"}
+];
+const STATUS_COLOR = {"进行中":"blue","已看完":"green","未开始":"gray"};
+const $ = (id)=>document.getElementById(id);
+
+let currentId = 1;
+let openIds = PRS.map(p=>p.id); // which tabs are open
+let menuOpen = false;
+
+function currentPR(){ return PRS.find(p=>p.id===currentId) || null; }
+function closedPRs(){ return PRS.filter(p=>!openIds.includes(p.id)); }
+
+function truncate(t, n=14){ return t.length > n ? t.slice(0,n)+"…" : t; }
+
+function renderTabstrip(){
+  const open = PRS.filter(p=>openIds.includes(p.id));
+  const tabsHtml = open.map(pr=>{
+    const cur = pr.id===currentId ? " current" : "";
+    return `<div class="ptab${cur}" data-id="${pr.id}">
+      <span class="dot ${STATUS_COLOR[pr.status]}"></span>
+      <span class="ptab-title" title="${pr.title}">${truncate(pr.title)}</span>
+      <button class="ptab-close" data-close="${pr.id}" title="关闭">×</button>
+      <span class="ptab-tip"><div class="tt-title">${pr.title}</div><div class="tt-meta"><span class="code">${pr.repo} #${pr.num}</span></div></span>
+    </div>`;
+  }).join("");
+  const closed = closedPRs();
+  const closedHtml = closed.length
+    ? closed.map(pr=>`<div class="cm-item" data-open="${pr.id}"><span class="dot ${STATUS_COLOR[pr.status]}" style="margin-right:7px"></span>${truncate(pr.title,18)}</div>`).join("")
+    : `<div class="cm-empty">没有已关闭的 PR</div>`;
+  $("tabstrip").innerHTML = tabsHtml + `<button class="tabstrip-add" id="addBtn" title="重新打开">+</button><div class="closed-menu" id="closedMenu"><div class="cm-head">已关闭的 PR（点击重新打开）</div>${closedHtml}</div>`;
+  const addBtn = $("addBtn");
+  addBtn.addEventListener("click",(e)=>{ e.stopPropagation(); toggleMenu(); });
+  $("tabstrip").querySelectorAll(".ptab").forEach(tab=>{
+    tab.addEventListener("click",(e)=>{
+      if(e.target.closest(".ptab-close")) return;
+      switchPR(PRS.find(p=>p.id===Number(tab.dataset.id)));
+    });
+  });
+  $("tabstrip").querySelectorAll(".ptab-close").forEach(btn=>{
+    btn.addEventListener("click",(e)=>{
+      e.stopPropagation();
+      closeTab(Number(btn.dataset.close));
+    });
+  });
+  $("tabstrip").querySelectorAll(".cm-item").forEach(item=>{
+    item.addEventListener("click",()=>{
+      const id = Number(item.dataset.open);
+      if(!openIds.includes(id)) openIds.push(id);
+      currentId = id;
+      renderTabstrip();
+      renderAll(PRS.find(p=>p.id===id), true);
+      closeMenu();
+    });
+  });
+}
+
+function toggleMenu(){
+  menuOpen = !menuOpen;
+  const m = $("closedMenu");
+  if(m) m.classList.toggle("open", menuOpen);
+}
+function closeMenu(){
+  menuOpen = false;
+  const m = $("closedMenu");
+  if(m) m.classList.remove("open");
+}
+
+function closeTab(id){
+  const idx = openIds.indexOf(id);
+  if(idx === -1) return;
+  openIds.splice(idx,1);
+  if(id === currentId){
+    const open = PRS.filter(p=>openIds.includes(p.id));
+    if(open.length){
+      // prefer next in original order, else previous
+      const next = open.find(p=>p.id>id) || open[open.length-1];
+      currentId = next.id;
+    } else {
+      currentId = null;
+    }
+  }
+  renderTabstrip();
+  renderAll(currentPR(), false);
+  closeMenu();
+}
+
+function renderContent(pr){
+  if(!pr){
+    $("prTitle").textContent = "已关闭所有标签";
+    $("prSummary").textContent = "点击右上角的 + 重新打开一个 PR。";
+    $("decideLink").textContent = "暂无待拍板事项";
+    $("progressText").textContent = "—";
+    $("currentLabel").innerHTML = `<span class="code">无当前 PR</span>`;
+    return;
+  }
+  $("prTitle").textContent = pr.title;
+  $("prSummary").textContent = pr.summary;
+  $("decideLink").textContent = `有 ${pr.decisions} 件事需要你拍板 ↓`;
+  $("progressText").textContent = pr.progress;
+  $("currentLabel").innerHTML = `<span class="code">#${pr.num}</span> ${pr.title}`;
+}
+
+function renderAll(pr, animate){
+  const c = $("content");
+  if(animate){
+    c.classList.add("fading");
+    setTimeout(()=>{ renderContent(pr); c.classList.remove("fading"); },100);
+  } else {
+    renderContent(pr);
+  }
+}
+
+function switchPR(pr){
+  if(!pr) return;
+  currentId = pr.id;
+  renderTabstrip();
+  renderAll(pr, true);
+}
+
+// tabs
+const tabButtons = Array.from(document.querySelectorAll(".tab"));
+function moveUnderline(){
+  const active = document.querySelector(".tab.active");
+  $("underline").style.left = active.offsetLeft + "px";
+  $("underline").style.width = active.offsetWidth + "px";
+}
+tabButtons.forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    tabButtons.forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    moveUnderline();
+  });
+});
+
+document.addEventListener("click",(e)=>{
+  if(menuOpen && !e.target.closest(".tabstrip-add") && !e.target.closest(".closed-menu")) closeMenu();
+});
+document.addEventListener("keydown",(e)=>{
+  if(e.key==="Escape") closeMenu();
+});
+
+let toastTimer=null;
+function showToast(msg){
+  const t=$("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),1800);
+}
+$("decideLink").addEventListener("click",(e)=>{ e.preventDefault(); const pr=currentPR(); showToast(pr ? `跳转到 ${pr.decisions} 件待拍板事项（演示）` : "请先打开一个 PR"); });
+$("btnDone").addEventListener("click",()=>{ const pr=currentPR(); showToast(pr ? `已将「${pr.title.slice(0,12)}…」标记为完成（演示）` : "请先打开一个 PR"); });
+
+renderTabstrip();
+renderContent(currentPR());
+requestAnimationFrame(moveUnderline);
+window.addEventListener("resize",moveUnderline);
+</script>
+</body>
+</html>

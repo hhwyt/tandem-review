@@ -5,6 +5,7 @@ from __future__ import annotations
 import contextlib
 import io
 import json
+import os
 import re
 import tempfile
 import threading
@@ -23,8 +24,16 @@ class CliTestCase(unittest.TestCase):
         self.tmp = Path(self._tmp.name)
         self.review = self.tmp / "review"
         self.review.mkdir()
+        self.config = self.tmp / "config"
+        self.config.mkdir()
+        self._old_config = os.environ.get("TANDEM_CONFIG_DIR")
+        os.environ["TANDEM_CONFIG_DIR"] = str(self.config)
 
     def tearDown(self):
+        if self._old_config is None:
+            os.environ.pop("TANDEM_CONFIG_DIR", None)
+        else:
+            os.environ["TANDEM_CONFIG_DIR"] = self._old_config
         self._tmp.cleanup()
 
     def test_publish_increments_version(self):
@@ -91,6 +100,33 @@ class CliTestCase(unittest.TestCase):
                 rc = cli.main(["preflight", "--review", str(self.review)])
         self.assertEqual(rc, 1)
         self.assertEqual(buf.getvalue().strip(), "not available yet")
+
+    def test_serve_registers_and_unregisters_review(self):
+        key = str(self.review.resolve())
+        during = {}
+
+        def serve_forever():
+            during.update(
+                json.loads(
+                    (self.config / "reviews.json").read_text(encoding="utf-8")
+                )
+            )
+
+        with mock.patch(
+            "tandem.server.TandemServer.serve_forever", side_effect=serve_forever
+        ):
+            rc = cli.main(["serve", "--review", str(self.review)])
+        self.assertEqual(rc, 0)
+
+        self.assertIn(key, during)
+        self.assertEqual(during[key]["pid"], os.getpid())
+        self.assertIn("url", during[key])
+        self.assertIn("port", during[key])
+
+        after = json.loads(
+            (self.config / "reviews.json").read_text(encoding="utf-8")
+        )
+        self.assertNotIn(key, after)
 
     def test_serve_writes_server_json_and_prints_url(self):
         with mock.patch(

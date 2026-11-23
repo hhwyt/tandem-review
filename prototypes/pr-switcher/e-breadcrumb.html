@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>方案 E · 面包屑 + 弹出卡片 — PR 切换控件</title>
+<style>
+:root{
+  --bg:#ffffff; --bg2:#f6f8fa; --border:#d1d9e0; --text:#1f2328;
+  --muted:#59636e; --blue:#0969da; --green:#1a7f37; --red:#d1242f; --yellow:#9a6700;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+
+.topbar{height:56px;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--border);background:var(--bg);position:relative;z-index:30}
+.top-left{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.brand{display:flex;align-items:center;gap:6px;font-weight:700;font-size:15px;white-space:nowrap}
+.brand .star{color:var(--blue)}
+.tabs{display:flex;align-items:center;gap:20px;position:relative;height:56px;margin:0 auto}
+.tab{background:none;border:none;cursor:pointer;font-size:14px;color:var(--muted);height:100%;padding:0 2px;display:flex;align-items:center;font-family:inherit}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--text);font-weight:600}
+.tab-underline{position:absolute;bottom:0;height:2px;background:var(--blue);transition:left .2s ease,width .2s ease;border-radius:2px}
+.top-right{display:flex;align-items:center;gap:10px;flex:1;justify-content:flex-end}
+.progress{color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.btn-done{background:#000;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-done:hover{background:#24292f}
+
+/* breadcrumb */
+.crumb-wrap{position:relative;display:flex;align-items:center;gap:4px;min-width:0;flex:1}
+.crumb-sep{color:var(--muted);font-size:13px}
+.crumb-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;padding:4px 6px;border-radius:6px;white-space:nowrap;font-family:inherit}
+.crumb-btn:hover{background:var(--bg2);color:var(--text)}
+.crumb-btn.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.crumb-btn.pr{color:var(--text);font-weight:600;max-width:340px;overflow:hidden;text-overflow:ellipsis;display:inline-flex;align-items:center;gap:5px}
+.crumb-btn.pr .code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--muted);font-weight:400}
+.crumb-btn.pr .caret{color:var(--muted);font-size:10px}
+.crumb-pop{position:absolute;left:0;top:calc(100% + 8px);width:360px;max-width:90vw;background:var(--bg);border:1px solid var(--border);border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:8px;display:none;z-index:80}
+.crumb-pop.open{display:block}
+.pop-title{font-size:12px;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border);margin-bottom:6px}
+.pop-item{padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px}
+.pop-item:hover{background:var(--bg2)}
+.pop-item.current{color:var(--blue);font-weight:600}
+.pop-group-title{font-size:12px;font-weight:700;color:var(--muted);padding:8px 10px 4px;margin-top:2px}
+.pr-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer}
+.pr-item:hover{background:var(--bg2)}
+.pr-item .pi-title{flex:1;min-width:0;font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pr-item .pi-num{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--muted);font-size:12px;flex:none}
+.pr-item .pi-prog{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--muted);font-size:12px;flex:none}
+.tag{font-size:11px;font-weight:600;padding:2px 7px;border-radius:99px;flex:none}
+.tag.blue{background:#ddf4ff;color:var(--blue)}
+.tag.green{background:#dafbe1;color:var(--green)}
+.tag.gray{background:#eaeef2;color:#59636e}
+
+.content{max-width:900px;margin:0 auto;padding:28px 24px 60px;transition:opacity .1s ease}
+.content.fading{opacity:0}
+h1.pr-title{font-size:22px;margin:0 0 10px;line-height:1.3}
+.pr-summary{color:var(--muted);margin:0 0 16px}
+.decide-link{color:var(--blue);text-decoration:none;font-weight:600;cursor:pointer}
+.decide-link:hover{text-decoration:underline}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;height:130px}
+@media(max-width:720px){.cards{grid-template-columns:1fr}}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1f2328;color:#fff;padding:9px 16px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:all .2s ease;z-index:100}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.pager{position:fixed;right:14px;bottom:14px;display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:999px;padding:6px 10px;box-shadow:0 4px 14px rgba(0,0,0,.1);font-size:12px;z-index:60}
+.pager a{color:var(--blue);text-decoration:none}
+.pager a:hover{text-decoration:underline}
+.pager .loc{color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="top-left">
+    <span class="brand"><span class="star">✦</span> Tandem</span>
+    <div class="crumb-wrap" id="crumbWrap">
+      <button class="crumb-btn code" id="crumbOrg"></button>
+      <span class="crumb-sep">/</span>
+      <button class="crumb-btn code" id="crumbRepo"></button>
+      <span class="crumb-sep">/</span>
+      <button class="crumb-btn pr" id="crumbPr"></button>
+      <div class="crumb-pop" id="crumbPop"></div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="overview">总览</button>
+    <button class="tab" data-tab="code">代码</button>
+    <span class="tab-underline" id="underline"></span>
+  </nav>
+  <div class="top-right">
+    <span class="progress" id="progressText">12/30</span>
+    <button class="btn-done" id="btnDone">完成</button>
+  </div>
+</header>
+
+<main class="content" id="content">
+  <h1 class="pr-title" id="prTitle"></h1>
+  <p class="pr-summary" id="prSummary"></p>
+  <a class="decide-link" id="decideLink" href="#"></a>
+  <div class="cards"><div class="card"></div><div class="card"></div><div class="card"></div></div>
+</main>
+
+<nav class="pager">
+  <a href="d-tabs.html">← 上一个方案</a>
+  <span class="loc">方案 5 / 5</span>
+  <a href="a-dropdown.html">下一个方案 →</a>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PRS = [
+  {id:1,org:"tidbcloud",repo:"cloud-storage-engine",repoShort:"CSE",num:"7160",numTail:"160",title:"coprocessor：服务端切页前先排空部分结果",author:"hwy",progress:"12/30",done:12,total:30,decisions:5,status:"进行中",summary:"服务端在切页前先排空部分结果，避免结果集过大占用内存。"},
+  {id:2,org:"pingcap",repo:"tidb",repoShort:"TiDB",num:"73235",numTail:"235",title:"ddl：存储分层 less_than 支持 interval，并由 owner 定期重算",author:"lcwangchao",progress:"30/30",done:30,total:30,decisions:4,status:"已看完",summary:"存储分层的 less_than 边界支持 interval 写法，并由 owner 定期重算，减少手工维护成本。"},
+  {id:3,org:"tikv",repo:"tikv",repoShort:"TiKV",num:"18512",numTail:"512",title:"raftstore：快照落盘前校验 checksum",author:"overvenus",progress:"0/14",done:0,total:14,decisions:2,status:"未开始",summary:"快照落盘前校验 checksum，避免坏块数据被持久化到磁盘。"},
+  {id:4,org:"tidbcloud",repo:"cloud-storage-engine",repoShort:"CSE",num:"7172",numTail:"172",title:"compaction：大分区按 key 范围拆分后台任务",author:"hwy",progress:"3/22",done:3,total:22,decisions:1,status:"进行中",summary:"大分区 compaction 按 key 范围拆分为后台任务并行执行，缩短长尾耗时。"}
+];
+const STATUS_TAG = {"进行中":"blue","已看完":"green","未开始":"gray"};
+const $ = (id)=>document.getElementById(id);
+
+let currentId = 1;
+let popOpen = false;
+
+function currentPR(){ return PRS.find(p=>p.id===currentId); }
+
+function renderCrumb(){
+  const pr = currentPR();
+  $("crumbOrg").textContent = pr.org;
+  $("crumbRepo").textContent = pr.repo;
+  $("crumbPr").innerHTML = `<span class="code">#${pr.num}</span> <span class="tt">${pr.title}</span> <span class="caret">⌄</span>`;
+  $("crumbPr").title = pr.title;
+}
+
+function renderContent(pr){
+  $("prTitle").textContent = pr.title;
+  $("prSummary").textContent = pr.summary;
+  $("decideLink").textContent = `有 ${pr.decisions} 件事需要你拍板 ↓`;
+  $("progressText").textContent = pr.progress;
+}
+
+function switchPR(pr){
+  if(!pr) return;
+  currentId = pr.id;
+  renderCrumb();
+  const c = $("content");
+  c.classList.add("fading");
+  setTimeout(()=>{ renderContent(pr); c.classList.remove("fading"); },100);
+  closePop();
+}
+
+function openPop(html){
+  $("crumbPop").innerHTML = html;
+  $("crumbPop").classList.add("open");
+  popOpen = true;
+}
+function closePop(){
+  $("crumbPop").classList.remove("open");
+  popOpen = false;
+}
+
+function popOrgs(){
+  const orgs = Array.from(new Set(PRS.map(p=>p.org)));
+  const pr = currentPR();
+  return `<div class="pop-title">选择组织</div>` + orgs.map(o=>{
+    const cur = o===pr.org ? " current" : "";
+    return `<div class="pop-item${cur}" data-org="${o}">${o}</div>`;
+  }).join("");
+}
+function popRepos(){
+  const pr = currentPR();
+  const repos = Array.from(new Set(PRS.filter(p=>p.org===pr.org).map(p=>p.repo)));
+  return `<div class="pop-title">${pr.org} 下的仓库</div>` + repos.map(r=>{
+    return `<div class="pop-item" data-repo="${r}">${r}</div>`;
+  }).join("");
+}
+function popPRs(){
+  // group by repo preserving order
+  const groups = [];
+  PRS.forEach(p=>{
+    let g = groups.find(x=>x.repo===p.repo);
+    if(!g){ g = {org:p.org, repo:p.repo, items:[]}; groups.push(g); }
+    g.items.push(p);
+  });
+  let html = `<div class="pop-title">全部 PR（按仓库分组）</div>`;
+  groups.forEach(g=>{
+    html += `<div class="pop-group-title">${g.org} / ${g.repo}</div>`;
+    g.items.forEach(p=>{
+      const cur = p.id===currentId ? " current" : "";
+      html += `<div class="pr-item${cur}" data-id="${p.id}">
+        <span class="pi-title">${p.title}</span>
+        <span class="pi-num">#${p.num}</span>
+        <span class="tag ${STATUS_TAG[p.status]}">${p.status}</span>
+        <span class="pi-prog">${p.progress}</span>
+      </div>`;
+    });
+  });
+  return html;
+}
+
+$("crumbOrg").addEventListener("click",(e)=>{
+  e.stopPropagation();
+  popOpen ? closePop() : openPop(popOrgs());
+});
+$("crumbRepo").addEventListener("click",(e)=>{
+  e.stopPropagation();
+  popOpen ? closePop() : openPop(popRepos());
+});
+$("crumbPr").addEventListener("click",(e)=>{
+  e.stopPropagation();
+  popOpen ? closePop() : openPop(popPRs());
+});
+
+$("crumbPop").addEventListener("click",(e)=>{
+  const orgItem = e.target.closest("[data-org]");
+  const repoItem = e.target.closest("[data-repo]");
+  const prItem = e.target.closest("[data-id]");
+  if(orgItem){
+    const org = orgItem.dataset.org;
+    const first = PRS.find(p=>p.org===org);
+    if(first) switchPR(first);
+  } else if(repoItem){
+    const repo = repoItem.dataset.repo;
+    const first = PRS.find(p=>p.repo===repo);
+    if(first) switchPR(first);
+  } else if(prItem){
+    switchPR(PRS.find(p=>p.id===Number(prItem.dataset.id)));
+  }
+});
+
+document.addEventListener("click",(e)=>{
+  if(popOpen && !$("crumbWrap").contains(e.target)) closePop();
+});
+document.addEventListener("keydown",(e)=>{
+  if(e.key==="Escape" && popOpen) closePop();
+});
+
+// tabs
+const tabButtons = Array.from(document.querySelectorAll(".tab"));
+function moveUnderline(){
+  const active = document.querySelector(".tab.active");
+  $("underline").style.left = active.offsetLeft + "px";
+  $("underline").style.width = active.offsetWidth + "px";
+}
+tabButtons.forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    tabButtons.forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    moveUnderline();
+  });
+});
+
+let toastTimer=null;
+function showToast(msg){
+  const t=$("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),1800);
+}
+$("decideLink").addEventListener("click",(e)=>{ e.preventDefault(); showToast(`跳转到 ${currentPR().decisions} 件待拍板事项（演示）`); });
+$("btnDone").addEventListener("click",()=>showToast(`已将「${currentPR().title.slice(0,12)}…」标记为完成（演示）`));
+
+renderCrumb();
+renderContent(currentPR());
+requestAnimationFrame(moveUnderline);
+window.addEventListener("resize",moveUnderline);
+</script>
+</body>
+</html>

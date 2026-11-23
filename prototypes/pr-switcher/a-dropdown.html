@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>方案 A · 下拉菜单 — PR 切换控件</title>
+<style>
+:root{
+  --bg:#ffffff; --bg2:#f6f8fa; --border:#d1d9e0; --text:#1f2328;
+  --muted:#59636e; --blue:#0969da; --green:#1a7f37; --red:#d1242f; --yellow:#9a6700;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+
+/* ---------- top bar ---------- */
+.topbar{height:56px;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--border);background:var(--bg);position:relative;z-index:30}
+.top-left{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+.brand{display:flex;align-items:center;gap:6px;font-weight:700;font-size:15px;white-space:nowrap}
+.brand .star{color:var(--blue)}
+.tabs{display:flex;align-items:center;gap:20px;position:relative;height:56px;margin:0 auto}
+.tab{background:none;border:none;cursor:pointer;font-size:14px;color:var(--muted);height:100%;padding:0 2px;display:flex;align-items:center;font-family:inherit}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--text);font-weight:600}
+.tab-underline{position:absolute;bottom:0;height:2px;background:var(--blue);transition:left .2s ease,width .2s ease;border-radius:2px}
+.top-right{display:flex;align-items:center;gap:10px;flex:1;justify-content:flex-end}
+.progress{color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.btn-done{background:#000;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-done:hover{background:#24292f}
+
+/* ---------- switcher control ---------- */
+.switcher{position:relative;min-width:0;max-width:520px}
+.switcher-trigger{display:flex;align-items:center;gap:8px;border:1px solid var(--border);background:var(--bg2);border-radius:8px;padding:6px 10px;cursor:pointer;width:100%;text-align:left}
+.switcher-trigger:hover{border-color:#8b949e}
+.switcher-trigger:focus{outline:2px solid var(--blue);outline-offset:1px}
+.trigger-repo{color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;white-space:nowrap}
+.trigger-title{font-weight:600;color:var(--text);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.trigger-caret{color:var(--muted);font-size:11px}
+
+/* ---------- dropdown panel ---------- */
+.panel{position:absolute;top:calc(100% + 6px);left:0;width:440px;max-width:90vw;background:var(--bg);border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.14);z-index:50;display:none;padding:8px}
+.panel.open{display:block}
+.search{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;margin-bottom:8px;font-family:inherit}
+.search:focus{outline:2px solid var(--blue);border-color:var(--blue)}
+.list{max-height:320px;overflow-y:auto;margin:0;padding:0;list-style:none}
+.item{position:relative;padding:8px 10px 8px 14px;border-radius:8px;cursor:pointer;border-left:3px solid transparent}
+.item:hover{background:var(--bg2)}
+.item.highlighted{background:var(--bg2)}
+.item.current{border-left-color:var(--blue)}
+.item-title{font-weight:700;font-size:13px;color:var(--text);line-height:1.35}
+.item-meta{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px;margin-top:2px;flex-wrap:wrap}
+.item-meta .code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.dot.blue{background:var(--blue)} .dot.green{background:var(--green)} .dot.gray{background:#8b949e}
+.empty{padding:14px;color:var(--muted);text-align:center;font-size:13px}
+
+/* ---------- content ---------- */
+.content{max-width:900px;margin:0 auto;padding:28px 24px 60px;transition:opacity .1s ease}
+.content.fading{opacity:0}
+h1.pr-title{font-size:22px;margin:0 0 10px;line-height:1.3}
+.pr-summary{color:var(--muted);margin:0 0 16px;font-size:14px}
+.decide-link{color:var(--blue);text-decoration:none;font-weight:600;font-size:14px;cursor:pointer}
+.decide-link:hover{text-decoration:underline}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;height:130px}
+@media(max-width:720px){.cards{grid-template-columns:1fr}}
+
+/* ---------- toast ---------- */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1f2328;color:#fff;padding:9px 16px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:all .2s ease;z-index:100}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ---------- pager ---------- */
+.pager{position:fixed;right:14px;bottom:14px;display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:999px;padding:6px 10px;box-shadow:0 4px 14px rgba(0,0,0,.1);font-size:12px;z-index:60}
+.pager a{color:var(--blue);text-decoration:none}
+.pager a:hover{text-decoration:underline}
+.pager .loc{color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="top-left">
+    <span class="brand"><span class="star">✦</span> Tandem</span>
+    <div class="switcher" id="switcher">
+      <button class="switcher-trigger" id="trigger" aria-haspopup="listbox" aria-expanded="false">
+        <span class="trigger-repo" id="triggerRepo"></span>
+        <span class="trigger-title" id="triggerTitle"></span>
+        <span class="trigger-caret">▾</span>
+      </button>
+      <div class="panel" id="panel">
+        <input class="search" id="search" type="text" placeholder="搜索标题 / 仓库 / 编号…" autocomplete="off">
+        <ul class="list" id="list"></ul>
+      </div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="overview">总览</button>
+    <button class="tab" data-tab="code">代码</button>
+    <span class="tab-underline" id="underline"></span>
+  </nav>
+  <div class="top-right">
+    <span class="progress" id="progressText">12/30</span>
+    <button class="btn-done" id="btnDone">完成</button>
+  </div>
+</header>
+
+<main class="content" id="content">
+  <h1 class="pr-title" id="prTitle"></h1>
+  <p class="pr-summary" id="prSummary"></p>
+  <a class="decide-link" id="decideLink" href="#"></a>
+  <div class="cards"><div class="card"></div><div class="card"></div><div class="card"></div></div>
+</main>
+
+<nav class="pager">
+  <a href="e-breadcrumb.html">← 上一个方案</a>
+  <span class="loc">方案 1 / 5</span>
+  <a href="b-palette.html">下一个方案 →</a>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PRS = [
+  {id:1,org:"tidbcloud",repo:"cloud-storage-engine",repoShort:"CSE",num:"7160",numTail:"160",title:"coprocessor：服务端切页前先排空部分结果",author:"hwy",progress:"12/30",done:12,total:30,decisions:5,status:"进行中",summary:"服务端在切页前先排空部分结果，避免结果集过大占用内存。"},
+  {id:2,org:"pingcap",repo:"tidb",repoShort:"TiDB",num:"73235",numTail:"235",title:"ddl：存储分层 less_than 支持 interval，并由 owner 定期重算",author:"lcwangchao",progress:"30/30",done:30,total:30,decisions:4,status:"已看完",summary:"存储分层的 less_than 边界支持 interval 写法，并由 owner 定期重算，减少手工维护成本。"},
+  {id:3,org:"tikv",repo:"tikv",repoShort:"TiKV",num:"18512",numTail:"512",title:"raftstore：快照落盘前校验 checksum",author:"overvenus",progress:"0/14",done:0,total:14,decisions:2,status:"未开始",summary:"快照落盘前校验 checksum，避免坏块数据被持久化到磁盘。"},
+  {id:4,org:"tidbcloud",repo:"cloud-storage-engine",repoShort:"CSE",num:"7172",numTail:"172",title:"compaction：大分区按 key 范围拆分后台任务",author:"hwy",progress:"3/22",done:3,total:22,decisions:1,status:"进行中",summary:"大分区 compaction 按 key 范围拆分为后台任务并行执行，缩短长尾耗时。"}
+];
+const STATUS_COLOR = {"进行中":"blue","已看完":"green","未开始":"gray"};
+
+let currentId = 1;
+let open = false;
+let highlighted = 0;
+let filtered = PRS.slice();
+
+const $ = (id)=>document.getElementById(id);
+
+function statusDot(status){
+  return `<span class="dot ${STATUS_COLOR[status]}"></span>`;
+}
+
+function renderTrigger(){
+  const pr = PRS.find(p=>p.id===currentId);
+  $("triggerRepo").textContent = pr.repo + " #" + pr.num + " ·";
+  $("triggerTitle").textContent = pr.title;
+  $("triggerTitle").title = pr.title;
+  $("progressText").textContent = pr.progress;
+}
+
+function renderList(){
+  const list = $("list");
+  if(!filtered.length){
+    list.innerHTML = `<li class="empty">没有匹配的 PR</li>`;
+    return;
+  }
+  list.innerHTML = filtered.map((pr,i)=>{
+    const cur = pr.id===currentId ? " current" : "";
+    const hl = i===highlighted ? " highlighted" : "";
+    return `<li class="item${cur}${hl}" data-id="${pr.id}" data-i="${i}">
+      <div class="item-title">${pr.title}</div>
+      <div class="item-meta">
+        <span class="code">${pr.repo} #${pr.num}</span><span>·</span><span>${pr.author}</span><span>·</span><span>进度 ${pr.progress}</span><span>·</span><span>${pr.decisions} 件待拍板</span>${statusDot(pr.status)}
+      </div>
+    </li>`;
+  }).join("");
+}
+
+function renderContent(pr){
+  $("prTitle").textContent = pr.title;
+  $("prSummary").textContent = pr.summary;
+  $("decideLink").textContent = `有 ${pr.decisions} 件事需要你拍板 ↓`;
+  $("progressText").textContent = pr.progress;
+}
+
+function switchPR(pr){
+  if(!pr) return;
+  currentId = pr.id;
+  renderTrigger();
+  const c = $("content");
+  c.classList.add("fading");
+  setTimeout(()=>{
+    renderContent(pr);
+    c.classList.remove("fading");
+  },100);
+  closePanel();
+}
+
+function openPanel(){
+  open = true;
+  $("panel").classList.add("open");
+  $("trigger").setAttribute("aria-expanded","true");
+  highlighted = Math.max(0, filtered.findIndex(p=>p.id===currentId));
+  $("search").value = "";
+  filtered = PRS.slice();
+  renderList();
+  scrollHighlightIntoView();
+  $("search").focus();
+}
+function closePanel(){
+  open = false;
+  $("panel").classList.remove("open");
+  $("trigger").setAttribute("aria-expanded","false");
+}
+function scrollHighlightIntoView(){
+  const el = $("list").querySelector(".highlighted");
+  if(el) el.scrollIntoView({block:"nearest"});
+}
+
+$("trigger").addEventListener("click",(e)=>{
+  e.stopPropagation();
+  open ? closePanel() : openPanel();
+});
+
+$("search").addEventListener("input",(e)=>{
+  const q = e.target.value.trim().toLowerCase();
+  filtered = PRS.filter(p=>
+    p.title.toLowerCase().includes(q) ||
+    p.repo.toLowerCase().includes(q) ||
+    p.org.toLowerCase().includes(q) ||
+    String(p.num).includes(q) ||
+    p.author.toLowerCase().includes(q)
+  );
+  highlighted = 0;
+  renderList();
+  scrollHighlightIntoView();
+});
+
+$("list").addEventListener("click",(e)=>{
+  const item = e.target.closest(".item");
+  if(item){
+    const pr = PRS.find(p=>p.id===Number(item.dataset.id));
+    switchPR(pr);
+  }
+});
+
+$("list").addEventListener("mousemove",(e)=>{
+  const item = e.target.closest(".item");
+  if(item){ highlighted = Number(item.dataset.i); renderList(); }
+});
+
+$("search").addEventListener("keydown",(e)=>{
+  if(e.key==="ArrowDown"){
+    e.preventDefault();
+    if(filtered.length){ highlighted=(highlighted+1)%filtered.length; renderList(); scrollHighlightIntoView(); }
+  } else if(e.key==="ArrowUp"){
+    e.preventDefault();
+    if(filtered.length){ highlighted=(highlighted-1+filtered.length)%filtered.length; renderList(); scrollHighlightIntoView(); }
+  } else if(e.key==="Enter"){
+    e.preventDefault();
+    const pr = filtered[highlighted];
+    if(pr) switchPR(pr);
+  } else if(e.key==="Escape"){
+    closePanel();
+    $("trigger").focus();
+  }
+});
+
+document.addEventListener("click",(e)=>{
+  if(open && !$("switcher").contains(e.target)) closePanel();
+});
+document.addEventListener("keydown",(e)=>{
+  if(e.key==="Escape" && open){ closePanel(); $("trigger").focus(); }
+});
+
+// tabs
+const tabButtons = Array.from(document.querySelectorAll(".tab"));
+function moveUnderline(){
+  const active = document.querySelector(".tab.active");
+  $("underline").style.left = active.offsetLeft + "px";
+  $("underline").style.width = active.offsetWidth + "px";
+}
+tabButtons.forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    tabButtons.forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    moveUnderline();
+  });
+});
+
+// decide link + done button -> toast
+let toastTimer=null;
+function showToast(msg){
+  const t=$("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),1800);
+}
+$("decideLink").addEventListener("click",(e)=>{
+  e.preventDefault();
+  const pr = PRS.find(p=>p.id===currentId);
+  showToast(`跳转到 ${pr.decisions} 件待拍板事项（演示）`);
+});
+$("btnDone").addEventListener("click",()=>{
+  const pr = PRS.find(p=>p.id===currentId);
+  showToast(`已将「${pr.title.slice(0,12)}…」标记为完成（演示）`);
+});
+
+// init
+renderTrigger();
+renderContent(PRS.find(p=>p.id===currentId));
+requestAnimationFrame(moveUnderline);
+window.addEventListener("resize",moveUnderline);
+</script>
+</body>
+</html>

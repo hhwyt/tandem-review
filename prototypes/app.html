@@ -6,38 +6,26 @@
 <title>Tandem Review</title>
 <style>
 :root{
-  --bg:#faf9f5;--surface:#ffffff;--surface2:#f5f4ed;--line:#e6e3d8;--line2:#efede5;
-  --text:#141413;--text2:#3d3d3a;--dim:#7a786f;
-  --accent:#c96442;--accent-ink:#a9502f;--accent-soft:#f6ebe4;--accent-line:#e9c9b8;
-  --add:#eef4e8;--addg:#e0ebd5;--adds:#4f7d3c;--del:#f9eeeb;--delg:#f1dcd6;--dels:#b0503a;
-  --hunk:#f2f0e8;--sel:#fbf2d6;--range:#f8ead9;
-  --kw:#a9502f;--str:#4f7d3c;--fn:#5b5bb5;--com:#9a978c;
-  --t1:#c96442;--t2:#b8862b;--t3:#5f86ad;--t4:#5f8f5a;--t5:#8a8780;
-  --shadow:0 1px 2px rgba(20,20,19,.04),0 4px 16px rgba(20,20,19,.05);
+  --bg:#faf9f5;--surface:#ffffff;--surface2:#f5f4ed;--line:#e6e3d8;--text:#141413;--dim:#7a786f;
+  --accent:#c96442;--adds:#4f7d3c;--dels:#b0503a;--kw:#a9502f;--str:#4f7d3c;--fn:#5b5bb5;--com:#9a978c;--hl:#f5c400;
+  --line2:color-mix(in srgb,var(--line) 55%,var(--bg));--text2:color-mix(in srgb,var(--text) 78%,var(--bg));
+  --accent-ink:color-mix(in srgb,var(--accent) 85%,var(--text));--accent-soft:color-mix(in srgb,var(--accent) 11%,var(--surface));--accent-line:color-mix(in srgb,var(--accent) 38%,var(--surface));
+  --add:color-mix(in srgb,var(--adds) 9%,var(--surface));--addg:color-mix(in srgb,var(--adds) 18%,var(--surface));
+  --del:color-mix(in srgb,var(--dels) 9%,var(--surface));--delg:color-mix(in srgb,var(--dels) 18%,var(--surface));
+  --hunk:var(--surface2);--sel:color-mix(in srgb,var(--hl) 22%,var(--surface));--range:color-mix(in srgb,var(--accent) 9%,var(--surface));
+  --t1:var(--accent);--t2:#b8862b;--t3:#5f86ad;--t4:#5f8f5a;--t5:var(--dim);
+  --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.06);
   --serif:"Tiempos Headline","Iowan Old Style","Charter","Georgia","Songti SC",serif;
   --sans:-apple-system,BlinkMacSystemFont,"Inter","PingFang SC","Helvetica Neue",sans-serif;
   --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
 }
-:root[data-theme="dark"]{
-  --bg:#1f1e1d;--surface:#262624;--surface2:#2c2b28;--line:#3b3a36;--line2:#31302d;
-  --text:#f3f1ea;--text2:#d6d3c9;--dim:#9c998f;
-  --accent:#d97757;--accent-ink:#e8936f;--accent-soft:#38281f;--accent-line:#6b4332;
-  --add:#232e20;--addg:#2b3a27;--adds:#8dbb72;--del:#33221e;--delg:#432c26;--dels:#e08a74;
-  --hunk:#2a2926;--sel:#3a3220;--range:#3a2c22;
-  --kw:#e8936f;--str:#9ccc82;--fn:#a3a3f0;--com:#8b887e;
-  --t1:#d97757;--t2:#d0a046;--t3:#7fa6cc;--t4:#86b57f;--t5:#9c998f;
-  --shadow:0 1px 2px rgba(0,0,0,.2),0 4px 16px rgba(0,0,0,.25);
-}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#1f1e1d;--surface:#262624;--surface2:#2c2b28;--line:#3b3a36;--line2:#31302d;
-  --text:#f3f1ea;--text2:#d6d3c9;--dim:#9c998f;
-  --accent:#d97757;--accent-ink:#e8936f;--accent-soft:#38281f;--accent-line:#6b4332;
-  --add:#232e20;--addg:#2b3a27;--adds:#8dbb72;--del:#33221e;--delg:#432c26;--dels:#e08a74;
-  --hunk:#2a2926;--sel:#3a3220;--range:#3a2c22;
-  --kw:#e8936f;--str:#9ccc82;--fn:#a3a3f0;--com:#8b887e;
-  --t1:#d97757;--t2:#d0a046;--t3:#7fa6cc;--t4:#86b57f;--t5:#9c998f;
-  --shadow:0 1px 2px rgba(0,0,0,.2),0 4px 16px rgba(0,0,0,.25);
-}}
+.skinbtn{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:14px;border-radius:50%;border:1px solid var(--line);display:inline-block;flex:none}
+.skinpop{position:fixed;z-index:45;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.18);padding:10px;width:300px;display:grid;grid-template-columns:1fr 1fr;gap:6px;animation:fade .12s}
+.skin{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12.5px;background:var(--bg);color:var(--text)}
+.skin:hover{border-color:var(--dim)}
+.skin.on{outline:2px solid var(--accent);outline-offset:1px}
+.skin .pal{display:flex}.skin .pal i{width:10px;height:22px;display:block}.skin .pal i:first-child{border-radius:4px 0 0 4px}.skin .pal i:last-child{border-radius:0 4px 4px 0}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--text);font:14px/1.6 var(--sans);display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
@@ -259,6 +247,20 @@ section[id^="u-"]{animation:rise .35s cubic-bezier(.2,.7,.2,1)}
 <script>
 let UNITS=window.UNITS;const RP=window.RP;
 const U=id=>UNITS.find(u=>u.id===id);
+const SKINS={
+ claude:{n:'Claude',bg:'#faf9f5',surface:'#ffffff',surface2:'#f5f4ed',line:'#e6e3d8',text:'#141413',dim:'#7a786f',accent:'#c96442',adds:'#4f7d3c',dels:'#b0503a',kw:'#a9502f',str:'#4f7d3c',fn:'#5b5bb5',com:'#9a978c'},
+ paper:{n:'Paper',bg:'#ffffff',surface:'#ffffff',surface2:'#f6f8fa',line:'#d0d7de',text:'#1f2328',dim:'#656d76',accent:'#0969da',adds:'#1a7f37',dels:'#cf222e',kw:'#cf222e',str:'#0a3069',fn:'#8250df',com:'#6e7781'},
+ ocean:{n:'Ocean',bg:'#f4f8fb',surface:'#ffffff',surface2:'#eaf1f7',line:'#d4e0ea',text:'#13293d',dim:'#5d7287',accent:'#1f7a8c',adds:'#2a8f6a',dels:'#c0504d',kw:'#1f6f99',str:'#2a8f6a',fn:'#7a4fb0',com:'#8ca0b3'},
+ forest:{n:'Forest',bg:'#f5f7f2',surface:'#ffffff',surface2:'#eef2ea',line:'#dbe2d3',text:'#1c2a1e',dim:'#6b7a69',accent:'#3f7d4e',adds:'#3f7d4e',dels:'#b5523b',kw:'#7a5a1f',str:'#3f7d4e',fn:'#5b6db5',com:'#93a08f'},
+ rose:{n:'Rosé',bg:'#fdf7f7',surface:'#ffffff',surface2:'#f9eeee',line:'#efdcdc',text:'#2d1b1f',dim:'#87696e',accent:'#c2456a',adds:'#4b8a5f',dels:'#c2456a',kw:'#a33a5a',str:'#4b8a5f',fn:'#6a5acd',com:'#ab9499'},
+ sand:{n:'Sand',bg:'#fbf6ec',surface:'#fffdf8',surface2:'#f4ecdc',line:'#e8dcc4',text:'#2b2418',dim:'#857a63',accent:'#b07d12',adds:'#5d7f2f',dels:'#b4492e',kw:'#9a5b12',str:'#5d7f2f',fn:'#5866b0',com:'#a89c84'},
+ graphite:{n:'Graphite',dark:1,bg:'#1c1c1e',surface:'#242426',surface2:'#2c2c2f',line:'#3a3a3d',text:'#ececec',dim:'#9a9a9f',accent:'#e5a442',adds:'#7fbf6e',dels:'#e57373',kw:'#e5a442',str:'#9fd38a',fn:'#9ab4ff',com:'#7d7d82',hl:'#e5a442'},
+ nord:{n:'Nord',dark:1,bg:'#2e3440',surface:'#353c4a',surface2:'#3b4252',line:'#4c566a',text:'#eceff4',dim:'#a3acbd',accent:'#88c0d0',adds:'#a3be8c',dels:'#bf616a',kw:'#81a1c1',str:'#a3be8c',fn:'#b48ead',com:'#7b8496',hl:'#ebcb8b'},
+ midnight:{n:'Midnight',dark:1,bg:'#0f1420',surface:'#151c2b',surface2:'#1b2335',line:'#28324a',text:'#e6ebf5',dim:'#8b96ad',accent:'#5eb3ff',adds:'#58c48a',dels:'#ff6b81',kw:'#c792ea',str:'#58c48a',fn:'#82aaff',com:'#5f6b85',hl:'#5eb3ff'},
+ violet:{n:'Violet Night',dark:1,bg:'#1d1a26',surface:'#24202f',surface2:'#2b2638',line:'#3b3450',text:'#f2eefc',dim:'#a49bbd',accent:'#b392f0',adds:'#7ee0a1',dels:'#ff7aa2',kw:'#ff79c6',str:'#f1fa8c',fn:'#8be9fd',com:'#6e6488',hl:'#b392f0'}};
+function applySkin(k){const s=SKINS[k]||SKINS.claude;const r=document.documentElement.style;['bg','surface','surface2','line','text','dim','accent','adds','dels','kw','str','fn','com'].forEach(x=>r.setProperty('--'+x,s[x]));r.setProperty('--hl',s.hl||'#f5c400');r.setProperty('--shadow',s.dark?'0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.35)':'0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.06)');document.documentElement.style.colorScheme=s.dark?'dark':'light';S.skin=k;try{localStorage.setItem('hr-skin',k)}catch(_){}}
+function skinPop(btn){document.querySelector('.skinpop')?.remove();const p=document.createElement('div');p.className='skinpop';p.innerHTML=Object.entries(SKINS).map(([k,s])=>`<div class="skin ${S.skin===k?'on':''}" data-skin="${k}" style="background:${s.bg};color:${s.text};border-color:${s.line}"><span class="pal"><i style="background:${s.surface}"></i><i style="background:${s.accent}"></i><i style="background:${s.adds}"></i><i style="background:${s.dels}"></i></span>${s.n}</div>`).join('');document.body.appendChild(p);const r=btn.getBoundingClientRect();p.style.top=(r.bottom+8)+'px';p.style.left=Math.max(8,r.right-300)+'px'}
+
 const S={page:'overview',mode:'reading',cur:'check',file:null,sel:null,range:null,form:null,kind:0,cm:[],round:1,done:{},ai:true,lang:'en',ctx:'calls',open:{},lit:null};
 try{S.lang=localStorage.getItem('hr-lang')||'en'}catch(e){}
 const L=o=>o==null?'':typeof o==='string'?o:(o[S.lang]??o.en);
@@ -384,7 +386,7 @@ const pending=()=>S.cm.filter(c=>!c.sent).length;
 function ringSVG(p){const r=8,c=2*Math.PI*r;return `<svg width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="${r}" fill="none" stroke="var(--line)" stroke-width="2.5"/><circle cx="11" cy="11" r="${r}" fill="none" stroke="var(--adds)" stroke-width="2.5" stroke-dasharray="${c*p} ${c}" transform="rotate(-90 11 11)" stroke-linecap="round"/></svg>`}
 function chapterList(item,cls){return CHAPTERS.map((c,ci)=>`<div class="chap"><div class="chn">${L(T('Chapter','第'))} ${ci+1}${S.lang==='zh'?' 章':''} · ${esc(L(c.n))}</div><div class="chs">${esc(L(c.sub))}</div></div>`+c.items.map(x=>typeof x==='string'?item(x):`<div class="${cls} off" title="${esc(L(UI.rest))}"><span class="${cls==='pit'?'no':'st'}">·</span><div class="fn" style="font-weight:400">${esc(L(x.ph))}</div></div>`).join('')).join('')}
 function renderTop(){const n=Object.keys(S.done).length,N=UNITS.length;
- document.getElementById('top').innerHTML=`<span class="brand"><span class="spark">✦</span>Tandem</span><span class="prref">pingcap/tidb#73235 · ${L(UI.roundN)} ${S.round} ${L(UI.roundS)}</span><nav class="tabs"><button data-page="overview" class="${S.page==='overview'?'on':''}">${L(UI.overview)}</button><button data-page="review" class="${S.page==='review'?'on':''}">${L(UI.review)}</button></nav><span class="sp"></span><span class="ring">${ringSVG(n/N)}${n}/${N}</span>${S.page==='review'?`<button class="btn ${S.ai?'on':''}" id="aiBtn">✦ ${L(UI.notes)}</button>`:''}<div class="seg" id="langSeg"><button data-lang="en" class="${S.lang==='en'?'on':''}">EN</button><button data-lang="zh" class="${S.lang==='zh'?'on':''}">中文</button></div><button class="btn ghost" id="theme" title="Theme">◐</button><button class="btn ghost" id="helpBtn" title="?">?</button><button class="btn" id="sendBtn" ${pending()?'':'disabled'}>${L(UI.send)}${pending()?` <span class="count">${pending()}</span>`:''}</button><button class="btn primary" id="finishBtn">${L(UI.finish)}</button>`}
+ document.getElementById('top').innerHTML=`<span class="brand"><span class="spark">✦</span>Tandem</span><span class="prref">pingcap/tidb#73235 · ${L(UI.roundN)} ${S.round} ${L(UI.roundS)}</span><nav class="tabs"><button data-page="overview" class="${S.page==='overview'?'on':''}">${L(UI.overview)}</button><button data-page="review" class="${S.page==='review'?'on':''}">${L(UI.review)}</button></nav><span class="sp"></span><span class="ring">${ringSVG(n/N)}${n}/${N}</span>${S.page==='review'?`<button class="btn ${S.ai?'on':''}" id="aiBtn">✦ ${L(UI.notes)}</button>`:''}<div class="seg" id="langSeg"><button data-lang="en" class="${S.lang==='en'?'on':''}">EN</button><button data-lang="zh" class="${S.lang==='zh'?'on':''}">中文</button></div><button class="btn ghost skinbtn" id="theme"><span class="sw" style="background:var(--accent)"></span>${L(T('Theme','主题'))}</button><button class="btn ghost" id="helpBtn" title="?">?</button><button class="btn" id="sendBtn" ${pending()?'':'disabled'}>${L(UI.send)}${pending()?` <span class="count">${pending()}</span>`:''}</button><button class="btn primary" id="finishBtn">${L(UI.finish)}</button>`}
 function renderOverview(){const q=queue();const _plan=chapterList(id=>`<div class="pit ${S.done[id]?'done':''}" data-open="${id}"><span class="no">${S.done[id]?'✓':secNo(id)}</span><div><div class="fn">${esc(U(id).name)}${crit(U(id))?' <span style="color:var(--accent)">⚑</span>':''}</div><div class="w">${esc(L(U(id).gist))}</div></div></div>`,'pit');
  const total=q.reduce((a,u)=>a+estMin(u),0);
  let ft='';let lt=null;FILES.forEach(f=>{if(f.tier!==lt){lt=f.tier;ft+=`<tr class="grp"><td colspan="4">${chip(f.tier)}</td></tr>`}ft+=`<tr><td><span class="tagline ${f.st}">${L(f.st==='new'?T('new','新增'):T('modified','修改'))}</span></td><td class="mono">${esc(f.path)}</td><td class="mono" style="white-space:nowrap"><span class="plus-n">+${f.a}</span> <span class="minus-n">−${f.d}</span></td><td>${esc(L(f.what))}</td></tr>`});
@@ -425,7 +427,9 @@ document.addEventListener('mouseover',e=>{const g=e.target.closest('.ghost');doc
 document.addEventListener('click',e=>{const c=x=>e.target.closest(x);
  if(c('[data-page]')){S.page=c('[data-page]').dataset.page;render();return}
  if(c('[data-lang]')){S.lang=c('[data-lang]').dataset.lang;try{localStorage.setItem('hr-lang',S.lang)}catch(_){}keepScroll(render);return}
- if(c('#theme')){const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;r.dataset.theme=dark?'light':'dark';return}
+ if(c('[data-skin]')){applySkin(c('[data-skin]').dataset.skin);document.querySelector('.skinpop')?.remove();keepScroll(render);return}
+ if(c('#theme')){if(document.querySelector('.skinpop'))document.querySelector('.skinpop').remove();else skinPop(c('#theme'));return}
+ if(!c('.skinpop'))document.querySelector('.skinpop')?.remove();
  if(c('#helpBtn')){helpModal();return}
  if(c('#aiBtn')){S.ai=!S.ai;keepScroll(render);return}
  if(c('#sendBtn')){send(false);return} if(c('#finishBtn')){send(true);return}
@@ -457,6 +461,7 @@ document.addEventListener('keydown',e=>{if(e.target.tagName==='TEXTAREA'){if(e.k
  if(S.mode==='reading'&&(e.key==='p'||e.key==='P'))step(-1);
  if(e.key==='j'||e.key==='k'){const all=[...document.querySelectorAll('.dl[data-n]:not([data-n=""])')];let i=all.findIndex(x=>x.dataset.k===S.sel);i=e.key==='j'?Math.min(all.length-1,i+1):Math.max(0,i-1);const el=all[i];if(el){S.sel=el.dataset.k;S.range=[+el.dataset.n,+el.dataset.n];keepScroll(render);document.querySelector(`.dl[data-k="${S.sel}"]`)?.scrollIntoView({block:'nearest'})}}
  if((e.key==='c'||e.key==='C')&&S.sel){S.form=S.sel.split(':')[0]+':'+S.range[1];S.kind=0;keepScroll(render);e.preventDefault()}});
+let _sk=null;try{_sk=localStorage.getItem('hr-skin')}catch(_){};applySkin(_sk||(matchMedia('(prefers-color-scheme: dark)').matches?'graphite':'claude'));
 render();
 let first=false;try{first=!localStorage.getItem('hr-lang-hinted')}catch(_){}
 if(first){const seg=document.getElementById('langSeg');seg.classList.add('hint');const tip=document.createElement('div');tip.className='langtip';tip.textContent='EN / 中文';document.body.appendChild(tip);const r=seg.getBoundingClientRect();tip.style.left=(r.left+r.width/2)+'px';tip.style.top=(r.bottom+10)+'px';

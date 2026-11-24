@@ -28,17 +28,34 @@ Tandem Review 是一个浏览器页面，让人和编程 agent 一起 review 一
 
 ## 安装
 
-需要 Python 3.9 或更新版本。只有要把评论发到 PR 上时才需要 `gh`（GitHub CLI，已登录）。
+### 让 agent 安装（推荐）
 
-```bash
-git clone https://github.com/hhwyt/tandem-review.git
-export PATH="$PWD/tandem-review/bin:$PATH"
+复制下面这段话，发给你的 coding agent（Claude Code、Codex，或任何能跑 shell 命令的 agent）：
+
+```text
+帮我安装 Tandem Review：
+1. 把 https://github.com/hhwyt/tandem-review 克隆到 ~/tandem-review（已经有了就 git pull）。
+2. 确认 python3 是 3.9 或更新的版本。
+3. 让 `tandem` 命令可用：把 ~/tandem-review/bin/tandem 链接到 PATH 里的一个目录，比如 ~/.local/bin；
+   目录不存在就建，不在 PATH 里就加到我的 shell 配置文件里。
+4. 安装 skill：Claude Code 就把 ~/tandem-review/skill 链接到 ~/.claude/skills/tandem-review；
+   其他 agent 就把 ~/tandem-review/skill/SKILL.md 加进你的指令里。
+5. 运行 `tandem --help`，把结果告诉我。
 ```
 
-把 skill 交给你的 agent：
+### 手动安装
 
-- **Claude Code**：`ln -s "$PWD/tandem-review/skill" ~/.claude/skills/tandem-review`
-- **Codex 等其他 agent**：让 agent 读 `skill/SKILL.md`，或者把它贴进 agent 的指令里。
+需要 Python 3.9 或更新版本。只有往 pull request 发评论时才需要 `gh`（GitHub CLI，已登录）。
+
+```bash
+git clone https://github.com/hhwyt/tandem-review.git ~/tandem-review
+mkdir -p ~/.local/bin && ln -s ~/tandem-review/bin/tandem ~/.local/bin/tandem  # ~/.local/bin 要在 PATH 里
+```
+
+给 agent 装 skill：
+
+- **Claude Code**：`ln -s ~/tandem-review/skill ~/.claude/skills/tandem-review`
+- **Codex 和其他 agent**：让 agent 读 `skill/SKILL.md`，或者把它贴进 agent 的指令里。
 
 ## 使用
 

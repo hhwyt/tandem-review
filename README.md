@@ -34,16 +34,34 @@ The interface is in English or Chinese; switch in the top right corner.
 
 ## Install
 
+### With your agent (recommended)
+
+Copy this prompt and send it to your coding agent (Claude Code, Codex, or any agent that can run
+shell commands):
+
+```text
+Install Tandem Review for me:
+1. Clone https://github.com/hhwyt/tandem-review into ~/tandem-review (git pull if it is already there).
+2. Check that python3 is 3.9 or newer.
+3. Make the `tandem` command available: link ~/tandem-review/bin/tandem into a directory on my PATH,
+   such as ~/.local/bin; create the directory and add it to PATH in my shell profile if needed.
+4. Install the skill: for Claude Code, link ~/tandem-review/skill to ~/.claude/skills/tandem-review;
+   for other agents, add ~/tandem-review/skill/SKILL.md to your instructions.
+5. Run `tandem --help` and tell me the result.
+```
+
+### Manually
+
 Requirements: Python 3.9 or newer. `gh` (GitHub CLI, logged in) only for posting to pull requests.
 
 ```bash
-git clone https://github.com/hhwyt/tandem-review.git
-export PATH="$PWD/tandem-review/bin:$PATH"
+git clone https://github.com/hhwyt/tandem-review.git ~/tandem-review
+mkdir -p ~/.local/bin && ln -s ~/tandem-review/bin/tandem ~/.local/bin/tandem  # ~/.local/bin must be on PATH
 ```
 
 Give your agent the skill:
 
-- **Claude Code**: `ln -s "$PWD/tandem-review/skill" ~/.claude/skills/tandem-review`
+- **Claude Code**: `ln -s ~/tandem-review/skill ~/.claude/skills/tandem-review`
 - **Codex and others**: point the agent at `skill/SKILL.md`, or paste it into its instructions.
 
 ## Use

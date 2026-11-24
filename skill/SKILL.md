@@ -65,15 +65,16 @@ review:
   opening the unit that implements them), decisions that need the reader's call (each pointing at the line it is about), boundary
   (covered, not covered, watch out), files (one line each on what the file does).
 - **Background depth.** `bg` is two or three sentences for someone who knows the module. `bgLong`
-  adds definitions and one concrete worked example for someone new to it, laid out as
-  blocks, never one paragraph: **Terms** as bullets, then the **Example**. If the change alters
-  existing behavior, show **Before** and **After** as numbered steps; if it adds something new,
-  show the steps of the new flow (format in `docs/review-json.md`). `depthWhy` says in one
+  adds one concrete worked example for someone new to it, laid out as blocks, never one
+  paragraph: the **Example**, then, if the change alters existing behavior, **Before** and
+  **After** as numbered steps; if it adds something new, the steps of the new flow (format in
+  `docs/review-json.md`). Do not define terms here; definitions live only in the glossary. `depthWhy` says in one
   sentence why the default level fits this reader. Default to brief in self mode; in pr mode,
   brief if `git log --author` shows the reader has commits in the touched paths or CODEOWNERS
   names them, detailed otherwise.
 - **Glossary.** Every domain term a newcomer would stop at, with a one-line definition and, where
-  it helps, an example.
+  it helps, an example. This is the only place a term is defined; the page underlines glossary
+  terms wherever they appear, so no other section repeats a definition.
 - **Reading order.** Group units into chapters, one per path the code actually runs. Inside a
   chapter put callers before callees, so
   every function is read with its caller already known. Mark the units whose mistakes would hurt

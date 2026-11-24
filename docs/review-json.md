@@ -69,10 +69,10 @@ All eight keys are required. No other top-level keys are allowed.
   `decide`, coverage to `cover`. Separate the lines with \n.
 - `bg`: the **Brief** background (two or three sentences for someone who knows the module).
 - `bgLong`: the **Detailed** background for a newcomer. Never one long paragraph. Shape:
-  a `**Terms**` line followed by one `- ` bullet per term; then `**Example**:` with the setup in
-  one or two sentences; then, if the change alters existing behavior, `**Before**` and
+  `**Example**:` with the setup in one or two sentences; then, if the change alters existing behavior, `**Before**` and
   `**After**`, each followed by `1. ` numbered steps; if it adds something new, the numbered
-  steps of the new flow. Separate blocks with a blank line (`\n\n`).
+  steps of the new flow. Separate blocks with a blank line (`\n\n`). Do not define terms
+  here; put them in `glossary`, which the page underlines wherever a term appears.
 - Text in `bg` and `bgLong` is rendered with blank-line paragraphs, `- ` lists, `1. ` steps and
   `**bold**`; write `\n` for line breaks inside the JSON string.
 - `depthWhy`: one line explaining why the default depth was chosen (e.g. commit count in the
@@ -98,7 +98,8 @@ All eight keys are required. No other top-level keys are allowed.
 [["<term>", T], ...]
 ```
 
-A list of `[term, definition]` pairs. Terms are underlined in the overview and listed at the end.
+A list of `[term, definition]` pairs. Terms are underlined in the overview and listed at the end. This is the only place a term is
+defined.
 Prefer short definitions with one concrete example.
 
 ## `files`

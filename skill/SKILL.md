@@ -77,8 +77,8 @@ What makes a good review:
 - **Overview, in this order of thought:** summary (three lines: problem, change, risk; describe the
   change, not your notes), background (how the system works here and what goes wrong; it stops at
   the problem), approach (how the change fixes it, in the order the code runs: walk the core
-  mechanism through with the background's example, step by step, saying who does what and why, in as
-  many paragraphs as a newcomer needs; name a cost in the step that causes it), the change map
+  mechanism through with the background's example, step by step, saying who does what and why, as
+  fully as a newcomer needs; name a cost in the step that causes it), the change map
   (`overview.map`: one lane per path the code runs, each a few steps from the entry to the effect,
   marked new, modified or unchanged and opening the unit that implements them), decisions that need
   the reader's call (each pointing at the line it is about), boundary (what the change relies on and
@@ -89,13 +89,12 @@ What makes a good review:
   the module: what the system does here, how it behaved before the change and what went wrong. The
   fix belongs to the approach. Carry one concrete example through the story, and add a figure when
   the mechanism has moving parts the reader must see together. Later texts refer back to this story
-  instead of retelling it. Do not define terms here; definitions live only in the glossary.
-  `depthWhy` says in one sentence why the default level fits this reader. Default to brief in self
-  mode; in pr mode, brief if `git log --author` shows the reader has commits in the touched paths or
-  CODEOWNERS names them, detailed otherwise.
+  instead of retelling it.
+  `depthWhy` says in one sentence why the default level fits this reader; choose the default from
+  what you know about the reader.
 - **Glossary.** Every domain term a newcomer would stop at, with a one-line definition and, where
-  it helps, an example. This is the only place a term is defined; the page underlines glossary
-  terms wherever they appear, so no other section repeats a definition.
+  it helps, an example. The page underlines glossary terms wherever they appear; other texts can
+  still explain a concept where the reader needs it, without copying the glossary line.
 - **Reading order.** Group units into chapters, one per path the code actually runs. Inside a
   chapter put callers before callees, so
   every function is read with its caller already known. Mark the units whose mistakes would hurt
@@ -104,8 +103,8 @@ What makes a good review:
   diff, with its comments. Test functions are not units; say what the tests cover in the
   boundary. `why` says why the reader should care about this function. `gist` is the unit's
   introduction: why the function exists in the story and why it changed here, what the reader
-  should doubt while reading it. Write as many paragraphs as that takes: several for a central
-  unit, one for a small helper. How each line works belongs in the notes, not here.
+  should doubt while reading it. Make it as long as that takes: long for a central unit, short for
+  a small helper. How each line works belongs in the notes, not here.
 - **Notes.** Explain every line the reader has to understand: what it does and why it is
   there, in the reader's terms. When a line uses a name the reader may not know (a field, a
   flag, a type, a helper defined elsewhere), say what it is and where its value comes from.
@@ -141,17 +140,16 @@ the way a good engineer writes a design document for a colleague who has to deci
 - Length follows weight. Spend words where the reader must judge: the core mechanism and the risky
   choices. A mechanical change, such as passing a parameter through or extracting a helper, gets a
   sentence or two.
-- Prose, not forms. Write connected sentences and paragraphs that follow cause and effect.
-  Use a list only for items that are truly parallel, and numbered steps only for a real
-  sequence. No labels, tags or headings inside a text; the summary's three labels are the
-  only exception.
+- Let the content choose the form. Reasoning and cause and effect read best as paragraphs;
+  parallel items such as cases, conditions or options read best as a list; steps that happen
+  in order read best as numbered steps. Mix them freely: a sentence can introduce a list, and
+  the text can go on after it.
 - Start from what the reader already knows. Say what the mechanism is for before how it
   changes. Use the reader's concepts; code identifiers appear only when the reader must find
   them in the code, and the code view carries the rest.
-- Explain, then illustrate. State why something happens, then give one real example: a query,
-  a config, an incident. Never invent row numbers or internal states as the example.
-- Written, not spoken. No chatty openers ("first", "let me", "basically"), no slogans, no
-  metaphors.
+- Pair an explanation with one concrete example: a query, a config, an incident. A made-up
+  example is fine when it is clearly presented as one; never present it as observed data.
+- Written, not spoken: no chatty asides, slogans or metaphors.
 
 ### Check before publishing
 

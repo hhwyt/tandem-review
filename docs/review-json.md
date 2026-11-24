@@ -69,8 +69,7 @@ All eight keys are required. No other top-level keys are allowed.
   words ("sound", "思路成立"), nothing about what you did or did not run; open questions go to
   `decide`, coverage to `cover`. Separate the lines with \n.
 - `bg`: the **Brief** background (two or three sentences for someone who knows the module).
-- `bgLong`: the **Detailed** background: the story of the change for someone new to the module, as described under **Background depth** and **Writing** in `skill/SKILL.md`. Do not define terms
-  here; put them in `glossary`, which the page underlines wherever a term appears.
+- `bgLong`: the **Detailed** background: the story of the change for someone new to the module, as described under **Background depth** and **Writing** in `skill/SKILL.md`.
 - `figures` (optional): figures for `bgLong`, each a `T` whose `en`/`zh` is one complete inline
   `<svg>` element. Put a line `{{figure N}}` (1-based) on its own in `bgLong` where figure N goes.
   Use `currentColor` and the page's CSS variables (`var(--text)`, `var(--dim)`, `var(--accent)`,
@@ -103,8 +102,7 @@ All eight keys are required. No other top-level keys are allowed.
 [["<term>", T], ...]
 ```
 
-A list of `[term, definition]` pairs. Terms are underlined in the overview and listed at the end. This is the only place a term is
-defined.
+A list of `[term, definition]` pairs. Terms are underlined in the overview and listed at the end.
 Prefer short definitions with one concrete example.
 
 ## `files`

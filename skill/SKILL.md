@@ -79,9 +79,11 @@ review:
   diff, with its comments. Test functions are not units; say what the tests cover in the
   boundary. `why` says why the reader should care about this function; `gist` says
   what it does in one sentence.
-- **Notes.** One note per block of a few lines, attached to the block's first new-file line. Say
-  what the block is for and anything non-obvious (an invariant, a reason, a risk). Do not restate
-  the code.
+- **Notes.** Explain every line the reader has to understand: what it does and why it is
+  there, in the reader's terms. When a line uses a name the reader may not know (a field, a
+  flag, a type, a helper defined elsewhere), say what it is and where its value comes from.
+  Lines that only close a block or repeat the line before need no note. Attach each note to the
+  new-file line it explains. Do not restate the syntax.
 - **Call stacks.** `chains` run from the real entry point (`main`, a request handler, a background
   loop) down to the direct caller, one chain per distinct entry. Verify every frame's file and line
   with `grep -n`; never guess. A frame's `line` is its call site, the line that calls the next

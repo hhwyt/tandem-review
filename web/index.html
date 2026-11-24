@@ -129,14 +129,19 @@ details.files[open] summary:before{transform:rotate(90deg)}
 .intro{margin:12px 0 16px;background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:10px;padding:10px 14px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13.5px;user-select:none}
 .intro b{color:var(--accent-ink);font-weight:600;white-space:nowrap}
 .code{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.fnbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--line);border-radius:12px 12px 0 0;padding:7px 14px;font-size:12.5px;color:var(--accent-ink);font-weight:600}
+.fnbar .mono{font-weight:400}
+.fnbar+.code{border-top:0;border-top-left-radius:0;border-top-right-radius:0}
 .code .fh{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--line);background:var(--surface2);font-size:12.5px}
+.codescroll{overflow-x:auto;overflow-y:hidden}
+.codein{min-width:100%;width:max-content}
 .hunk{font:12px/22px var(--mono);background:var(--hunk);color:var(--dim);padding:0 14px 0 116px}
 .fold{display:flex;align-items:center;gap:8px;font:12px/24px var(--sans);color:var(--dim);background:var(--hunk);padding-left:116px;cursor:pointer;border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)}
 .fold:hover{color:var(--text)}
 .dl{display:flex;font:12.5px/22px var(--mono);position:relative}
 .dl .o,.dl .nn{width:50px;text-align:right;padding-right:10px;color:var(--dim);flex:none;user-select:none;cursor:pointer;font-size:11.5px}
 .dl .mk{width:16px;flex:none;text-align:center;user-select:none;color:var(--dim)}
-.dl .c{white-space:pre;flex:1;padding-right:18px;min-width:0;overflow:hidden;color:var(--text)}
+.dl .c{white-space:pre;flex:0 0 auto;padding-right:18px;color:var(--text)}
 .dl.add{background:var(--add)} .dl.add .o,.dl.add .nn{background:var(--addg)} .dl.add .mk{color:var(--adds)}
 .dl.del{background:var(--del)} .dl.del .o,.dl.del .nn{background:var(--delg)} .dl.del .mk{color:var(--dels)}
 .dl.inrange{background:var(--range)!important}
@@ -400,23 +405,31 @@ function rangeLabel(c){const [a,b]=c.range;return a===b?`${L(UI.line)} ${a}`:`${
 function commentHTML(u,r){const K=key(u,r);let h='';S.cm.filter(c=>c.k===K).forEach(c=>{h+=`<div class="thread"><div class="th"><b>${L(UI.you)}</b><span class="kind k${c.kind}">${L(UI.kinds[c.kind])}</span><span class="rng">${rangeLabel(c)}</span><span class="sp"></span><span class="dim">${L(c.sent?UI.sent:UI.draft)}</span>${c.sent?'':`<button class="btn ghost" style="height:24px;padding:0 8px" data-del="${c.id}">${L(UI.del)}</button>`}</div><div class="tb">${esc(c.text)}</div>${c.verdict?`<div class="verd"><b>Fixed</b> · ${esc(L(UI.fixedNote))}</div>`:''}</div>`});
  if(S.form===K){const rg=S.range||[r.n,r.n];h+=`<div class="form"><div class="row kinds">${UI.kinds.map((k,i)=>`<button data-kind="${i}" class="${S.kind===i?'on':''}">${L(k)}</button>`).join('')}<span class="sp"></span><span class="mono dim">${rg[0]===rg[1]?L(UI.line)+' '+rg[0]:L(UI.lines)+' '+rg[0]+'–'+rg[1]}</span></div><textarea id="ta" placeholder="${esc(L(UI.placeholder))}"></textarea><div class="acts"><span class="dim" style="font-size:12px;margin-right:auto">Shift-click ${L(T('another line number to extend the range','另一个行号可选多行'))}</span><button class="btn" data-cancel="1">${L(UI.cancel)}</button><button class="btn accent" data-add="1">${L(UI.add)}</button></div></div>`}
  return h}
-function codeHTML(u){const rs=rows(u);let h=`<div class="code"><div class="fh"><span class="mono">${esc(u.file)}</span><span class="sp"></span><a class="mono" ${openAttrs(u.file,u.sig)}>${L(T('Open in','用'))} ${EDITORS[S.editor||'rustrover']}${S.lang==='zh'?' 打开':''} ↗</a></div>`;
+function codeHTML(u){const rs=rows(u);let h=`<div class="fnbar">${L(T('In function','所在函数'))}：<span class="mono">${esc(u.name)}</span></div><div class="code"><div class="fh"><span class="mono">${esc(u.file)}</span><span class="sp"></span><a class="mono" ${openAttrs(u.file,u.sig)}>${L(T('Open in','用'))} ${EDITORS[S.editor||'rustrover']}${S.lang==='zh'?' 打开':''} ↗</a></div><div class="codescroll"><div class="codein">`;
  const ns=rs.filter(r=>r.n!=null).map(r=>r.n),first=Math.min(...ns),last=Math.max(...ns),FS=(window.FILESRC||{})[u.file]||[],isNew=(window.NEWFILES||[]).includes(u.file);
  const up=S.ctxUp[u.id]||0,down=S.ctxDown[u.id]||0;
  const ctxLine=n=>{const r={k:isNew?'+':' ',t:FS[n-1]??'',n,o:isNew?null:n};const K=key(u,r);return `<div class="dl ${isNew?'add':''} ctxl ${S.sel===K?'sel':''}" data-k="${K}" data-u="${u.id}" data-n="${n}"><span class="o">${r.o??''}</span><span class="nn">${n}</span><span class="add-c" data-c="${K}">+</span><span class="mk">${isNew?'+':''}</span><span class="c">${hl(r.t)||' '}</span></div>`+commentHTML(u,r)};
+ const ctxFold=r=>{const t=r.n!=null?(FS[r.n-1]??r.t):r.t;const K=key(u,r);return `<div class="dl ctxl ${S.sel===K?'sel':''}" data-k="${K}" data-u="${u.id}" data-n="${r.n??''}"><span class="o">${r.o??''}</span><span class="nn">${r.n??''}</span>${r.n!=null?`<span class="add-c" data-c="${K}">+</span>`:''}<span class="mk">${r.k===' '?'':r.k}</span><span class="c">${hl(t)||' '}</span></div>`};
  const from=Math.max(1,first-up);
  if(from>1)h+=`<div class="expand"><button data-exp="${u.id}:up:20">↑ ${L(T('Show 20 more lines','展开上方 20 行'))}</button><button data-exp="${u.id}:up:all">⇡ ${L(T('Expand to top of file','展开到文件开头'))}</button><span class="dim">${from-1} ${L(T('lines above','行在上方'))}</span></div>`;
  for(let n=from;n<first;n++)h+=ctxLine(n);
  if(u.hunk.oldStart)h+=`<div class="hunk">@@ -${u.hunk.oldStart} +${u.hunk.newStart} @@ ${esc(u.name)}</div>`;
- let i=0;while(i<rs.length){const r=rs[i];
-  // fold runs of >=3 unchanged context lines that carry no note and no comment
-  if(r.k===' '){let j=i;while(j<rs.length&&rs[j].k===' '&&!noteAt(u,rs[j].n)&&!S.cm.some(c=>c.k===key(u,rs[j])))j++;const fk=u.id+':f'+i;if(j-i>=3&&!S.open[fk]){h+=`<div class="fold" data-unfold="${fk}">⋯ ${j-i} ${L(UI.unchanged)}</div>`;i=j;continue}}
-  const nt=r.n!=null&&noteAt(u,r.n);if(nt)h+=`<div class="ghost" data-note="${u.id}:${nt[0]}:${nt[1]}"><span class="gg">✦</span><span class="gt">${esc(S.lang==='zh'?nt[3]:nt[2])}</span></div>`;
+ const inNote=n=>u.notes.some(x=>n>=x[0]&&n<=x[1]);
+ const anchor=i=>{const r=rs[i];return r.k==='+'||r.k==='-'||(r.n!=null&&inNote(r.n))};
+ const runs=[];for(let i=0;i<rs.length;i++){if(anchor(i)){let j=i;while(j<rs.length&&anchor(j))j++;runs.push([i,j]);i=j-1}}
+ const shown=new Array(rs.length).fill(false);
+ for(const [a,b] of runs){for(let k=a;k<b;k++)shown[k]=true;for(let k=Math.max(0,a-5);k<a;k++)shown[k]=true;for(let k=b;k<Math.min(rs.length,b+5);k++)shown[k]=true}
+ for(let i=0;i<rs.length;i++){if(rs[i].n===u.sig)shown[i]=true;if(S.cm.some(c=>c.k===key(u,rs[i])))shown[i]=true}
+ const ghosts={};u.notes.forEach(nt=>{const idx=rs.findIndex(r=>r.n===nt[0]);if(idx<0)return;let at=idx;if(rs[idx].k==='+'){let p=idx-1;while(p>=0&&rs[p].k==='-')p--;if(p<idx-1)at=p+1}(ghosts[at]=ghosts[at]||[]).push(nt)});
+ let i=0;while(i<rs.length){
+  if(!shown[i]){let j=i;while(j<rs.length&&!shown[j])j++;const fk=u.id+':f'+i;if(!S.open[fk]){h+=`<div class="fold" data-unfold="${fk}">⋯ ${L(T('Expand','展开'))} ${j-i} ${L(UI.lines)}</div>`;i=j;continue}for(let k=i;k<j;k++)h+=ctxFold(rs[k]);i=j;continue}
+  const r=rs[i];
+  (ghosts[i]||[]).forEach(nt=>h+=`<div class="ghost" data-note="${u.id}:${nt[0]}:${nt[1]}"><span class="gg">✦</span><span class="gt">${esc(S.lang==='zh'?nt[3]:nt[2])}</span></div>`);
   const K=key(u,r),cls=r.k==='+'?'add':r.k==='-'?'del':'';const inR=S.range&&S.sel&&S.sel.startsWith(u.id+':')&&r.n!=null&&r.n>=S.range[0]&&r.n<=S.range[1];
   h+=`<div class="dl ${cls} ${S.sel===K?'sel':''} ${inR?'inrange':''}" data-k="${K}" data-u="${u.id}" data-n="${r.n??''}"><span class="o">${r.o??''}</span><span class="nn" data-ln="1">${r.n??''}</span>${r.n!=null?`<span class="add-c" data-c="${K}">+</span>`:''}<span class="mk">${r.k===' '?'':r.k}</span><span class="c">${hl(r.t)||' '}</span></div>`+commentHTML(u,r);i++}
  const to=Math.min(FS.length,last+down);for(let n=last+1;n<=to;n++)h+=ctxLine(n);
  if(to<FS.length)h+=`<div class="expand"><button data-exp="${u.id}:down:20">↓ ${L(T('Show 20 more lines','展开下方 20 行'))}</button><button data-exp="${u.id}:down:all">⇣ ${L(T('Expand to end of file','展开到文件末尾'))}</button><span class="dim">${FS.length-to} ${L(T('lines below','行在下方'))}</span></div>`;
- return h+'</div>'}
+ return h+'</div></div></div>'}
 function unitHTML(u,solo){const q=queue(),idx=q.findIndex(x=>x.id===u.id);
  return `<section id="u-${u.id}" style="${solo?'':'margin-bottom:34px'}"><div class="eyebrow" style="margin-bottom:4px">${L(T('Chapter','第'))} ${chapOf(u.id)+1}${S.lang==='zh'?' 章':''} · ${esc(L(CHAPTERS[chapOf(u.id)].n))} · §${secNo(u.id)}</div><div class="uhead">${flag(u)}<span class="uname">${esc(u.name)}</span><span class="sp"></span><span class="upos">${idx+1} ${L(UI.of)} ${q.length} · ${L(UI.estimate)} ${estMin(u)} ${L(UI.min)}</span></div>
  <div class="intro"><b>${L(T('Called from','谁调用它'))}</b><span>${u.callers.map(n=>({...n,pr:n.pr||(UNITS.find(x=>x.name===n.name)||{}).id})).map(n=>n.pr?`<a class="cn pr" data-goto="${n.pr}">§${secNo(n.pr)} ${esc(n.name)}</a>`:`<span class="mono">${esc(n.name)}</span>`).join(', ')||'—'}</span><b>${L(UI.what)}</b><span>${esc(L(u.gist))}</span>${crit(u)?`<b>⚑ ${L(T('Why critical','为什么关键'))}</b><span>${esc(L(u.why))}</span>`:''}${M.decide.filter(d=>d[3][0]===u.id).map(d=>`<b>● ${L(T('Your call','待你拍板'))}</b><span>${esc(L(d[1]))} <a class="cn pr" data-golinein="${d[3][1]}">${L(T('line','第'))} ${d[3][1]}${S.lang==='zh'?' 行':''}</a> · <a class="cn" data-todec="1">${L(T('see overview','看总览'))}</a></span>`).join('')}</div>${codeHTML(u)}</section>`}
@@ -475,7 +488,7 @@ let raf=0;function drawBanner(){const svg=document.getElementById('ban');if(!svg
 function render(){document.getElementById('ban').parentNode.classList.toggle('on',S.page==='overview');if(S.page==='overview'&&!document.getElementById('ban').childNodes.length)drawBanner();document.documentElement.lang=S.lang==='zh'?'zh-CN':'en';renderTop();S.page==='overview'?renderOverview():renderReview()}
 function keepScroll(fn){const c=document.getElementById('center'),t=c?c.scrollTop:0;fn();const c2=document.getElementById('center');if(c2)c2.scrollTop=t}
 function toast(t){document.querySelector('.toast')?.remove();const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
-function goUnit(id,line){S.page='review';S.cur=id;S.sel=null;S.range=null;if(S.mode==='file')S.file=U(id).file;render();document.querySelector('.qit.on')?.scrollIntoView({block:'nearest'});const c=document.getElementById('center');if(c)c.scrollTop=0;if(S.mode==='file')document.getElementById('u-'+id)?.scrollIntoView({block:'start'});if(line){const el=document.querySelector(`.dl[data-u="${id}"][data-n="${line}"]`);if(el){el.scrollIntoView({block:'center'});el.classList.add('flash')}}}
+function goUnit(id,line){S.page='review';S.cur=id;S.sel=null;S.range=null;if(S.mode==='file')S.file=U(id).file;const qs=document.querySelector('.queue')?.scrollTop||0;render();const q=document.querySelector('.queue');if(q)q.scrollTop=qs;document.querySelector('.qit.on')?.scrollIntoView({block:'nearest'});const c=document.getElementById('center');if(c)c.scrollTop=0;if(S.mode==='file')document.getElementById('u-'+id)?.scrollIntoView({block:'start'});if(line){const el=document.querySelector(`.dl[data-u="${id}"][data-n="${line}"]`);if(el){el.scrollIntoView({block:'center'});el.classList.add('flash')}}}
 function confetti(){const cs=['var(--accent)','var(--adds)','var(--t2)','var(--t3)'];for(let i=0;i<60;i++){const d=document.createElement('div');d.className='confetti';d.style.left=Math.random()*100+'vw';d.style.background=cs[i%4];d.style.animationDelay=Math.random()*.4+'s';document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}}
 function step(d){const q=queue(),i=q.findIndex(u=>u.id===S.cur);const was=Object.keys(S.done).length;if(d>0){S.done[S.cur]=1;saveState();}if(d>0&&was<UNITS.length&&Object.keys(S.done).length===UNITS.length)setTimeout(confetti,50);const j=i+d;if(j>=0&&j<q.length){S.cur=q[j].id;S.sel=null;S.range=null}render();const c=document.getElementById('center');if(c)c.scrollTop=0}
 function addComment(){const ta=document.getElementById('ta');const v=ta&&ta.value.trim();if(!v)return;const n=+S.form.split(':')[1];S.cm.push({id:Date.now(),k:S.form,kind:S.kind,text:v,sent:false,range:S.range||[n,n]});saveState();S.form=null;S.range=null;keepScroll(render)}

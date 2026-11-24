@@ -48,12 +48,17 @@ review:
 
 - **Language.** Write every text in both English and Chinese. Read `~/.config/tandem/prefs.json`;
   write the language in `lang` first and with the most care.
-- **Terms.** Keep computer, industry and project terms exactly as the code and the repository
-  write them, in both languages: unary, paging, coprocessor, StreamAgg, region, owner,
-  cop_max_resp_size. Do not translate them (not 一元请求 for unary); translate only the words
-  around them.
+- **Terms.** Keep technical terms, project terms and identifiers exactly as the code and the
+  project write them, in both languages. Do not translate them; translate only the words around
+  them.
 - **Readable text.** No wall of text anywhere: one idea per sentence, short paragraphs, lists for
   parallel items, numbered steps for anything that happens in order.
+- **Diagrams.** Draw only when the reader needs to see a relationship at a glance that text
+  takes several sentences to say; if the picture is not faster to read than those sentences, do
+  not draw. Use the kind of diagram people in the project's field already use, one the reader
+  does not have to learn to read; if there is none, write text. Every element must be something
+  that exists in the system and every line a real relationship between them; boxes that only
+  split your sentences are not a diagram.
 - **Overview, in this order of thought:** summary (three lines: problem, change, risk; describe the change, not your notes), background (what exists today and what is wrong with it),
   approach (the idea, in two to four steps), the change map (`overview.map`: one lane per path the
   code runs, each a few steps from the entry to the effect, marked new, modified or unchanged and
@@ -61,15 +66,16 @@ review:
   (covered, not covered, watch out), files (one line each on what the file does).
 - **Background depth.** `bg` is two or three sentences for someone who knows the module. `bgLong`
   adds definitions and one concrete worked example for someone new to it, laid out as
-  blocks, never one paragraph: **Terms** as bullets, **Example** setup, **Before** and **After**
-  as numbered steps (format in `docs/review-json.md`). `depthWhy` says in one
+  blocks, never one paragraph: **Terms** as bullets, then the **Example**. If the change alters
+  existing behavior, show **Before** and **After** as numbered steps; if it adds something new,
+  show the steps of the new flow (format in `docs/review-json.md`). `depthWhy` says in one
   sentence why the default level fits this reader. Default to brief in self mode; in pr mode,
   brief if `git log --author` shows the reader has commits in the touched paths or CODEOWNERS
   names them, detailed otherwise.
 - **Glossary.** Every domain term a newcomer would stop at, with a one-line definition and, where
   it helps, an example.
-- **Reading order.** Group units into chapters along the paths the code actually runs (for
-  example "statement time" and "background job"). Inside a chapter put callers before callees, so
+- **Reading order.** Group units into chapters, one per path the code actually runs. Inside a
+  chapter put callers before callees, so
   every function is read with its caller already known. Mark the units whose mistakes would hurt
   the most with tier 1; tier does not change the order.
 - **Units.** One unit per changed function (or struct). `lines` is the whole function from the

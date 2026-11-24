@@ -70,15 +70,15 @@ All eight keys are required. No other top-level keys are allowed.
 - `bg`: the **Brief** background (two or three sentences for someone who knows the module).
 - `bgLong`: the **Detailed** background for a newcomer. Never one long paragraph. Shape:
   a `**Terms**` line followed by one `- ` bullet per term; then `**Example**:` with the setup in
-  one or two sentences; then `**Before**` and `**After**`, each followed by `1. ` numbered steps
-  that end in the wrong and the right result. Separate blocks with a blank line (`\n\n`).
+  one or two sentences; then, if the change alters existing behavior, `**Before**` and
+  `**After**`, each followed by `1. ` numbered steps; if it adds something new, the numbered
+  steps of the new flow. Separate blocks with a blank line (`\n\n`).
 - Text in `bg` and `bgLong` is rendered with blank-line paragraphs, `- ` lists, `1. ` steps and
   `**bold**`; write `\n` for line breaks inside the JSON string.
 - `depthWhy`: one line explaining why the default depth was chosen (e.g. commit count in the
   touched paths). Shown next to the Brief/Detailed switch.
 - `design`: the approach as ordered steps; one `T` per step.
-- `map`: the change map, drawn as boxes and arrows. One lane per path the code runs (for example
-  "statement time" and "every period"), each a list of steps from the entry to the effect. A step
+- `map`: the change map, drawn as boxes and arrows. One lane per path the code runs, each a list of steps from the entry to the effect. A step
   has a title `t`, a one-line `sub`, `k` = `"new"`, `"mod"` or `"same"` (unchanged context), and
   optionally `go`: `["<unitId>", <line>]`, the new-file line the box opens. Decisions whose target
   unit is a step's `go` unit show as a badge on that box. Keep a lane to five steps or fewer.

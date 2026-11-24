@@ -110,7 +110,8 @@ Kinds print as `Must fix`, `Follow-up`, `Question`. A single line prints `:139`.
 
 - `tandem serve --review <dir> [--port P] [--open]` — start the server in the foreground, write
   `server.json`, print the URL `http://127.0.0.1:P/?t=TOKEN`; `--open` opens it with
-  `webbrowser.open`.
+  `webbrowser.open`. On restart it reuses the `server.json` token and prefers the previous port,
+  so the URL stays the same.
 - `tandem wait --review <dir> [--timeout SECONDS]` — block until a `comments-round-N.md` newer than
   the ones that existed when it started appears; print its content to stdout; exit 0. On timeout
   exit 2 with nothing on stdout. Default timeout: none.

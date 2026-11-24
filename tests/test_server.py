@@ -5,6 +5,7 @@ from __future__ import annotations
 import http.client
 import json
 import os
+import socket
 import subprocess
 import sys
 import tempfile
@@ -372,6 +373,71 @@ class ServerTestCase(unittest.TestCase):
             self.assertEqual(cmd[1], "--line")
             self.assertEqual(cmd[2], "139")
 
+
+    def test_restart_reuses_token_and_port(self):
+        review = self.tmp / "restart"
+        review.mkdir()
+        first = tandem_server.create_server(review, 0, web_dir=self.web)
+        first_token = first.token
+        first_port = first.server_address[1]
+        tandem_server.write_server_json(first)
+        first.server_close()
+
+        second = tandem_server.create_server(review, 0, web_dir=self.web)
+        try:
+            self.assertEqual(second.token, first_token)
+            self.assertEqual(second.server_address[1], first_port)
+        finally:
+            second.server_close()
+
+    def test_invalid_token_generates_new_token(self):
+        review = self.tmp / "invalid-token"
+        review.mkdir()
+        (review / "server.json").write_text(
+            json.dumps(
+                {
+                    "token": "abc",
+                    "port": 0,
+                    "pid": 123,
+                    "url": "http://127.0.0.1:0/?t=abc",
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        srv = tandem_server.create_server(review, 0, web_dir=self.web)
+        try:
+            self.assertRegex(srv.token, r"^[0-9a-f]{32}$")
+            self.assertNotEqual(srv.token, "abc")
+        finally:
+            srv.server_close()
+
+    def test_reuses_token_but_not_occupied_port(self):
+        review = self.tmp / "occupied"
+        review.mkdir()
+        token = "a" * 32
+        blocker = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        blocker.bind(("127.0.0.1", 0))
+        occupied_port = blocker.getsockname()[1]
+        (review / "server.json").write_text(
+            json.dumps(
+                {
+                    "token": token,
+                    "port": occupied_port,
+                    "pid": 123,
+                    "url": f"http://127.0.0.1:{occupied_port}/?t={token}",
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        srv = tandem_server.create_server(review, 0, web_dir=self.web)
+        try:
+            self.assertEqual(srv.token, token)
+            self.assertNotEqual(srv.server_address[1], occupied_port)
+        finally:
+            srv.server_close()
+            blocker.close()
 
 if __name__ == "__main__":
     unittest.main()

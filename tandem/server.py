@@ -9,7 +9,9 @@ from __future__ import annotations
 import json
 import mimetypes
 import os
+import re
 import secrets
+import socket
 import subprocess
 import tempfile
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -525,16 +527,67 @@ class TandemServer(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = True
 
-    def __init__(self, review_dir, port: int = 0, web_dir=WEB_DIR):
+    def __init__(self, review_dir, port: int = 0, web_dir=WEB_DIR, token=None):
         self.review_dir = Path(review_dir).resolve()
         self.web_dir = Path(web_dir).resolve()
-        self.token = secrets.token_hex(16)
+        self.token = token if token is not None else secrets.token_hex(16)
         self.review_dir.mkdir(parents=True, exist_ok=True)
         super().__init__(("127.0.0.1", int(port)), TandemHandler)
 
 
+def _load_server_json(review_dir) -> dict:
+    """Read ``<review_dir>/server.json`` ({} when missing or invalid)."""
+    p = Path(review_dir) / "server.json"
+    if p.is_file():
+        try:
+            obj = json.loads(p.read_text(encoding="utf-8"))
+            return obj if isinstance(obj, dict) else {}
+        except (ValueError, OSError):
+            return {}
+    return {}
+
+
+def _valid_token(token) -> bool:
+    """Return True when ``token`` is a 32-character hex string."""
+    return isinstance(token, str) and re.fullmatch(r"[0-9a-fA-F]{32}", token) is not None
+
+
+def _port_bindable(port) -> bool:
+    """Return True when 127.0.0.1:port can be bound right now."""
+    try:
+        port = int(port)
+    except (TypeError, ValueError):
+        return False
+    if port <= 0 or port > 65535:
+        return False
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.bind(("127.0.0.1", port))
+            return True
+        except OSError:
+            return False
+
+
 def create_server(review_dir, port: int = 0, web_dir=None):
-    """Create a bound ``TandemServer`` (port 0 selects a free port)."""
+    """Create a bound ``TandemServer``.
+
+    On restart (``port == 0``), reuse the previous ``server.json`` token and,
+    when that port is still free, the previous port, so the printed URL stays
+    stable across restarts.
+    """
     if web_dir is None:
         web_dir = WEB_DIR
-    return TandemServer(review_dir, int(port), web_dir)
+    port = int(port)
+    previous = _load_server_json(review_dir)
+    token = previous.get("token") if _valid_token(previous.get("token")) else None
+
+    resolved_port = port
+    if port == 0:
+        saved = previous.get("port")
+        try:
+            saved = int(saved)
+        except (TypeError, ValueError):
+            saved = 0
+        if saved > 0 and _port_bindable(saved):
+            resolved_port = saved
+    return TandemServer(review_dir, resolved_port, web_dir, token)

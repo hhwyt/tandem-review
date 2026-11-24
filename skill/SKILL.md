@@ -64,12 +64,16 @@ What makes a good review:
 - **Terms.** Keep technical terms, project terms and identifiers exactly as the code and the
   project write them, in both languages. Do not translate them; translate only the words around
   them.
-- **Diagrams.** Draw only when the reader needs to see a relationship at a glance that text
-  takes several sentences to say; if the picture is not faster to read than those sentences, do
-  not draw. Use the kind of diagram people in the project's field already use, one the reader
-  does not have to learn to read; if there is none, write text. Every element must be something
-  that exists in the system and every line a real relationship between them; boxes that only
-  split your sentences are not a diagram. Put figures in `overview.figures` and mark where each goes in `bgLong`.
+- **Diagrams.** Draw only when the picture is faster to read than the text. A figure answers one
+  question; its title states the answer, and every element helps answer it. Draw what the
+  question is about: when it is about state or order, put the things to compare on one shared
+  axis and lay steps out in time, rather than drawing the components that hold them; boxes that
+  only split your sentences are not a diagram. Use a kind of diagram people in the field already
+  read; in a comparison change only what differs; label marks where they are, and give each
+  color one meaning. Use the same example and numbers as the text, and let the text lead to the
+  figure. Check the rendered figure, not its source: give only the figure and its title to a
+  reader who has not seen the code and ask what it shows; if they cannot say, fix it or do not
+  draw. Put figures in `overview.figures` and mark where each goes in `bgLong`.
 - **Overview, in this order of thought:** summary (three lines: problem, change, risk; describe the change, not your notes), background (what exists today and what is wrong with it),
   approach (the idea, in two to four steps), the change map (`overview.map`: one lane per path the
   code runs, each a few steps from the entry to the effect, marked new, modified or unchanged and

@@ -164,6 +164,17 @@ class TestReferences(unittest.TestCase):
         del data["overview"]["map"]
         self.assertProblem(data, "missing required property 'map'")
 
+    def test_summary_one_line_reported(self):
+        data = self._copy()
+        data["overview"]["summary"]["en"] = "only one line"
+        self.assertProblem(data, "overview.summary.en has 1 lines")
+
+    def test_summary_three_lines_ok(self):
+        data = self._copy()
+        data["overview"]["summary"]["en"] = "**Problem**: p\n**Change**: c\n**Risk**: r"
+        data["overview"]["summary"]["zh"] = "**问题**：p\n**改动**：c\n**风险**：r"
+        self.assertEqual(check_review(data), [])
+
     def test_doc_minimal_example_is_valid(self):
         with open(os.path.join(ROOT, "docs", "review-json.md"), encoding="utf-8") as fh:
             doc = fh.read()

@@ -61,9 +61,12 @@ All eight keys are required. No other top-level keys are allowed.
 }
 ```
 
-- `summary`: one plain sentence under the title saying what the change does: the behavior
-  before and after, and any bug it fixes. No judgment ("sound", "looks good"), no risks, no open
-  questions: those belong in `decide` and `cover`.
+- `summary`: exactly three lines, each one or two sentences, labelled in bold:
+  `**Problem**: …` what is wrong today, `**Change**: …` what this PR does about it,
+  `**Risk**: …` the biggest risk of the change. In Chinese the labels are `**问题**：`,
+  `**改动**：`, `**风险**：`. Describe the change, not your work: no first person, no verdict
+  words ("sound", "思路成立"), nothing about what you did or did not run; open questions go to
+  `decide`, coverage to `cover`. Separate the lines with \n.
 - `bg`: the **Brief** background (two or three sentences for someone who knows the module).
 - `bgLong`: the **Detailed** background for a newcomer. Never one long paragraph. Shape:
   a `**Terms**` line followed by one `- ` bullet per term; then `**Example**:` with the setup in
@@ -213,7 +216,7 @@ Paths that are newly added in this PR; the page renders their lines as additions
     "base": "aa4109", "head": "61d912"
   },
   "overview": {
-    "summary": {"en": "Summary", "zh": "摘要"},
+    "summary": {"en": "**Problem**: p\n**Change**: c\n**Risk**: r", "zh": "**问题**：p\n**改动**：c\n**风险**：r"},
     "bg": {"en": "Brief", "zh": "简"},
     "bgLong": {"en": "Detailed", "zh": "详"},
     "depthWhy": {"en": "why", "zh": "原因"},

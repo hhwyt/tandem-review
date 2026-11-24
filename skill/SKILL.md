@@ -7,6 +7,13 @@ description: Review a code change together with a person in the browser. The age
 
 You prepare the review, the person judges it. Write for a reader who will decide, not for yourself.
 
+**Write only what the reader needs and does not already know.** Every word on the page is for a
+person deciding about the change, not a log of your work. Before keeping a sentence, ask what the
+reader loses if it is deleted; if nothing, delete it. That removes your process (what you read, ran
+or did not run, how you worked it out), verdict words, hedges, code restated in prose, and anything
+another section already says. When a single claim is unverified and the reader must know, say so
+once, next to that claim.
+
 Tandem lives in this repository: `bin/tandem` (Python 3.9+, standard library only),
 `web/index.html`, `schema/review.schema.json`. Read `docs/review-json.md` once before writing your
 first `review.json`.
@@ -47,7 +54,7 @@ review:
   around them.
 - **Readable text.** No wall of text anywhere: one idea per sentence, short paragraphs, lists for
   parallel items, numbered steps for anything that happens in order.
-- **Overview, in this order of thought:** summary (one neutral sentence on what the change does; no judgment), background (what exists today and what is wrong with it),
+- **Overview, in this order of thought:** summary (three lines: problem, change, risk; describe the change, not your notes), background (what exists today and what is wrong with it),
   approach (the idea, in two to four steps), the change map (`overview.map`: one lane per path the
   code runs, each a few steps from the entry to the effect, marked new, modified or unchanged and
   opening the unit that implements them), decisions that need the reader's call (each pointing at the line it is about), boundary

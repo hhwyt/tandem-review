@@ -185,6 +185,13 @@ def check_references(data):
     for path in data["newfiles"]:
         if path not in paths:
             problems.append("newfiles lists %s, which is not in files" % path)
+    for lang in ("en", "zh"):
+        summary = data["overview"]["summary"][lang]
+        lines = [line for line in summary.split("\n") if line.strip()]
+        if len(lines) != 3:
+            problems.append(
+                "overview.summary.%s has %d lines; write exactly three: problem, change, risk"
+                % (lang, len(lines)))
     return problems
 
 

@@ -68,10 +68,8 @@ All eight keys are required. No other top-level keys are allowed.
   words ("sound", "思路成立"), nothing about what you did or did not run; open questions go to
   `decide`, coverage to `cover`. Separate the lines with \n.
 - `bg`: the **Brief** background (two or three sentences for someone who knows the module).
-- `bgLong`: the **Detailed** background for a newcomer. Never one long paragraph. Shape:
-  `**Example**:` with the setup in one or two sentences; then, if the change alters existing behavior, `**Before**` and
-  `**After**`, each followed by `1. ` numbered steps; if it adds something new, the numbered
-  steps of the new flow. Separate blocks with a blank line (`\n\n`). Do not define terms
+- `bgLong`: the **Detailed** background for someone new to the module, in connected
+  paragraphs written as described under **Writing** in `skill/SKILL.md`. Do not define terms
   here; put them in `glossary`, which the page underlines wherever a term appears.
 - Text in `bg` and `bgLong` is rendered with blank-line paragraphs, `- ` lists, `1. ` steps and
   `**bold**`; write `\n` for line breaks inside the JSON string.

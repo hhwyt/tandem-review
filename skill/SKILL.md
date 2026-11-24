@@ -51,8 +51,6 @@ review:
 - **Terms.** Keep technical terms, project terms and identifiers exactly as the code and the
   project write them, in both languages. Do not translate them; translate only the words around
   them.
-- **Readable text.** No wall of text anywhere: one idea per sentence, short paragraphs, lists for
-  parallel items, numbered steps for anything that happens in order.
 - **Diagrams.** Draw only when the reader needs to see a relationship at a glance that text
   takes several sentences to say; if the picture is not faster to read than those sentences, do
   not draw. Use the kind of diagram people in the project's field already use, one the reader
@@ -65,10 +63,8 @@ review:
   opening the unit that implements them), decisions that need the reader's call (each pointing at the line it is about), boundary
   (covered, not covered, watch out), files (one line each on what the file does).
 - **Background depth.** `bg` is two or three sentences for someone who knows the module. `bgLong`
-  adds one concrete worked example for someone new to it, laid out as blocks, never one
-  paragraph: the **Example**, then, if the change alters existing behavior, **Before** and
-  **After** as numbered steps; if it adds something new, the steps of the new flow (format in
-  `docs/review-json.md`). Do not define terms here; definitions live only in the glossary. `depthWhy` says in one
+  explains the change to someone new to the module in connected paragraphs (see **Writing**
+  below). Do not define terms here; definitions live only in the glossary. `depthWhy` says in one
   sentence why the default level fits this reader. Default to brief in self mode; in pr mode,
   brief if `git log --author` shows the reader has commits in the touched paths or CODEOWNERS
   names them, detailed otherwise.
@@ -93,6 +89,23 @@ review:
   the rest. Set `pr` on frames that are units of this review.
 - **Decisions.** Only real choices the reader must make or confirm: compatibility, behavior,
   defaults, scope. Say what is unverified as unverified.
+
+### Writing
+
+Everything a person reads in review.json, from the summary to a one-line note, is written
+the way a good engineer writes a design document for a colleague who has to decide on it.
+
+- Prose, not forms. Write connected sentences and paragraphs that follow cause and effect.
+  Use a list only for items that are truly parallel, and numbered steps only for a real
+  sequence. No labels, tags or headings inside a text; the summary's three labels are the
+  only exception.
+- Start from what the reader already knows. Say what the mechanism is for before how it
+  changes. Use the reader's concepts; code identifiers appear only when the reader must find
+  them in the code, and the code view carries the rest.
+- Explain, then illustrate. State why something happens, then give one real example: a query,
+  a config, an incident. Never invent row numbers or internal states as the example.
+- Written, not spoken. No chatty openers ("first", "let me", "basically"), no slogans, no
+  metaphors.
 
 ## 4. Open the page
 

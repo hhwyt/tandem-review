@@ -74,20 +74,25 @@ What makes a good review:
   figure. Check the rendered figure, not its source: give only the figure and its title to a
   reader who has not seen the code and ask what it shows; if they cannot say, fix it or do not
   draw. Put figures in `overview.figures` and mark where each goes in `bgLong`.
-- **Overview, in this order of thought:** summary (three lines: problem, change, risk; describe the change, not your notes), background (what exists today and what is wrong with it),
-  approach (the idea, in two to four steps), the change map (`overview.map`: one lane per path the
-  code runs, each a few steps from the entry to the effect, marked new, modified or unchanged and
-  opening the unit that implements them), decisions that need the reader's call (each pointing at the line it is about), boundary
-  (covered, not covered, watch out), files (one line each on what the file does).
-- **Background depth.** `bg` is two or three sentences for someone who knows the module.
-  `bgLong` tells the story of the change like the opening chapter of a book, for a capable
-  engineer new to the module: what the system does here, how it behaved before the change, what
-  went wrong, the fix and why it works, and what it costs. Carry one concrete example through
-  the story, and add a figure when the mechanism has moving parts the reader must see together.
-  Later texts refer back to this story instead of retelling it. Do not define terms here;
-  definitions live only in the glossary. `depthWhy` says in one sentence why the default level
-  fits this reader. Default to brief in self mode; in pr mode, brief if `git log --author` shows
-  the reader has commits in the touched paths or CODEOWNERS names them, detailed otherwise.
+- **Overview, in this order of thought:** summary (three lines: problem, change, risk; describe the
+  change, not your notes), background (how the system works here and what goes wrong; it stops at
+  the problem), approach (how the change fixes it, in the order the code runs: walk the core
+  mechanism through with the background's example, step by step, saying who does what and why, in as
+  many paragraphs as a newcomer needs; name a cost in the step that causes it), the change map
+  (`overview.map`: one lane per path the code runs, each a few steps from the entry to the effect,
+  marked new, modified or unchanged and opening the unit that implements them), decisions that need
+  the reader's call (each pointing at the line it is about), boundary (what the change relies on and
+  how behavior changes, see **Assumptions** and **Behavior changes**; covered, not covered, watch
+  out), files (one line each on what the file does).
+- **Background depth.** `bg` is two or three sentences for someone who knows the module. `bgLong`
+  tells the story of the change like the opening chapter of a book, for a capable engineer new to
+  the module: what the system does here, how it behaved before the change and what went wrong. The
+  fix belongs to the approach. Carry one concrete example through the story, and add a figure when
+  the mechanism has moving parts the reader must see together. Later texts refer back to this story
+  instead of retelling it. Do not define terms here; definitions live only in the glossary.
+  `depthWhy` says in one sentence why the default level fits this reader. Default to brief in self
+  mode; in pr mode, brief if `git log --author` shows the reader has commits in the touched paths or
+  CODEOWNERS names them, detailed otherwise.
 - **Glossary.** Every domain term a newcomer would stop at, with a one-line definition and, where
   it helps, an example. This is the only place a term is defined; the page underlines glossary
   terms wherever they appear, so no other section repeats a definition.
@@ -113,6 +118,13 @@ What makes a good review:
   the rest. Set `pr` on frames that are units of this review.
 - **Decisions.** Only real choices the reader must make or confirm: compatibility, behavior,
   defaults, scope. Say what is unverified as unverified.
+- **Assumptions.** A change is correct only if certain things hold. Name each one, and say what in
+  the code enforces it and which test covers it. An assumption that nothing enforces is a finding:
+  put it in `decide` or ask the author.
+- **Behavior changes.** Compare the old and new code paths and list everyone whose behavior changes:
+  results, memory, latency, sizes, features turned off. Include what gets worse. Derive the list
+  from the code, not from the PR description; authors describe what they meant to change. Put both
+  lists in `cover`; a change for the worse that the author does not mention also goes to `decide`.
 
 ### Writing
 
@@ -122,6 +134,13 @@ the way a good engineer writes a design document for a colleague who has to deci
 - Understanding comes first, brevity second. Assume a capable engineer new to this module.
   Explain a concept in full the first time the reading order needs it, and refer back to it
   afterwards.
+- Each section answers its own question: background what goes wrong, approach how it is fixed,
+  boundary what it relies on and leaves out, decisions what the reader must settle. A sentence that
+  answers another section's question moves there; nothing is written twice. Unit introductions refer
+  back to the overview instead of retelling it.
+- Length follows weight. Spend words where the reader must judge: the core mechanism and the risky
+  choices. A mechanical change, such as passing a parameter through or extracting a helper, gets a
+  sentence or two.
 - Prose, not forms. Write connected sentences and paragraphs that follow cause and effect.
   Use a list only for items that are truly parallel, and numbered steps only for a real
   sequence. No labels, tags or headings inside a text; the summary's three labels are the

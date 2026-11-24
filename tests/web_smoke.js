@@ -24,6 +24,7 @@ for (const ep of ['/api/review', '/api/prefs', '/api/state', '/api/send', '/api/
   check('contains ' + ep, html.includes(ep));
 }
 check('figure sanitizer present', html.includes('DOMParser') && html.includes('script|foreignobject') && html.includes("startsWith('on')"));
+check('design rendered with prose', html.includes('${prose(L(d))}') && !html.includes('${terms(L(d))}'));
 
 // ---- fake contract server (informational; the assertions above are the gate) ----
 let reviewData = null;

@@ -80,13 +80,15 @@ All eight keys are required. No other top-level keys are allowed.
   `**bold**`; write `\n` for line breaks inside the JSON string.
 - `depthWhy`: one line explaining why the default depth was chosen (e.g. commit count in the
   touched paths). Shown next to the Brief/Detailed switch.
-- `design`: the approach as ordered steps; one `T` per step.
+- `design`: the approach, one `T` per step in the order the code runs. A step may be several
+  paragraphs and may contain `{{figure N}}`; it is rendered like `bgLong`.
 - `map`: the change map, drawn as boxes and arrows. One lane per path the code runs, each a list of steps from the entry to the effect. A step
   has a title `t`, a one-line `sub`, `k` = `"new"`, `"mod"` or `"same"` (unchanged context), and
   optionally `go`: `["<unitId>", <line>]`, the new-file line the box opens. Decisions whose target
   unit is a step's `go` unit show as a badge on that box. Keep a lane to five steps or fewer.
-- `cover`: the boundary. Each entry is a two-element array `[mark, text]` where `mark` is
-  `"✓"` (covered), `"✗"` (not covered) or `"!"` (caveat).
+- `cover`: the boundary. Each entry is a two-element array `[mark, text]` where `mark` is `"✓"`
+  (covered), `"✗"` (not covered) or `"!"` (caveat). Use it for the assumptions the change relies on,
+  with what enforces each, and for the behavior changes, as well as for what is and is not covered.
 - `decide`: decisions that need the reviewer's call. Each entry is
   `[kind, question, note, target]`:
   - `kind`: a short label (e.g. `"Compat"`, `"Behavior"`).

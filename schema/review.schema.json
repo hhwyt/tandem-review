@@ -28,6 +28,7 @@
         "summary": {"$ref": "#/$defs/T"},
         "bg": {"$ref": "#/$defs/T"},
         "bgLong": {"$ref": "#/$defs/T"},
+        "figures": {"type": "array", "items": {"$ref": "#/$defs/T"}},
         "depthWhy": {"$ref": "#/$defs/T"},
         "design": {"type": "array", "items": {"$ref": "#/$defs/T"}},
         "map": {

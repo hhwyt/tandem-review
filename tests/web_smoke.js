@@ -23,6 +23,7 @@ check("no hardcoded pingcap/tidb#73235", !html.includes('pingcap/tidb#73235'));
 for (const ep of ['/api/review', '/api/prefs', '/api/state', '/api/send', '/api/open', '/api/version']) {
   check('contains ' + ep, html.includes(ep));
 }
+check('figure sanitizer present', html.includes('DOMParser') && html.includes('script|foreignobject') && html.includes("startsWith('on')"));
 
 // ---- fake contract server (informational; the assertions above are the gate) ----
 let reviewData = null;

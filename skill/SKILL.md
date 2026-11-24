@@ -43,8 +43,21 @@ line number and `pr` reference points at something that exists.
 
 ## 3. Write review.json
 
-Follow `docs/review-json.md` and validate against `schema/review.schema.json`. What makes a good
-review:
+Follow `docs/review-json.md` and validate against `schema/review.schema.json`.
+
+Before writing, establish the facts:
+
+- **Read the author's account first.** Read the PR description, linked issues and commit
+  messages before anything else. Your statement of the problem must agree with the author's;
+  where it does not, say where and show the code that settles it.
+- **Learn the old behavior from the base commit, not from the diff.** The diff shows what
+  changed; only the old code shows how the system behaved and why a change was needed. Every
+  sentence about how something worked before rests on code you read at the base commit.
+- **Every fact has a source.** Each factual sentence the reader sees rests on something you
+  read: code, a test, a code comment, the PR description. If you cannot find the source, cut
+  the sentence, or, when the reader needs to know, turn it into a question for the author.
+
+What makes a good review:
 
 - **Language.** Write every text in both English and Chinese. Read `~/.config/tandem/prefs.json`;
   write the language in `lang` first and with the most care.
@@ -56,18 +69,21 @@ review:
   not draw. Use the kind of diagram people in the project's field already use, one the reader
   does not have to learn to read; if there is none, write text. Every element must be something
   that exists in the system and every line a real relationship between them; boxes that only
-  split your sentences are not a diagram.
+  split your sentences are not a diagram. Put figures in `overview.figures` and mark where each goes in `bgLong`.
 - **Overview, in this order of thought:** summary (three lines: problem, change, risk; describe the change, not your notes), background (what exists today and what is wrong with it),
   approach (the idea, in two to four steps), the change map (`overview.map`: one lane per path the
   code runs, each a few steps from the entry to the effect, marked new, modified or unchanged and
   opening the unit that implements them), decisions that need the reader's call (each pointing at the line it is about), boundary
   (covered, not covered, watch out), files (one line each on what the file does).
-- **Background depth.** `bg` is two or three sentences for someone who knows the module. `bgLong`
-  explains the change to someone new to the module in connected paragraphs (see **Writing**
-  below). Do not define terms here; definitions live only in the glossary. `depthWhy` says in one
-  sentence why the default level fits this reader. Default to brief in self mode; in pr mode,
-  brief if `git log --author` shows the reader has commits in the touched paths or CODEOWNERS
-  names them, detailed otherwise.
+- **Background depth.** `bg` is two or three sentences for someone who knows the module.
+  `bgLong` tells the story of the change like the opening chapter of a book, for a capable
+  engineer new to the module: what the system does here, how it behaved before the change, what
+  went wrong, the fix and why it works, and what it costs. Carry one concrete example through
+  the story, and add a figure when the mechanism has moving parts the reader must see together.
+  Later texts refer back to this story instead of retelling it. Do not define terms here;
+  definitions live only in the glossary. `depthWhy` says in one sentence why the default level
+  fits this reader. Default to brief in self mode; in pr mode, brief if `git log --author` shows
+  the reader has commits in the touched paths or CODEOWNERS names them, detailed otherwise.
 - **Glossary.** Every domain term a newcomer would stop at, with a one-line definition and, where
   it helps, an example. This is the only place a term is defined; the page underlines glossary
   terms wherever they appear, so no other section repeats a definition.
@@ -77,8 +93,10 @@ review:
   the most with tier 1; tier does not change the order.
 - **Units.** One unit per changed function (or struct). `lines` is the whole function from the
   diff, with its comments. Test functions are not units; say what the tests cover in the
-  boundary. `why` says why the reader should care about this function; `gist` says
-  what it does in one sentence.
+  boundary. `why` says why the reader should care about this function. `gist` is the unit's
+  introduction: why the function exists in the story and why it changed here, what the reader
+  should doubt while reading it. Write as many paragraphs as that takes: several for a central
+  unit, one for a small helper. How each line works belongs in the notes, not here.
 - **Notes.** Explain every line the reader has to understand: what it does and why it is
   there, in the reader's terms. When a line uses a name the reader may not know (a field, a
   flag, a type, a helper defined elsewhere), say what it is and where its value comes from.
@@ -97,6 +115,9 @@ review:
 Everything a person reads in review.json, from the summary to a one-line note, is written
 the way a good engineer writes a design document for a colleague who has to decide on it.
 
+- Understanding comes first, brevity second. Assume a capable engineer new to this module.
+  Explain a concept in full the first time the reading order needs it, and refer back to it
+  afterwards.
 - Prose, not forms. Write connected sentences and paragraphs that follow cause and effect.
   Use a list only for items that are truly parallel, and numbered steps only for a real
   sequence. No labels, tags or headings inside a text; the summary's three labels are the
@@ -108,6 +129,14 @@ the way a good engineer writes a design document for a colleague who has to deci
   a config, an incident. Never invent row numbers or internal states as the example.
 - Written, not spoken. No chatty openers ("first", "let me", "basically"), no slogans, no
   metaphors.
+
+### Check before publishing
+
+Give only the overview and the unit introductions to a fresh agent that has not seen the code,
+and ask it to retell in its own words what problem the change solves, how the fix works and why,
+what it leaves out, and what could go wrong, and to list every place it got stuck. Where the
+retelling is wrong or it got stuck, rewrite and ask again. This tests clarity only; correctness
+comes from the sources above.
 
 ## 4. Open the page
 

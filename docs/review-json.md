@@ -53,6 +53,7 @@ All eight keys are required. No other top-level keys are allowed.
   "summary": T,
   "bg": T,
   "bgLong": T,
+  "figures": [T, ...],
   "depthWhy": T,
   "design": [T, ...],
   "map": [{"lane": T, "steps": [{"t": T, "sub": T, "k": "new" | "mod" | "same", "go": ["<unitId>", <line>]}]}],
@@ -68,9 +69,13 @@ All eight keys are required. No other top-level keys are allowed.
   words ("sound", "思路成立"), nothing about what you did or did not run; open questions go to
   `decide`, coverage to `cover`. Separate the lines with \n.
 - `bg`: the **Brief** background (two or three sentences for someone who knows the module).
-- `bgLong`: the **Detailed** background for someone new to the module, in connected
-  paragraphs written as described under **Writing** in `skill/SKILL.md`. Do not define terms
+- `bgLong`: the **Detailed** background: the story of the change for someone new to the module, as described under **Background depth** and **Writing** in `skill/SKILL.md`. Do not define terms
   here; put them in `glossary`, which the page underlines wherever a term appears.
+- `figures` (optional): figures for `bgLong`, each a `T` whose `en`/`zh` is one complete inline
+  `<svg>` element. Put a line `{{figure N}}` (1-based) on its own in `bgLong` where figure N goes.
+  Use `currentColor` and the page's CSS variables (`var(--text)`, `var(--dim)`, `var(--accent)`,
+  `var(--line)`, `var(--surface)`) so the figure works in light and dark themes. Scripts and event
+  attributes are removed when the page draws it.
 - Text in `bg` and `bgLong` is rendered with blank-line paragraphs, `- ` lists, `1. ` steps and
   `**bold**`; write `\n` for line breaks inside the JSON string.
 - `depthWhy`: one line explaining why the default depth was chosen (e.g. commit count in the
@@ -157,7 +162,9 @@ One unit per changed function, method or type. Test functions are not units: lis
 - `hunk`: `oldStart`/`newStart` are the old-file and new-file line numbers of the first entry of
   `lines` (for a first `"+"` line, `oldStart` is the old line it is inserted before).
 - `why`: why this function matters (shown only for tier 1).
-- `gist`: one-sentence summary of what the function does.
+- `gist`: the unit's introduction, shown at the top of the unit as "Introduction" /
+  "导读": why the function exists and why it changed. One or more paragraphs, rendered like
+  `bgLong` (blank-line paragraphs, `- ` lists, `**bold**`).
 - `notes`: explanatory notes shown as faint lines above the code. Each note is
   `[from, to, en, zh]`; `from`/`to` are **new-file line numbers** (inclusive) and `en`/`zh` are
   the two languages directly (a note is not a `T` — the four values sit in one array).

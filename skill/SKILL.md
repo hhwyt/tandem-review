@@ -110,21 +110,23 @@ What makes a good review:
   by pointing at a line belongs in that line's note, not here.
 - **Notes.** Goal: a reader new to the code reads one unit (its introduction, code and notes)
   and understands where its inputs come from, where its results go, and why each changed line is
-  written the way it is, without going back to the overview.
-  - Say where a value or name comes from where it is first used, and who uses a result where it
-    leaves the function.
-  - For every decision in the code (a condition, a branch, a special value, an order of steps, a
-    chosen type, an early return), say what would go wrong without it or with the obvious
-    alternative.
-  - In the central units, walk the overview's example through the code: on the key lines, say
-    what the variables hold for that example at that moment.
-  - Cover every changed line, by its own note or by a note for its group ("the next three lines
-    only pass the mode down"). Group lines unrelated to the change, such as statistics or
-    logging, under one note that says the reader can skip them.
+  written the way it is, without going back to the overview. Much of that the code already shows;
+  a note goes only where it does not. Each note should be one the reader would miss if it were
+  gone; a line whose purpose is plain from the code and its names gets none.
+  - Worth a note: a decision whose reason the code does not show (a condition, a branch, a
+    special value, an order of steps, a chosen type, an early return), saying what would go wrong
+    without it or with the obvious alternative; a value whose origin or later use is not visible
+    in the unit; anything that looks wrong or unexplained.
+  - In the central units, walk the overview's example through the code: on the few lines where
+    its state changes, say what the variables hold for that example at that moment.
   - A reason needs a source: a code comment, the PR description, a commit message, review
-    discussion, a test that would fail, or logic you can show from the code. When there is none,
-    say the code gives no reason and ask the author; a choice nobody explains is a finding.
-  - Attach each note to the new-file line it explains. Do not explain the language's syntax.
+    discussion, a test that would fail, or logic you can show from the code. Name the source only
+    when the reader cannot see it next to the line. When there is none, say the code gives no
+    reason and ask the author; a choice nobody explains is a finding.
+  - A note gives the reason, not what the line visibly does, and does not repeat what the
+    introduction or another unit already explains; name that place instead.
+  - Attach each note to the new-file line it explains. Refer to other code by name, not by line
+    number. Do not explain the language's syntax.
 - **Call stacks.** `chains` run from the real entry point (`main`, a request handler, a background
   loop) down to the direct caller, one chain per distinct entry. Verify every frame's file and line
   with `grep -n`; never guess. A frame's `line` is its call site, the line that calls the next

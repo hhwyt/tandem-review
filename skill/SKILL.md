@@ -98,18 +98,35 @@ What makes a good review:
 - **Reading order.** Group units into chapters, one per path the code actually runs. Inside a
   chapter put callers before callees, so
   every function is read with its caller already known. Mark the units whose mistakes would hurt
-  the most with tier 1; tier does not change the order.
+  the most with tier 1; tier does not change the order. Units that only pass a value through, add
+  a field or rename go together in a last chapter, so the main line holds only the units that
+  carry the mechanism and a newcomer can see how few they are.
 - **Units.** One unit per changed function (or struct). `lines` is the whole function from the
   diff, with its comments. Test functions are not units; say what the tests cover in the
   boundary. `why` says why the reader should care about this function. `gist` is the unit's
   introduction: why the function exists in the story and why it changed here, what the reader
   should doubt while reading it. Make it as long as that takes: long for a central unit, short for
-  a small helper. How each line works belongs in the notes, not here.
-- **Notes.** Explain every line the reader has to understand: what it does and why it is
-  there, in the reader's terms. When a line uses a name the reader may not know (a field, a
-  flag, a type, a helper defined elsewhere), say what it is and where its value comes from.
-  Lines that only close a block or repeat the line before need no note. Attach each note to the
-  new-file line it explains. Do not restate the syntax.
+  a small helper. The introduction covers the function as a whole; anything that can only be said
+  by pointing at a line belongs in that line's note, not here.
+- **Notes.** Goal: a reader new to the code reads one unit (its introduction, code and notes)
+  and understands where its inputs come from, where its results go, and why each changed line is
+  written the way it is, without going back to the overview.
+  - Say where a value or name comes from where it is first used, and who uses a result where it
+    leaves the function.
+  - For every decision in the code (a condition, a branch, a special value, an order of steps, a
+    chosen type, an early return), say what would go wrong without it or with the obvious
+    alternative.
+  - Translate idioms of the language or codebase the reader may not know into plain words; skip
+    the ones any engineer reads at a glance.
+  - In the central units, walk the overview's example through the code: on the key lines, say
+    what the variables hold for that example at that moment.
+  - Cover every changed line, by its own note or by a note for its group ("the next three lines
+    only pass the mode down"). Group lines unrelated to the change, such as statistics or
+    logging, under one note that says the reader can skip them.
+  - A reason needs a source: a code comment, the PR description, a commit message, review
+    discussion, a test that would fail, or logic you can show from the code. When there is none,
+    say the code gives no reason and ask the author; a choice nobody explains is a finding.
+  - Attach each note to the new-file line it explains.
 - **Call stacks.** `chains` run from the real entry point (`main`, a request handler, a background
   loop) down to the direct caller, one chain per distinct entry. Verify every frame's file and line
   with `grep -n`; never guess. A frame's `line` is its call site, the line that calls the next
@@ -156,8 +173,9 @@ the way a good engineer writes a design document for a colleague who has to deci
 Give only the overview and the unit introductions to a fresh agent that has not seen the code,
 and ask it to retell in its own words what problem the change solves, how the fix works and why,
 what it leaves out, and what could go wrong, and to list every place it got stuck. Where the
-retelling is wrong or it got stuck, rewrite and ask again. This tests clarity only; correctness
-comes from the sources above.
+retelling is wrong or it got stuck, rewrite and ask again. Then give it the central units' code
+with their notes, pick changed lines, and ask why each one is there; a line it cannot answer
+needs a better note; give it one unit at a time, without the overview. This tests clarity only; correctness comes from the sources above.
 
 ## 4. Open the page
 

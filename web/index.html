@@ -137,7 +137,7 @@ details.files[open] summary:before{transform:rotate(90deg)}
 .fnbar .mono{font-weight:400}
 .fnbar+.code{border-top:0;border-top-left-radius:0;border-top-right-radius:0}
 .code .fh{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--line);background:var(--surface2);font-size:12.5px}
-.codescroll{overflow-x:auto;overflow-y:hidden}
+.codescroll{overflow-x:auto;overflow-y:hidden;container-type:inline-size}
 .codein{min-width:100%;width:max-content}
 .hunk{font:12px/22px var(--mono);background:var(--hunk);color:var(--dim);padding:0 14px 0 116px}
 .fold{display:flex;align-items:center;gap:8px;font:12px/24px var(--sans);color:var(--dim);background:var(--hunk);padding-left:116px;cursor:pointer;border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)}
@@ -186,7 +186,9 @@ details.files[open] summary:before{transform:rotate(90deg)}
 .ghost{display:flex;align-items:flex-start;font:italic 13px/20px var(--serif);color:var(--accent-ink);background:color-mix(in srgb,var(--accent-soft) 70%,transparent);border-top:1px dashed var(--accent-line);border-bottom:1px dashed var(--accent-line);user-select:none;-webkit-user-select:none;padding:3px 0;cursor:default;transition:background .15s}
 .ghost:hover{background:var(--accent-soft)}
 .ghost .gg{width:116px;flex:none;text-align:right;padding-right:12px;font-style:normal;color:var(--accent)}
-.ghost .gt{flex:1;padding-right:18px}
+.ghost .gt{flex:1;min-width:0;padding-right:18px;font-style:normal;font-family:var(--sans,inherit)}
+.ghost .gt p{margin:0 0 6px}.ghost .gt p:last-child{margin:0}
+.ghost .gt code{font:12px var(--mono);font-style:normal}
 .noAI .ghost,.noAI .intro,.noAI .callchip{display:none}
 .callchip{margin-left:14px;font:italic 12px var(--serif);color:var(--accent-ink);background:var(--accent-soft);border:1px dashed var(--accent-line);border-radius:6px;padding:0 7px;cursor:pointer;user-select:none;white-space:nowrap}
 .callchip:hover{border-style:solid;text-decoration:none}
@@ -292,6 +294,7 @@ section[id^="u-"]{animation:rise .35s cubic-bezier(.2,.7,.2,1)}
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .ghost{position:relative;overflow:hidden}
 .ghost:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,color-mix(in srgb,var(--accent) 18%,transparent) 50%,transparent 70%);transform:translateX(-100%);animation:sheen 1.6s ease .2s 1}
+.codescroll .ghost{position:sticky;left:0;width:100cqw;box-sizing:border-box}
 @keyframes sheen{to{transform:translateX(100%)}}
 .card,.dcard,.citem,.pit,.qit{transition:transform .18s ease,box-shadow .18s ease,background .15s,border-color .15s}
 .dcard:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
@@ -375,7 +378,7 @@ function pathSVG(){const lanes=M.map||[];if(!lanes.length)return '';const W=1040
  s+=lg(0,'new',T('new','新增'))+lg(70,'mod',T('modified','修改'))+lg(160,'same',T('unchanged','未改'))+`<text x="270" y="${ly+10}" font-size="11.5" fill="var(--accent)">→</text><text x="284" y="${ly+10}" font-size="11.5" fill="var(--dim)">${esc(L(T('opens the code','打开对应代码')))}</text>`;
  return `<svg viewBox="0 0 ${W} ${H}" width="100%">${s}</svg>`}
 // Text blocks: a blank line starts a paragraph, "- " lines make a list, "1. " lines make steps, **x** is bold.
-function inl(s){return terms(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')}
+function inl(s){return terms(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>')}
 function fig(n){const figs=M.figures||[];const t=figs[n-1];if(!t)return '';const svg=L(t);if(!svg)return '';try{const doc=new DOMParser().parseFromString(svg,'image/svg+xml');if(doc.querySelector('parsererror'))return '';doc.querySelectorAll('*').forEach(e=>{if(/^(script|foreignobject)$/i.test(e.tagName)){e.remove();return}for(const a of Array.from(e.attributes)){const an=a.name.toLowerCase(),av=a.value;if(an.startsWith('on')||((an==='href'||an==='xlink:href')&&/^\s*javascript:/i.test(av)))e.removeAttribute(a.name)}});return `<div class="fig">${doc.documentElement.outerHTML}</div>`}catch(_){return ''}}
 function prose(s){let h='';String(s).split(/\n\s*\n/).forEach(b=>{let cur=null,buf=[];const flush=()=>{if(!buf.length)return;h+=cur==='p'?'<p>'+buf.join('<br>')+'</p>':`<${cur} class="prose">`+buf.map(x=>'<li>'+x+'</li>').join('')+`</${cur}>`;buf=[]};b.split('\n').forEach(l=>{const fm=l.match(/^\s*\{\{figure\s+(\d+)\}\}\s*$/);if(fm){flush();cur=null;h+=fig(+fm[1]);return}const m=l.match(/^\s*(- |\d+\. )(.*)$/);const k=m?(m[1]==='- '?'ul':'ol'):'p';if(k!==cur){flush();cur=k}buf.push(inl(m?m[2]:l))});flush()});return h}
 const PAL={open:false,list:[],filtered:[],q:'',hi:0,note:'',loading:false,el:null,input:null,listEl:null};
@@ -429,7 +432,7 @@ function codeHTML(u){const rs=rows(u);let h=`<div class="fnbar">${L(T('In functi
  let i=0;while(i<rs.length){
   if(!shown[i]){let j=i;while(j<rs.length&&!shown[j])j++;const fk=u.id+':f'+i;if(!S.open[fk]){h+=`<div class="fold" data-unfold="${fk}">⋯ ${L(T('Expand','展开'))} ${j-i} ${L(UI.lines)}</div>`;i=j;continue}for(let k=i;k<j;k++)h+=ctxFold(rs[k]);i=j;continue}
   const r=rs[i];
-  (ghosts[i]||[]).forEach(nt=>h+=`<div class="ghost" data-note="${u.id}:${nt[0]}:${nt[1]}"><span class="gg">✦</span><span class="gt">${esc(S.lang==='zh'?nt[3]:nt[2])}</span></div>`);
+  (ghosts[i]||[]).forEach(nt=>h+=`<div class="ghost" data-note="${u.id}:${nt[0]}:${nt[1]}"><span class="gg">✦</span><span class="gt">${prose(S.lang==='zh'?nt[3]:nt[2])}</span></div>`);
   const K=key(u,r),cls=r.k==='+'?'add':r.k==='-'?'del':'';const inR=S.range&&S.sel&&S.sel.startsWith(u.id+':')&&r.n!=null&&r.n>=S.range[0]&&r.n<=S.range[1];
   h+=`<div class="dl ${cls} ${S.sel===K?'sel':''} ${inR?'inrange':''}" data-k="${K}" data-u="${u.id}" data-n="${r.n??''}"><span class="o">${r.o??''}</span><span class="nn" data-ln="1">${r.n??''}</span>${r.n!=null?`<span class="add-c" data-c="${K}">+</span>`:''}<span class="mk">${r.k===' '?'':r.k}</span><span class="c">${hl(r.t)||' '}</span></div>`+commentHTML(u,r);i++}
  const to=Math.min(FS.length,last+down);for(let n=last+1;n<=to;n++)h+=ctxLine(n);

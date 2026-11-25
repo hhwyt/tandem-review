@@ -116,8 +116,6 @@ What makes a good review:
   - For every decision in the code (a condition, a branch, a special value, an order of steps, a
     chosen type, an early return), say what would go wrong without it or with the obvious
     alternative.
-  - Translate idioms of the language or codebase the reader may not know into plain words; skip
-    the ones any engineer reads at a glance.
   - In the central units, walk the overview's example through the code: on the key lines, say
     what the variables hold for that example at that moment.
   - Cover every changed line, by its own note or by a note for its group ("the next three lines
@@ -126,7 +124,7 @@ What makes a good review:
   - A reason needs a source: a code comment, the PR description, a commit message, review
     discussion, a test that would fail, or logic you can show from the code. When there is none,
     say the code gives no reason and ask the author; a choice nobody explains is a finding.
-  - Attach each note to the new-file line it explains.
+  - Attach each note to the new-file line it explains. Do not explain the language's syntax.
 - **Call stacks.** `chains` run from the real entry point (`main`, a request handler, a background
   loop) down to the direct caller, one chain per distinct entry. Verify every frame's file and line
   with `grep -n`; never guess. A frame's `line` is its call site, the line that calls the next

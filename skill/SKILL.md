@@ -56,6 +56,9 @@ Before writing, establish the facts:
 - **Every fact has a source.** Each factual sentence the reader sees rests on something you
   read: code, a test, a code comment, the PR description. If you cannot find the source, cut
   the sentence, or, when the reader needs to know, turn it into a question for the author.
+- **Write one unit at a time with its code open.** Read a unit's code again right before writing
+  its introduction and notes, and write each note while looking at its line. Do not write units
+  from what you remember of an earlier read.
 
 What makes a good review:
 
@@ -100,23 +103,27 @@ What makes a good review:
   the reader can explain the function without looking at the code; a small helper needs a sentence
   or two. The introduction covers the function as a whole; anything that can only be said by
   pointing at a line belongs in that line's note, not here.
-- **Notes.** Goal: a reader new to the code reads one unit (its introduction, code and notes)
-  and understands where its inputs come from, where its results go, and why each changed line is
-  written the way it is, without going back to the overview. Much of that the code already shows;
-  a note goes only where it does not. Each note should be one the reader would miss if it were
-  gone; a line whose purpose is plain from the code and its names gets none.
-  - Worth a note: a decision whose reason the code does not show (a condition, a branch, a
-    special value, an order of steps, a chosen type, an early return), saying what would go wrong
-    without it or with the obvious alternative; a value whose origin or later use is not visible
-    in the unit; anything that looks wrong or unexplained.
+- **Notes.** Goal: a reader new to the code reads one unit's code with its notes and understands,
+  line by line, where each input comes from, where each result goes, and why each changed line is
+  written the way it is, without going back to the overview. The introduction tells the function
+  as a whole; the notes say it again at the line where it happens, even when the introduction
+  already covered it. A reader looking at a line should not have to remember a paragraph to
+  understand it.
+  - Every new or changed field, parameter, return value and variable gets a note when its name
+    alone does not say what it holds, where its value comes from and who uses it.
+  - Every changed condition, branch, special value, order of steps, chosen type, early return and
+    call gets a note saying what it does here and why, and what would go wrong without it or with
+    the obvious alternative. So does anything that looks wrong or unexplained.
+  - Lines that only close a block, or repeat the pattern of the line before, need none.
   - In the central units, walk the overview's example through the code: on the few lines where
     its state changes, say what the variables hold for that example at that moment.
   - A reason needs a source: a code comment, the PR description, a commit message, review
     discussion, a test that would fail, or logic you can show from the code. Name the source only
     when the reader cannot see it next to the line. When there is none, say the code gives no
     reason and ask the author; a choice nobody explains is a finding.
-  - A note gives the reason, not what the line visibly does, and does not repeat what the
-    introduction or another unit already explains; name that place instead.
+  - A note says what the line means in the reader's terms and why it is there; it does not read
+    the code aloud. When another unit explains the mechanism in full, give the short version here
+    and name that unit.
   - Attach each note to the new-file line it explains. Refer to other code by name, not by line
     number. Do not explain the language's syntax.
 - **Call stacks.** `chains` run from the real entry point (`main`, a request handler, a background
@@ -174,6 +181,11 @@ rather than explanation. Where the retelling is wrong or it got stuck, rewrite. 
 central units' code with their notes, one unit at a time without the overview, pick changed lines,
 and ask why each one is there; a line it cannot answer needs a better note. This tests clarity
 only; correctness comes from the sources above.
+
+Then give the review and the code to another fresh agent and ask it to find every claim in the
+overview, the introductions and the notes that the code, a code comment, the PR description or a
+test does not support. Give each one a source, or say that the code gives no reason and ask the
+author, or cut it.
 
 Then check consistency yourself: every number, date, name and example value that appears in more
 than one place (summary, background, approach, introductions, notes) must be the same everywhere,

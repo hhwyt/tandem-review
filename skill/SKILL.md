@@ -93,10 +93,13 @@ What makes a good review:
 - **Units.** One unit per changed function (or struct). `lines` is the whole function from the
   diff, with its comments. Test functions are not units; say what the tests cover in the
   boundary. `why` says why the reader should care about this function. `gist` is the unit's
-  introduction: why the function exists in the story and why it changed here, what the reader
-  should doubt while reading it. Make it as long as that takes: long for a central unit, short for
-  a small helper. The introduction covers the function as a whole; anything that can only be said
-  by pointing at a line belongs in that line's note, not here.
+  introduction. It tells a capable engineer who has not read this code what the function is
+  responsible for and how it does it: follow the code in the order it runs, say what each decision
+  is for and what would go wrong without it, and carry the overview's example through. Then say why
+  it changed here and what the reader should doubt. After reading a central unit's introduction,
+  the reader can explain the function without looking at the code; a small helper needs a sentence
+  or two. The introduction covers the function as a whole; anything that can only be said by
+  pointing at a line belongs in that line's note, not here.
 - **Notes.** Goal: a reader new to the code reads one unit (its introduction, code and notes)
   and understands where its inputs come from, where its results go, and why each changed line is
   written the way it is, without going back to the overview. Much of that the code already shows;
@@ -155,16 +158,29 @@ the way a good engineer writes a design document for a colleague who has to deci
   them in the code, and the code view carries the rest.
 - Pair an explanation with one concrete example: a query, a config, an incident. A made-up
   example is fine when it is clearly presented as one; never present it as observed data.
+- Explain the way one engineer explains code to another, in connected sentences that carry the
+  cause and effect. Do not write the way you reason or take notes: no complete thought broken into
+  fragments without a subject, no paragraph that opens with a bare noun phrase, no run of bullet
+  points standing in for a paragraph, no headings or labels inside a text.
 - Written, not spoken: no chatty asides, slogans or metaphors.
 
 ### Check before publishing
 
-Give only the overview and the unit introductions to a fresh agent that has not seen the code,
-and ask it to retell in its own words what problem the change solves, how the fix works and why,
-what it leaves out, and what could go wrong, and to list every place it got stuck. Where the
-retelling is wrong or it got stuck, rewrite and ask again. Then give it the central units' code
-with their notes, pick changed lines, and ask why each one is there; a line it cannot answer
-needs a better note; give it one unit at a time, without the overview. This tests clarity only; correctness comes from the sources above.
+Give only the overview and the unit introductions to a fresh agent that has not seen the code.
+Ask it to read them once without going back and retell in its own words what problem the change
+solves, how the fix works and why, what it leaves out, and what could go wrong; to list every
+place it got stuck or had to go back; and to point out text that reads like notes or reasoning
+rather than explanation. Where the retelling is wrong or it got stuck, rewrite. Then give it the
+central units' code with their notes, one unit at a time without the overview, pick changed lines,
+and ask why each one is there; a line it cannot answer needs a better note. This tests clarity
+only; correctness comes from the sources above.
+
+Then check consistency yourself: every number, date, name and example value that appears in more
+than one place (summary, background, approach, introductions, notes) must be the same everywhere,
+and every derived value must follow from the ones the text gives.
+
+One round is the default; run a second only after a rewrite that changed the structure. When the
+text is clear and consistent, stop; do not change text for the sake of changing it.
 
 ## 4. Open the page
 

@@ -53,7 +53,6 @@ All eight keys are required. No other top-level keys are allowed.
   "summary": T,
   "bg": T,
   "bgLong": T,
-  "figures": [T, ...],
   "depthWhy": T,
   "design": [T, ...],
   "map": [{"lane": T, "steps": [{"t": T, "sub": T, "k": "new" | "mod" | "same", "go": ["<unitId>", <line>]}]}],
@@ -70,17 +69,12 @@ All eight keys are required. No other top-level keys are allowed.
   `decide`, coverage to `cover`. Separate the lines with \n.
 - `bg`: the **Brief** background (two or three sentences for someone who knows the module).
 - `bgLong`: the **Detailed** background: the story of the change for someone new to the module, as described under **Background depth** and **Writing** in `skill/SKILL.md`.
-- `figures` (optional): figures for `bgLong`, each a `T` whose `en`/`zh` is one complete inline
-  `<svg>` element. Put a line `{{figure N}}` (1-based) on its own in `bgLong` where figure N goes.
-  Use `currentColor` and the page's CSS variables (`var(--text)`, `var(--dim)`, `var(--accent)`,
-  `var(--line)`, `var(--surface)`) so the figure works in light and dark themes. Scripts and event
-  attributes are removed when the page draws it.
 - Text in `bg` and `bgLong` is rendered with blank-line paragraphs, `- ` lists, `1. ` steps and
   `**bold**`; write `\n` for line breaks inside the JSON string.
 - `depthWhy`: one line explaining why the default depth was chosen (e.g. commit count in the
   touched paths). Shown next to the Brief/Detailed switch.
 - `design`: the approach, one `T` per step in the order the code runs. A step may be several
-  paragraphs and may contain `{{figure N}}`; it is rendered like `bgLong`.
+  paragraphs; it is rendered like `bgLong`.
 - `map`: the change map, drawn as boxes and arrows. One lane per path the code runs, each a list of steps from the entry to the effect. A step
   has a title `t`, a one-line `sub`, `k` = `"new"`, `"mod"` or `"same"` (unchanged context), and
   optionally `go`: `["<unitId>", <line>]`, the new-file line the box opens. Decisions whose target

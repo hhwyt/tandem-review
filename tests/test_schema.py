@@ -52,14 +52,6 @@ class TestSchema(unittest.TestCase):
         with self.assertRaises(ValidationError):
             validate(data, self.schema)
 
-    def test_overview_figures_ok(self):
-        data = self._copy()
-        data["overview"]["figures"] = [
-            {"en": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
-             "zh": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>"}
-        ]
-        validate(data, self.schema)
-
 
 class TestValidatorKeywords(unittest.TestCase):
     def test_const(self):

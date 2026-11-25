@@ -64,16 +64,6 @@ What makes a good review:
 - **Terms.** Keep technical terms, project terms and identifiers exactly as the code and the
   project write them, in both languages. Do not translate them; translate only the words around
   them.
-- **Diagrams.** Draw only when the picture is faster to read than the text. A figure answers one
-  question; its title states the answer, and every element helps answer it. Draw what the
-  question is about: when it is about state or order, put the things to compare on one shared
-  axis and lay steps out in time, rather than drawing the components that hold them; boxes that
-  only split your sentences are not a diagram. Use a kind of diagram people in the field already
-  read; in a comparison change only what differs; label marks where they are, and give each
-  color one meaning. Use the same example and numbers as the text, and let the text lead to the
-  figure. Check the rendered figure, not its source: give only the figure and its title to a
-  reader who has not seen the code and ask what it shows; if they cannot say, fix it or do not
-  draw. Put figures in `overview.figures` and mark where each goes in `bgLong`.
 - **Overview, in this order of thought:** summary (three lines: problem, change, risk; describe the
   change, not your notes), background (how the system works here and what goes wrong; it stops at
   the problem), approach (how the change fixes it, in the order the code runs: walk the core

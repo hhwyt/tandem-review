@@ -77,9 +77,8 @@ What makes a good review:
 - **Background depth.** `bg` is two or three sentences for someone who knows the module. `bgLong`
   tells the story of the change like the opening chapter of a book, for a capable engineer new to
   the module: what the system does here, how it behaved before the change and what went wrong. The
-  fix belongs to the approach. Carry one concrete example through the story, and add a figure when
-  the mechanism has moving parts the reader must see together. Later texts refer back to this story
-  instead of retelling it.
+  fix belongs to the approach. Carry one concrete example through the story. Later texts refer back
+  to this story instead of retelling it.
   `depthWhy` says in one sentence why the default level fits this reader; choose the default from
   what you know about the reader.
 - **Glossary.** Every domain term a newcomer would stop at, with a one-line definition and, where
